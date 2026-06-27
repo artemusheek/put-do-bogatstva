@@ -14,6 +14,7 @@
         .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px) saturate(180%); -webkit-backdrop-filter: blur(32px) saturate(180%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); border-radius: 44px; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .app-container { max-width: 960px; width: 100%; padding: 24px 22px 28px; }
 
+        /* ... все стили как в предыдущей версии ... */
         .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,14,23,0.92); backdrop-filter: blur(30px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .login-box { max-width: 400px; width: 100%; padding: 40px 32px; text-align: center; }
         .login-box h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
@@ -137,6 +138,7 @@
         /* ===== РЫБАЛКА ===== */
         .fishing-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; text-align: center; }
         .fishing-panel .fishing-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
         .fishing-pool { width: 100%; height: 140px; background: radial-gradient(ellipse at center, #0d4a6b, #062433); border-radius: 30px; border: 2px solid rgba(59,130,246,0.15); position: relative; overflow: hidden; cursor: pointer; transition: 0.2s; }
         .fishing-pool:hover { border-color: rgba(59,130,246,0.3); }
         .fishing-pool:active { transform: scale(0.98); }
@@ -154,6 +156,19 @@
         .fishing-pool .splash { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; opacity: 0; transition: all 0.3s; pointer-events: none; }
         .fishing-pool .splash.active { opacity: 1; animation: splashAnim 0.8s ease forwards; }
         @keyframes splashAnim { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(-50%, -100%) scale(1.5); opacity: 0; } }
+
+        /* Магазин наживок */
+        .bait-shop { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 10px 0; }
+        .bait-card { background: rgba(0,0,0,0.2); border-radius: 24px; padding: 12px 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center; transition: 0.15s; }
+        .bait-card .bait-icon { font-size: 30px; }
+        .bait-card .bait-name { font-weight: 600; font-size: 13px; color: #d6e8ff; }
+        .bait-card .bait-desc { font-size: 11px; color: #8ba0be; margin: 4px 0; }
+        .bait-card .bait-price { font-size: 12px; color: #b7e0ff; font-weight: 600; }
+        .bait-card .bait-count { font-size: 11px; color: #8ba0be; margin-top: 2px; }
+        .bait-card .buy-bait-btn { margin-top: 6px; padding: 6px 16px; border: none; border-radius: 30px; background: #1a3a4a; color: #8fd0e8; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.1s; border: 1px solid rgba(255,255,255,0.04); }
+        .bait-card .buy-bait-btn:active { transform: scale(0.94); background: #2a5a6a; }
+        .bait-card.active { border: 2px solid #fbbf24; background: rgba(251,191,36,0.08); }
+        .bait-card .bait-selected { color: #fbbf24; font-size: 12px; font-weight: 600; }
 
         .fishing-result { margin-top: 12px; padding: 12px 16px; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
         .fishing-result .result-empty { color: #4a617c; font-size: 13px; }
@@ -190,32 +205,15 @@
         .leaderboard .lb-item .total { color: #c8b6ff; font-weight: 600; }
 
         .transfer-success-screen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(10,14,23,0.95);
-            backdrop-filter: blur(30px);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 30px;
-            animation: fadeIn 0.5s ease;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10,14,23,0.95); backdrop-filter: blur(30px);
+            z-index: 2000; display: none; align-items: center; justify-content: center;
+            flex-direction: column; padding: 30px; animation: fadeIn 0.5s ease;
         }
         .transfer-success-screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .transfer-success-screen .success-icon {
-            width: 100px; height: 100px; border-radius: 50%;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 50px; color: white;
-            animation: scaleCheck 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 0 60px rgba(34,197,94,0.3);
-            margin-bottom: 24px;
-        }
+        .transfer-success-screen .success-icon { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #22c55e, #16a34a); display: flex; align-items: center; justify-content: center; font-size: 50px; color: white; animation: scaleCheck 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 60px rgba(34,197,94,0.3); margin-bottom: 24px; }
         @keyframes scaleCheck { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
         .transfer-success-screen .success-text { font-size: 28px; font-weight: 700; color: #4ade80; margin-bottom: 8px; animation: fadeUp 0.5s ease 0.3s both; }
         .transfer-success-screen .success-sub { font-size: 16px; color: #8ba0be; animation: fadeUp 0.5s ease 0.5s both; }
         .transfer-success-screen .success-details { margin-top: 20px; padding: 16px 24px; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid rgba(255,255,255,0.04); min-width: 280px; text-align: center; animation: fadeUp 0.5s ease 0.6s both; }
@@ -235,6 +233,7 @@
             .balance-item .value { font-size: 14px; }
             .market-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
             .shop-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            .bait-shop { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
             .tab-btn { font-size: 11px; padding: 8px 4px; min-width: 50px; }
             .transfer-row input, .transfer-row select { min-width: 80px; font-size: 13px; padding: 8px 12px; }
             .transfer-btn { padding: 8px 18px; font-size: 13px; }
@@ -307,14 +306,12 @@
                     <button id="incAmount">+</button>
                 </div>
             </div>
-            
             <div class="trade-buttons">
                 <button class="trade-btn buy" id="buyBtn">🟢 Купить</button>
                 <button class="trade-btn buy-max" id="buyMaxBtn">📈 Купить макс</button>
                 <button class="trade-btn sell" id="sellBtn">🔴 Продать</button>
                 <button class="trade-btn sell-all" id="sellAllBtn">📉 Продать всё</button>
             </div>
-            
             <div class="trade-info">
                 <span>Цена (RUB)</span>
                 <span id="currentPriceDisplay">—</span>
@@ -350,11 +347,16 @@
             </div>
             
             <div class="fishing-stats">
-                <span>🎣 Всего поймано: <span class="stat-value" id="fishingTotalCount">0</span></span>
-                <span>💰 Лучший улов: <span class="stat-value" id="fishingBestCatch">—</span></span>
+                <span>🎣 Поймано: <span class="stat-value" id="fishingTotalCount">0</span></span>
+                <span>🏆 Лучший улов: <span class="stat-value" id="fishingBestCatch">—</span></span>
+                <span>🎣 Активная наживка: <span class="stat-value" id="activeBaitDisplay">Нет</span></span>
             </div>
         </div>
-        
+
+        <!-- Магазин наживок -->
+        <div style="margin-top: 10px; font-size: 13px; color: #8ba0be;">🛒 Магазин наживок</div>
+        <div class="bait-shop" id="baitShop"></div>
+
         <div class="history-box" style="margin-top:12px;">
             <div class="history-title">📋 история уловов</div>
             <div id="fishingHistoryList"><div class="history-item" style="color:#4a617c;">Рыбалка ждёт вас!</div></div>
@@ -365,7 +367,6 @@
     <div id="tab-transfer" class="tab-content">
         <div class="transfer-panel glass" id="transferPanel">
             <div class="transfer-title"><span class="icon">💸</span> Перевод средств</div>
-            
             <div class="transfer-row" style="margin-bottom:10px;">
                 <select id="transferCoinSelect">
                     <option value="rub">🇷🇺 RUB</option>
@@ -382,18 +383,15 @@
                 </select>
                 <input type="number" id="transferAmountInput" placeholder="Сумма" step="0.0001" min="0.0001">
             </div>
-            
             <div class="transfer-row">
                 <input type="text" id="transferToInput" placeholder="👤 Кому (имя пользователя)">
                 <button class="transfer-btn" id="transferBtn">💸 Отправить</button>
             </div>
-            
             <div style="margin-top:10px; font-size:12px; color:#4a617c; display:flex; justify-content:space-between; flex-wrap:wrap;">
                 <span>Ваш баланс: <span id="transferBalanceDisplay" style="color:#b7e0ff;">0</span></span>
                 <span>Комиссия: <span style="color:#6e88a3;">0%</span></span>
             </div>
         </div>
-        
         <div class="history-box" style="margin-top:12px;">
             <div class="history-title">📋 история переводов</div>
             <div id="transferHistoryList"><div class="history-item" style="color:#4a617c;">Переводов пока нет</div></div>
@@ -527,7 +525,16 @@
         { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83, change: 0 },
     ];
 
-    // Монеты для рыбалки (каждая с шансом выпадения)
+    // ===== НАЖИВКИ =====
+    const BAIT_TYPES = [
+        { id: 'worm', name: 'Червяк', icon: '🐛', price: 100, bonus: 1.0, desc: 'Обычная наживка' },
+        { id: 'corn', name: 'Кукуруза', icon: '🌽', price: 300, bonus: 1.5, desc: 'Хорошая наживка' },
+        { id: 'shrimp', name: 'Креветка', icon: '🦐', price: 800, bonus: 2.5, desc: 'Отличная наживка' },
+        { id: 'squid', name: 'Кальмар', icon: '🦑', price: 2000, bonus: 4.0, desc: 'Деликатесная наживка' },
+        { id: 'golden_bait', name: 'Золотая наживка', icon: '✨', price: 5000, bonus: 8.0, desc: '⭐ Легендарная наживка!' },
+    ];
+
+    // Монеты для рыбалки с базовыми шансами
     const FISHING_REWARDS = [
         { id: 'ton', symbol: '🔶', name: 'TONCOIN', min: 0.0001, max: 0.01, weight: 25 },
         { id: 'btc', symbol: '₿', name: 'BTC', min: 0.0000001, max: 0.000001, weight: 5 },
@@ -541,11 +548,13 @@
         { id: 'usdt', symbol: '💵', name: 'USDT', min: 0.01, max: 1, weight: 20 },
     ];
 
-    // Рыболовные трофеи (редкие)
+    // Трофеи (редкие рыбы)
     const FISHING_TROPHIES = [
         { id: 'btc', symbol: '🐋', name: 'КИТ BTC', min: 0.00001, max: 0.00005, weight: 0.5 },
         { id: 'eth', symbol: '🐉', name: 'ДРАКОН ETH', min: 0.001, max: 0.005, weight: 0.5 },
         { id: 'ton', symbol: '🐙', name: 'ОСЬМИНОГ TON', min: 0.05, max: 0.2, weight: 0.5 },
+        { id: 'sol', symbol: '🌟', name: 'ЗВЕЗДА SOL', min: 0.01, max: 0.05, weight: 0.3 },
+        { id: 'xrp', symbol: '💎', name: 'АЛМАЗ XRP', min: 0.1, max: 0.5, weight: 0.3 },
     ];
 
     const MINING_GEAR = {
@@ -594,6 +603,9 @@
         fishingHistory: [],
         fishingCount: 0,
         bestCatch: 0,
+        // Наживки: { baitId: count }
+        baits: {},
+        activeBait: null,
         selectedAssetId: 'ton',
         tradeAmount: 1.0,
         chartData: {},
@@ -648,6 +660,8 @@
     const fishingTotalCount = document.getElementById('fishingTotalCount');
     const fishingBestCatch = document.getElementById('fishingBestCatch');
     const fishingHistoryList = document.getElementById('fishingHistoryList');
+    const baitShop = document.getElementById('baitShop');
+    const activeBaitDisplay = document.getElementById('activeBaitDisplay');
 
     const transferSuccessScreen = document.getElementById('transferSuccessScreen');
     const transferSuccessAmount = document.getElementById('transferSuccessAmount');
@@ -736,21 +750,69 @@
         setTimeout(() => { container.innerHTML = ''; }, 4500);
     }
 
-    // ==================== РЫБАЛКА ====================
+    // ==================== РЫБАЛКА С НАЖИВКАМИ ====================
     function getRandomReward() {
-        // Смешиваем все награды с весами
-        const allRewards = [...FISHING_REWARDS, ...FISHING_TROPHIES];
-        const totalWeight = allRewards.reduce((sum, r) => sum + r.weight, 0);
-        let random = Math.random() * totalWeight;
-        for (const reward of allRewards) {
-            random -= reward.weight;
-            if (random <= 0) return reward;
+        // Получаем бонус от активной наживки
+        let bonus = 1.0;
+        let baitId = null;
+        if (state.activeBait && state.baits[state.activeBait] > 0) {
+            const bait = BAIT_TYPES.find(b => b.id === state.activeBait);
+            if (bait) {
+                bonus = bait.bonus;
+                baitId = state.activeBait;
+                // Уменьшаем количество наживки
+                state.baits[state.activeBait] = (state.baits[state.activeBait] || 0) - 1;
+                if (state.baits[state.activeBait] <= 0) {
+                    state.activeBait = null;
+                }
+            }
         }
-        return FISHING_REWARDS[0];
+        
+        // Смешиваем все награды с весом, умноженным на бонус
+        const allRewards = [...FISHING_REWARDS, ...FISHING_TROPHIES];
+        // Увеличиваем шанс трофеев в зависимости от бонуса
+        let totalWeight = 0;
+        const weightedRewards = allRewards.map(r => {
+            const isTrophy = FISHING_TROPHIES.some(t => t.id === r.id && t.name === r.name);
+            let weight = r.weight;
+            if (isTrophy) {
+                weight = r.weight * bonus; // Трофеи получают бонус
+            }
+            // Увеличиваем диапазон выпадения для редких монет
+            totalWeight += weight;
+            return { ...r, weight: weight };
+        });
+        
+        let random = Math.random() * totalWeight;
+        let selected = weightedRewards[0];
+        for (const reward of weightedRewards) {
+            random -= reward.weight;
+            if (random <= 0) {
+                selected = reward;
+                break;
+            }
+        }
+        
+        // Увеличиваем количество в зависимости от бонуса
+        const amount = (selected.min + Math.random() * (selected.max - selected.min)) * bonus;
+        const roundedAmount = Math.round(amount * 100000) / 100000;
+        
+        return {
+            ...selected,
+            amount: roundedAmount,
+            baitUsed: baitId,
+            bonus: bonus
+        };
     }
 
     function goFishing() {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+        
+        // Проверяем наличие наживки
+        if (!state.activeBait || (state.baits[state.activeBait] || 0) <= 0) {
+            showToast('⚠️ Нет активной наживки! Купите в магазине.', false);
+            return;
+        }
         
         // Анимация всплеска
         fishingSplash.classList.remove('active');
@@ -760,28 +822,26 @@
         
         // Выбираем награду
         const reward = getRandomReward();
-        const amount = reward.min + Math.random() * (reward.max - reward.min);
-        const roundedAmount = Math.round(amount * 100000) / 100000;
         
         // Добавляем монету в баланс
         if (reward.id === 'usdt') {
-            // USDT добавляется как обычная монета
-            state.balances['usdt'] = (state.balances['usdt'] || 0) + roundedAmount;
+            state.balances['usdt'] = (state.balances['usdt'] || 0) + reward.amount;
         } else {
-            state.balances[reward.id] = (state.balances[reward.id] || 0) + roundedAmount;
+            state.balances[reward.id] = (state.balances[reward.id] || 0) + reward.amount;
         }
         
         // Обновляем статистику рыбалки
         state.fishingCount = (state.fishingCount || 0) + 1;
-        if (roundedAmount > (state.bestCatch || 0)) {
-            state.bestCatch = roundedAmount;
+        if (reward.amount > (state.bestCatch || 0)) {
+            state.bestCatch = reward.amount;
         }
         
         // Добавляем в историю уловов
         const catchEntry = {
             symbol: reward.symbol,
             name: reward.name,
-            amount: roundedAmount,
+            amount: reward.amount,
+            bait: reward.baitUsed ? BAIT_TYPES.find(b => b.id === reward.baitUsed)?.name || 'Наживка' : 'Без наживки',
             time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
         };
         if (!state.fishingHistory) state.fishingHistory = [];
@@ -792,36 +852,49 @@
         const isTrophy = FISHING_TROPHIES.some(t => t.id === reward.id && t.name === reward.name);
         const emoji = isTrophy ? '🏆' : '🎣';
         const trophyText = isTrophy ? ' ТРОФЕЙ!' : '';
+        const baitText = reward.baitUsed ? ` (${BAIT_TYPES.find(b => b.id === reward.baitUsed)?.name})` : '';
         
         fishingResult.innerHTML = `
             <div class="result-caught">
                 <span class="coin-symbol">${reward.symbol}</span>
-                <span class="coin-amount">+${roundedAmount.toFixed(6)} ${reward.name}</span>
+                <span class="coin-amount">+${reward.amount.toFixed(6)} ${reward.name}</span>
                 ${trophyText}
+                ${baitText}
             </div>
         `;
         
         // Добавляем в общую историю
-        addHistory('fish', reward.symbol, roundedAmount, 1, `🐟 ${reward.name}`);
+        addHistory('fish', reward.symbol, reward.amount, 1, `🐟 ${reward.name} ${baitText}`);
         
         // Обновляем UI
         updateBalances();
         renderPortfolio();
         updateFishingUI();
+        renderBaitShop();
         saveToFirebase();
         
         // Если трофей — запускаем конфетти
         if (isTrophy) {
             launchConfetti();
-            showToast(`🏆 ТРОФЕЙ! Вы поймали ${reward.symbol} ${roundedAmount.toFixed(6)} ${reward.name}!`);
+            showToast(`🏆 ТРОФЕЙ! Вы поймали ${reward.symbol} ${reward.amount.toFixed(6)} ${reward.name}!`);
         } else {
-            showToast(`🎣 Вы поймали ${reward.symbol} ${roundedAmount.toFixed(6)} ${reward.name}`);
+            showToast(`🎣 Вы поймали ${reward.symbol} ${reward.amount.toFixed(6)} ${reward.name}${baitText}`);
         }
     }
 
     function updateFishingUI() {
         fishingTotalCount.textContent = state.fishingCount || 0;
         fishingBestCatch.textContent = state.bestCatch ? state.bestCatch.toFixed(6) : '—';
+        
+        // Активная наживка
+        if (state.activeBait && state.baits[state.activeBait] > 0) {
+            const bait = BAIT_TYPES.find(b => b.id === state.activeBait);
+            activeBaitDisplay.textContent = `${bait?.icon || ''} ${bait?.name || state.activeBait} (${state.baits[state.activeBait]} шт.)`;
+        } else {
+            activeBaitDisplay.textContent = 'Нет';
+            if (state.activeBait) state.activeBait = null;
+        }
+        
         renderFishingHistory();
     }
 
@@ -835,10 +908,66 @@
             const div = document.createElement('div');
             div.className = 'history-item';
             div.innerHTML = `
-                <span><span class="side-fish">🎣</span> ${item.symbol} +${item.amount.toFixed(6)} ${item.name}</span>
+                <span><span class="side-fish">🎣</span> ${item.symbol} +${item.amount.toFixed(6)} ${item.name} ${item.bait ? `(${item.bait})` : ''}</span>
                 <span>${item.time}</span>
             `;
             fishingHistoryList.appendChild(div);
+        });
+    }
+
+    // ==================== МАГАЗИН НАЖИВОК ====================
+    function renderBaitShop() {
+        baitShop.innerHTML = '';
+        BAIT_TYPES.forEach(bait => {
+            const count = state.baits[bait.id] || 0;
+            const isActive = state.activeBait === bait.id;
+            const card = document.createElement('div');
+            card.className = 'bait-card' + (isActive ? ' active' : '');
+            card.innerHTML = `
+                <div class="bait-icon">${bait.icon}</div>
+                <div class="bait-name">${bait.name}</div>
+                <div class="bait-desc">${bait.desc}</div>
+                <div class="bait-desc" style="color:#fbbf24;">×${bait.bonus.toFixed(1)} к улову</div>
+                <div class="bait-price">${formatRub(bait.price)}</div>
+                <div class="bait-count">🔄 ${count} шт.</div>
+                ${isActive ? '<div class="bait-selected">✅ АКТИВНА</div>' : ''}
+                <button class="buy-bait-btn" data-bait="${bait.id}" data-action="buy">Купить</button>
+                ${count > 0 ? `<button class="buy-bait-btn" data-bait="${bait.id}" data-action="use" style="background:#2a5a3a;border-color:#4ade80;">🎣 Использовать</button>` : ''}
+            `;
+            baitShop.appendChild(card);
+        });
+
+        document.querySelectorAll('.buy-bait-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+                const baitId = btn.dataset.bait;
+                const action = btn.dataset.action;
+                const bait = BAIT_TYPES.find(b => b.id === baitId);
+                if (!bait) return;
+                
+                if (action === 'buy') {
+                    if (state.rub < bait.price) {
+                        showToast(`❌ Недостаточно RUB для покупки ${bait.name}`, false);
+                        return;
+                    }
+                    state.rub -= bait.price;
+                    state.baits[baitId] = (state.baits[baitId] || 0) + 1;
+                    showToast(`✅ Куплена ${bait.name}`);
+                } else if (action === 'use') {
+                    if ((state.baits[baitId] || 0) <= 0) {
+                        showToast('❌ У вас нет этой наживки!', false);
+                        return;
+                    }
+                    state.activeBait = baitId;
+                    showToast(`🎣 Выбрана наживка: ${bait.name} (×${bait.bonus.toFixed(1)} к улову)`);
+                }
+                
+                updateBalances();
+                renderBaitShop();
+                updateFishingUI();
+                saveToFirebase();
+                playBeep('buy');
+            });
         });
     }
 
@@ -862,6 +991,8 @@
                 fishingHistory: state.fishingHistory || [],
                 fishingCount: state.fishingCount || 0,
                 bestCatch: state.bestCatch || 0,
+                baits: state.baits || {},
+                activeBait: state.activeBait || null,
                 miningCoin: state.miningCoin,
                 lastActive: Date.now()
             };
@@ -886,6 +1017,8 @@
                     state.fishingHistory = data.fishingHistory || [];
                     state.fishingCount = data.fishingCount || 0;
                     state.bestCatch = data.bestCatch || 0;
+                    state.baits = data.baits || {};
+                    state.activeBait = data.activeBait || null;
                     state.miningCoin = data.miningCoin || 'ton';
                     
                     DEFAULT_ASSETS.forEach(a => {
@@ -920,6 +1053,7 @@
         updateTransferBalance();
         updateTradeInfo();
         updateFishingUI();
+        renderBaitShop();
         mineCoinSelect.value = state.miningCoin || 'ton';
     }
 
@@ -1568,6 +1702,8 @@
                     fishingHistory: [],
                     fishingCount: 0,
                     bestCatch: 0,
+                    baits: {},
+                    activeBait: null,
                     miningCoin: 'ton',
                     registered: Date.now()
                 };
@@ -1726,13 +1862,13 @@
         updateTransferBalance();
         updateTradeInfo();
         updateFishingUI();
+        renderBaitShop();
 
         if (state.miningActive && isLoggedIn) {
             startMiningLoop();
             updateMiningUI();
         }
 
-        // Рыбалка по клику
         fishingPool.addEventListener('click', goFishing);
 
         setInterval(() => {
@@ -1828,7 +1964,7 @@
                 if (btn.dataset.tab === 'leaderboard') loadLeaderboard();
                 if (btn.dataset.tab === 'portfolio') renderPortfolio();
                 if (btn.dataset.tab === 'transfer') { updateTransferBalance(); renderTransferHistory(); }
-                if (btn.dataset.tab === 'fishing') { updateFishingUI(); }
+                if (btn.dataset.tab === 'fishing') { updateFishingUI(); renderBaitShop(); }
                 if (btn.dataset.tab === 'trade') { setTimeout(updateChart, 100); updateTradeInfo(); }
             });
         });
@@ -1885,6 +2021,8 @@
                 state.fishingHistory = [];
                 state.fishingCount = 0;
                 state.bestCatch = 0;
+                state.baits = {};
+                state.activeBait = null;
                 DEFAULT_ASSETS.forEach(a => {
                     state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
                     state.chartData[a.id] = [];
@@ -1909,6 +2047,7 @@
                 renderTransferHistory();
                 updateTradeInfo();
                 updateFishingUI();
+                renderBaitShop();
                 saveToFirebase();
                 showToast('🔄 Сброшено');
             }
