@@ -210,10 +210,6 @@
         .value.rub { color: #7bc9ff; }
         .value.ton { color: #6ee7b7; }
         .value.total { color: #c8b6ff; }
-        .value.btc { color: #f7931a; }
-        .value.eth { color: #627eea; }
-        .value.sol { color: #9945ff; }
-        .value.xrp { color: #00aae4; }
 
         .user-badge {
             background: rgba(59, 130, 246, 0.15);
@@ -558,6 +554,7 @@
             justify-content: center;
             gap: 12px;
             margin-top: 14px;
+            flex-wrap: wrap;
         }
 
         .reset-btn, .save-btn, .logout-btn {
@@ -572,6 +569,7 @@
         }
         .reset-btn:active, .save-btn:active, .logout-btn:active { background: #1f3142; color: white; }
         .logout-btn { border-color: #6b2f3a; color: #f7a1b0; }
+        .logout-btn:hover { background: rgba(107, 47, 58, 0.2); }
 
         .footer-note {
             text-align: center;
@@ -813,7 +811,7 @@
     }
 
     // ==================== COOKIE ====================
-    function setCookie(name, value, days = 30) {
+    function setCookie(name, value, days = 365) {
         const d = new Date();
         d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
         document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + "; expires=" + d.toUTCString() + "; path=/";
@@ -835,6 +833,7 @@
     let myUsername = '';
     let myUserId = '';
     let myPassword = '';
+    let isLoggedIn = false;
 
     const DEFAULT_ASSETS = [
         { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50, change: 0 },
@@ -865,7 +864,7 @@
 
     let state = {
         rub: 0,
-        balances: {}, // { assetId: amount }
+        balances: {},
         assets: JSON.parse(JSON.stringify(DEFAULT_ASSETS)),
         history: [],
         selectedAssetId: 'ton',
@@ -940,13 +939,14 @@
 
     // ==================== COOKIE СЕССИЯ ====================
     function saveSession() {
+        if (!isLoggedIn) return;
         const session = {
             username: myUsername,
             userId: myUserId,
             password: myPassword,
             timestamp: Date.now()
         };
-        setCookie('cryptoSession', session, 30);
+        setCookie('cryptoSession', session, 365);
         console.log('✅ Сессия сохранена в куки');
     }
 
@@ -956,6 +956,7 @@
             myUsername = session.username;
             myUserId = session.userId;
             myPassword = session.password || '';
+            isLoggedIn = true;
             console.log('✅ Сессия загружена:', myUsername);
             return true;
         }
@@ -963,13 +964,32 @@
     }
 
     function clearSession() {
-        deleteCookie('cryptoSession');
-        console.log('🗑️ Сессия удалена');
+        // Удаляем только флаг логина, но не удаляем куки полностью
+        // Просто помечаем что пользователь вышел
+        isLoggedIn = false;
+        // Сохраняем сессию с пометкой что вышел
+        const session = {
+            username: myUsername,
+            userId: myUserId,
+            password: myPassword,
+            loggedOut: true,
+            timestamp: Date.now()
+        };
+        setCookie('cryptoSession', session, 365);
+        console.log('👋 Сессия помечена как вышедшая');
+    }
+
+    function isSessionActive() {
+        const session = getCookie('cryptoSession');
+        if (session && session.username && session.userId && !session.loggedOut) {
+            return true;
+        }
+        return false;
     }
 
     // ==================== FIREBASE ФУНКЦИИ ====================
     function saveToFirebase() {
-        if (!firebaseAvailable || !myUserId) return;
+        if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
         try {
             const total = calcTotal();
             const data = {
@@ -990,7 +1010,7 @@
     }
 
     function loadFromFirebase() {
-        if (!firebaseAvailable || !myUserId) return;
+        if (!firebaseAvailable || !myUserId || !isLoggedIn) return Promise.resolve(false);
         
         return db.ref('users/' + myUserId).once('value')
             .then(snapshot => {
@@ -1001,7 +1021,6 @@
                     state.gpus = data.gpus || {};
                     state.minedTotal = data.minedTotal || 0;
                     
-                    // Проверяем, что все активы есть в балансах
                     DEFAULT_ASSETS.forEach(a => {
                         if (state.balances[a.id] === undefined) {
                             state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
@@ -1012,7 +1031,6 @@
                     renderGPUshop();
                     updateMiningUI();
                     renderPortfolio();
-                    showToast('✅ Данные загружены');
                     return true;
                 }
                 return false;
@@ -1257,6 +1275,7 @@
 
     // ==================== ТОРГОВЛЯ ====================
     function executeTrade(type) {
+        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
         const amount = state.tradeAmount;
         if (amount <= 0) return;
         const asset = getSelectedAsset();
@@ -1322,6 +1341,7 @@
 
         document.querySelectorAll('.buy-gpu-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
                 const gpuId = btn.dataset.gpuId;
                 const gpu = GPU_TYPES.find(g => g.id === gpuId);
                 if (!gpu) return;
@@ -1354,6 +1374,7 @@
     let miningInterval = null;
 
     function toggleMining() {
+        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
         state.miningActive = !state.miningActive;
         if (state.miningActive) {
             const hashrate = calcHashrate();
@@ -1379,7 +1400,7 @@
     function startMiningLoop() {
         if (miningInterval) clearInterval(miningInterval);
         miningInterval = setInterval(() => {
-            if (!state.miningActive) return;
+            if (!state.miningActive || !isLoggedIn) return;
             const hashrate = calcHashrate();
             if (hashrate === 0) {
                 state.miningActive = false;
@@ -1444,7 +1465,6 @@
         myPassword = password;
         myUserId = 'user_' + username.replace(/\s/g, '_') + '_' + Date.now().toString(36);
 
-        // Проверяем, есть ли уже такой пользователь
         db.ref('users').orderByChild('username').equalTo(username).once('value')
             .then(snapshot => {
                 const data = snapshot.val();
@@ -1452,7 +1472,6 @@
                     showToast('❌ Пользователь с таким именем уже существует!');
                     return;
                 }
-                // Регистрируем
                 const userData = {
                     username: myUsername,
                     password: myPassword,
@@ -1470,7 +1489,9 @@
                 db.ref('users/' + myUserId).set(userData)
                     .then(() => {
                         showToast('✅ Регистрация успешна!');
-                        loginUser();
+                        isLoggedIn = true;
+                        saveSession();
+                        enterGame();
                     })
                     .catch(e => {
                         showToast('❌ Ошибка регистрации: ' + e.message);
@@ -1489,7 +1510,6 @@
             return;
         }
 
-        // Ищем пользователя
         db.ref('users').orderByChild('username').equalTo(username).once('value')
             .then(snapshot => {
                 const data = snapshot.val();
@@ -1498,7 +1518,6 @@
                     return;
                 }
                 
-                // Находим запись
                 let found = false;
                 for (const [id, user] of Object.entries(data)) {
                     if (user.username === username) {
@@ -1506,6 +1525,7 @@
                             myUserId = id;
                             myUsername = username;
                             myPassword = password;
+                            isLoggedIn = true;
                             found = true;
                             break;
                         } else {
@@ -1516,6 +1536,7 @@
                 }
                 
                 if (found) {
+                    saveSession();
                     enterGame();
                 } else {
                     showToast('❌ Ошибка входа');
@@ -1526,11 +1547,27 @@
             });
     }
 
+    function logout() {
+        if (miningInterval) {
+            clearInterval(miningInterval);
+            miningInterval = null;
+            state.miningActive = false;
+        }
+        // Сохраняем данные перед выходом
+        saveToFirebase();
+        // Помечаем сессию как вышедшую
+        clearSession();
+        isLoggedIn = false;
+        // Показываем экран входа
+        loginOverlay.style.display = 'flex';
+        document.getElementById('appContainer').style.display = 'none';
+        showToast('👋 Вы вышли из аккаунта');
+    }
+
     function enterGame() {
         userNameDisplay.textContent = myUsername;
         loginOverlay.style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
-        saveSession();
 
         if (firebaseAvailable) {
             loadFromFirebase().then(() => {
@@ -1543,7 +1580,7 @@
                 if (snap.val() === true) {
                     onlineStatus.textContent = '🟢 Онлайн';
                     onlineStatus.style.color = '#4ade80';
-                    saveToFirebase();
+                    if (isLoggedIn) saveToFirebase();
                 }
             });
         } else {
@@ -1565,7 +1602,7 @@
         updateMiningUI();
         renderPortfolio();
 
-        if (state.miningActive) {
+        if (state.miningActive && isLoggedIn) {
             startMiningLoop();
             updateMiningUI();
         }
@@ -1588,7 +1625,9 @@
             updatePricesInFirebase();
         }, 5000);
 
-        setInterval(() => { saveToFirebase(); }, 15000);
+        setInterval(() => { 
+            if (isLoggedIn) saveToFirebase(); 
+        }, 15000);
     }
 
     // ==================== СОБЫТИЯ ====================
@@ -1614,13 +1653,13 @@
     passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Проверяем сохраненную сессию
-        if (loadSession() && firebaseAvailable) {
-            // Проверяем, существует ли пользователь
+        // Проверяем активную сессию
+        if (loadSession() && isSessionActive() && firebaseAvailable) {
             db.ref('users/' + myUserId).once('value')
                 .then(snapshot => {
                     if (snapshot.exists()) {
                         userNameDisplay.textContent = myUsername;
+                        isLoggedIn = true;
                         loginOverlay.style.display = 'none';
                         document.getElementById('appContainer').style.display = 'block';
                         loadFromFirebase().then(() => {
@@ -1629,12 +1668,21 @@
                             initGame();
                         });
                     } else {
+                        // Если пользователь удалён в Firebase — очищаем сессию
                         clearSession();
+                        isLoggedIn = false;
                     }
                 })
                 .catch(() => {
                     // Если ошибка, показываем вход
                 });
+        } else if (loadSession() && isSessionActive()) {
+            // Офлайн режим с сессией
+            userNameDisplay.textContent = myUsername;
+            isLoggedIn = true;
+            loginOverlay.style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            initGame();
         }
 
         // Tabs
@@ -1671,6 +1719,7 @@
         });
 
         document.getElementById('resetBtn').addEventListener('click', () => {
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
             if (confirm('Сбросить прогресс?')) {
                 if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
                 state.rub = 0;
@@ -1701,15 +1750,14 @@
         });
 
         document.getElementById('saveBtn').addEventListener('click', () => {
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
             saveToFirebase();
             showToast('✅ Сохранено в Firebase');
         });
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
             if (confirm('Выйти из аккаунта?')) {
-                clearSession();
-                if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
-                location.reload();
+                logout();
             }
         });
     });
