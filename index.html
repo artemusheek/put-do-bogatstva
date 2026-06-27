@@ -367,6 +367,7 @@
             
             <div class="transfer-row" style="margin-bottom:10px;">
                 <select id="transferCoinSelect">
+                    <option value="rub">🇷🇺 RUB</option>
                     <option value="ton">🔶 TONCOIN</option>
                     <option value="btc">₿ BTC</option>
                     <option value="eth">⟠ ETH</option>
@@ -547,16 +548,16 @@
             { id: 'ryzen9_5950x', name: 'Ryzen 9 5950X', power: 0.8, price: 45000, icon: '💻' },
             { id: 'threadripper', name: 'Threadripper 3990X', power: 1.5, price: 85000, icon: '💻' },
         ],
-ram: [
-    { id: 'ddr4_8gb', name: 'DDR4 8GB 2666', power: 0.15, price: 4165, icon: '🧠' },
-    { id: 'ddr4_16gb', name: 'DDR4 16GB 3200', power: 0.24, price: 7500, icon: '🧠' },
-    { id: 'ddr4_32gb', name: 'DDR4 32GB 3600', power: 0.36, price: 12500, icon: '🧠' },
-    { id: 'ddr5_16gb', name: 'DDR5 16GB 4800', power: 0.3, price: 10835, icon: '🧠' },
-    { id: 'ddr5_32gb', name: 'DDR5 32GB 5200', power: 0.45, price: 18335, icon: '🧠' },
-    { id: 'ddr5_64gb', name: 'DDR5 64GB 5600', power: 0.75, price: 30000, icon: '🧠' },
-    { id: 'ddr5_1tb', name: 'DDR5 1TB 5600', power: 16, price: 1000000, icon: '🧠' },
-    { id: 'ddr5_4tb', name: 'DDR5 4TB 5600', power: 64, price: 4000000, icon: '🧠' },
-]
+        ram: [
+            { id: 'ddr4_8gb', name: 'DDR4 8GB 2666', power: 0.15, price: 4165, icon: '🧠' },
+            { id: 'ddr4_16gb', name: 'DDR4 16GB 3200', power: 0.24, price: 7500, icon: '🧠' },
+            { id: 'ddr4_32gb', name: 'DDR4 32GB 3600', power: 0.36, price: 12500, icon: '🧠' },
+            { id: 'ddr5_16gb', name: 'DDR5 16GB 4800', power: 0.3, price: 10835, icon: '🧠' },
+            { id: 'ddr5_32gb', name: 'DDR5 32GB 5200', power: 0.45, price: 18335, icon: '🧠' },
+            { id: 'ddr5_64gb', name: 'DDR5 64GB 5600', power: 0.75, price: 30000, icon: '🧠' },
+            { id: 'ddr5_1tb', name: 'DDR5 1TB 5600', power: 16, price: 1000000, icon: '🧠' },
+            { id: 'ddr5_4tb', name: 'DDR5 4TB 5600', power: 64, price: 4000000, icon: '🧠' },
+        ]
     };
 
     let state = {
@@ -661,7 +662,6 @@ ram: [
         return total;
     }
 
-    // Обновление информации о стоимости и балансе
     function updateTradeInfo() {
         const asset = getSelectedAsset();
         if (!asset) return;
@@ -1012,9 +1012,13 @@ ram: [
 
     function updateTransferBalance() {
         const coinId = transferCoinSelect.value;
-        const balance = state.balances[coinId] || 0;
-        const asset = getAsset(coinId);
-        transferBalanceDisplay.textContent = formatCoin(balance) + ' ' + (asset ? asset.symbol : coinId.toUpperCase());
+        if (coinId === 'rub') {
+            transferBalanceDisplay.textContent = formatRub(state.rub);
+        } else {
+            const balance = state.balances[coinId] || 0;
+            const asset = getAsset(coinId);
+            transferBalanceDisplay.textContent = formatCoin(balance) + ' ' + (asset ? asset.symbol : coinId.toUpperCase());
+        }
     }
 
     function renderPortfolio() {
@@ -1171,7 +1175,7 @@ ram: [
         showToast(`✅ ${actionText} ${amount.toFixed(4)} ${asset.symbol} за ${formatRub(totalCost)}`);
     }
 
-    // ==================== ПЕРЕВОДЫ ====================
+    // ==================== ПЕРЕВОДЫ (ВКЛЮЧАЯ RUB) ====================
     function executeTransfer() {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         
@@ -1183,9 +1187,19 @@ ram: [
         if (toUsername === myUsername) { showToast('❌ Нельзя перевести самому себе!', false); return; }
         if (isNaN(amount) || amount <= 0) { showToast('❌ Введите корректную сумму!', false); return; }
         
-        const asset = getAsset(coinId);
-        const balance = state.balances[coinId] || 0;
-        if (balance < amount) { showToast(`❌ Недостаточно ${asset ? asset.symbol : coinId}!`, false); return; }
+        // Проверка баланса
+        let balance = 0;
+        let symbol = '';
+        if (coinId === 'rub') {
+            balance = state.rub;
+            symbol = 'RUB';
+        } else {
+            const asset = getAsset(coinId);
+            balance = state.balances[coinId] || 0;
+            symbol = asset ? asset.symbol : coinId.toUpperCase();
+        }
+        
+        if (balance < amount) { showToast(`❌ Недостаточно ${symbol}!`, false); return; }
         
         db.ref('users').orderByChild('username').equalTo(toUsername).once('value')
             .then(snapshot => {
@@ -1204,14 +1218,27 @@ ram: [
                 
                 if (!toUserId) { showToast('❌ Пользователь не найден!', false); return; }
                 
-                state.balances[coinId] = balance - amount;
+                // Списываем у отправителя
+                if (coinId === 'rub') {
+                    state.rub -= amount;
+                } else {
+                    state.balances[coinId] = balance - amount;
+                }
                 
-                const toBalances = toUserData.balances || {};
-                toBalances[coinId] = (toBalances[coinId] || 0) + amount;
+                // Добавляем получателю
+                if (coinId === 'rub') {
+                    const toRub = (toUserData.rub || 0) + amount;
+                    db.ref('users/' + toUserId + '/rub').set(toRub);
+                } else {
+                    const toBalances = toUserData.balances || {};
+                    toBalances[coinId] = (toBalances[coinId] || 0) + amount;
+                    db.ref('users/' + toUserId + '/balances').set(toBalances);
+                }
                 
-                db.ref('users/' + toUserId + '/balances').set(toBalances);
-                
-                const toTotal = (toUserData.total || 0) + (amount * (asset ? asset.price : 0));
+                // Обновляем total получателя
+                const asset = getAsset(coinId);
+                const price = asset ? asset.price : 1;
+                const toTotal = (toUserData.total || 0) + (amount * price);
                 db.ref('users/' + toUserId + '/total').set(toTotal);
                 
                 const transferEntry = {
@@ -1219,7 +1246,7 @@ ram: [
                     fromUsername: myUsername,
                     to: toUserId,
                     toUsername: toUsername,
-                    symbol: asset ? asset.symbol : coinId.toUpperCase(),
+                    symbol: symbol,
                     amount: Math.round(amount * 1000) / 1000,
                     time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
                 };
@@ -1228,23 +1255,24 @@ ram: [
                 state.transferHistory.unshift(transferEntry);
                 if (state.transferHistory.length > 30) state.transferHistory.pop();
                 
-                addHistory('transfer', asset ? asset.symbol : coinId.toUpperCase(), amount, asset ? asset.price : 0, '→ ' + toUsername);
+                addHistory('transfer', symbol, amount, price || 1, '→ ' + toUsername);
                 
                 saveToFirebase();
                 
-                showTransferSuccess(amount, asset ? asset.symbol : coinId.toUpperCase(), toUsername);
+                showTransferSuccess(amount, symbol, toUsername);
                 
                 updateBalances();
                 renderTransferHistory();
                 renderPortfolio();
+                updateTransferBalance();
                 transferAmountInput.value = '';
                 transferToInput.value = '';
                 
                 const receiveEntry = {
                     type: 'receive',
-                    symbol: asset ? asset.symbol : coinId.toUpperCase(),
+                    symbol: symbol,
                     amount: Math.round(amount * 1000) / 1000,
-                    price: asset ? asset.price : 0,
+                    price: price || 1,
                     extra: 'от ' + myUsername,
                     time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
                 };
