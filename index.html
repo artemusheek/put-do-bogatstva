@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=no">
-    <title>P2P Крипто-трейдер + Майнинг + Рыбалка</title>
+    <title>P2P Крипто-трейдер + Майнинг + Рыбалка + Лотерея</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -14,7 +14,6 @@
         .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px) saturate(180%); -webkit-backdrop-filter: blur(32px) saturate(180%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); border-radius: 44px; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .app-container { max-width: 960px; width: 100%; padding: 24px 22px 28px; }
 
-        /* ... все стили как в предыдущей версии ... */
         .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,14,23,0.92); backdrop-filter: blur(30px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .login-box { max-width: 400px; width: 100%; padding: 40px 32px; text-align: center; }
         .login-box h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
@@ -109,6 +108,7 @@
         .history-item .side-sell { color: #f87171; }
         .history-item .side-transfer { color: #60a5fa; }
         .history-item .side-fish { color: #fbbf24; }
+        .history-item .side-lottery { color: #a78bfa; }
 
         .mining-panel { display: flex; flex-direction: column; gap: 14px; }
         .mining-stats { display: flex; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.15); padding: 12px 14px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.04); justify-content: space-between; align-items: center; }
@@ -135,6 +135,37 @@
         .shop-tab.active { background: rgba(59,130,246,0.2); color: white; border-color: rgba(59,130,246,0.3); }
         .shop-tab:active { transform: scale(0.94); }
 
+        /* ===== ЛОТЕРЕЯ ===== */
+        .lottery-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; text-align: center; }
+        .lottery-panel .lottery-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .lottery-wheel { width: 100%; max-width: 300px; height: 300px; margin: 0 auto; position: relative; border-radius: 50%; overflow: hidden; border: 4px solid rgba(255,215,0,0.3); box-shadow: 0 0 60px rgba(255,215,0,0.1); }
+        .lottery-wheel canvas { width: 100%; height: 100%; }
+        .lottery-wheel .center-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fbbf24; font-size: 14px; font-weight: 700; text-align: center; pointer-events: none; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
+        .lottery-wheel .center-text .big { font-size: 24px; color: #fff; }
+        .lottery-wheel .center-text .sub { font-size: 11px; color: #8ba0be; }
+
+        .lottery-controls { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+        .lottery-controls input { background: rgba(0,0,0,0.3); color: #d6e8ff; border: 1px solid rgba(255,255,255,0.06); padding: 10px 16px; border-radius: 40px; font-size: 14px; outline: none; width: 150px; transition: 0.2s; text-align: center; }
+        .lottery-controls input:focus { border-color: #fbbf24; box-shadow: 0 0 30px rgba(251,191,36,0.05); }
+        .lottery-controls .lottery-btn { padding: 10px 32px; border: none; border-radius: 40px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0a0e17; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 20px rgba(251,191,36,0.2); }
+        .lottery-controls .lottery-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(251,191,36,0.3); }
+        .lottery-controls .lottery-btn:active { transform: scale(0.94); }
+        .lottery-controls .lottery-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .lottery-info { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; font-size: 13px; color: #6e88a3; }
+        .lottery-info span { background: rgba(0,0,0,0.15); padding: 6px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.03); }
+        .lottery-info .stat-value { color: #fbbf24; font-weight: 600; }
+
+        .lottery-result { margin-top: 12px; padding: 12px 16px; background: rgba(0,0,0,0.2); border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; font-size: 16px; }
+        .lottery-result .result-win { color: #4ade80; font-weight: 700; }
+        .lottery-result .result-lose { color: #f87171; font-weight: 700; }
+        .lottery-result .result-amount { color: #fbbf24; font-weight: 700; }
+
+        .lottery-history-box { margin-top: 12px; padding: 8px 12px 2px; background: rgba(0,0,0,0.15); border-radius: 24px; border: 1px solid rgba(255,255,255,0.03); max-height: 110px; overflow-y: auto; }
+        .lottery-history-box::-webkit-scrollbar { width: 3px; }
+        .lottery-history-box::-webkit-scrollbar-thumb { background: #2a4055; border-radius: 10px; }
+
         /* ===== РЫБАЛКА ===== */
         .fishing-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; text-align: center; }
         .fishing-panel .fishing-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -157,7 +188,6 @@
         .fishing-pool .splash.active { opacity: 1; animation: splashAnim 0.8s ease forwards; }
         @keyframes splashAnim { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(-50%, -100%) scale(1.5); opacity: 0; } }
 
-        /* Магазин наживок */
         .bait-shop { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 10px 0; }
         .bait-card { background: rgba(0,0,0,0.2); border-radius: 24px; padding: 12px 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center; transition: 0.15s; }
         .bait-card .bait-icon { font-size: 30px; }
@@ -240,6 +270,7 @@
             .trade-btn { font-size: 13px; padding: 10px 6px; min-width: 60px; }
             .trade-btn.sell-all, .trade-btn.buy-max { font-size: 11px; flex: 0.4; }
             .fishing-pool { height: 100px; }
+            .lottery-wheel { max-width: 220px; height: 220px; }
         }
     </style>
 </head>
@@ -270,6 +301,7 @@
 
     <div class="tabs">
         <button class="tab-btn active" data-tab="trade">📊 Трейдинг</button>
+        <button class="tab-btn" data-tab="lottery">🎰 Лотерея</button>
         <button class="tab-btn" data-tab="fishing">🎣 Рыбалка</button>
         <button class="tab-btn" data-tab="transfer">💸 Переводы</button>
         <button class="tab-btn" data-tab="mining">⛏️ Майнинг</button>
@@ -328,6 +360,42 @@
         </div>
     </div>
 
+    <!-- TAB LOTTERY -->
+    <div id="tab-lottery" class="tab-content">
+        <div class="lottery-panel glass">
+            <div class="lottery-title"><span>🎰</span> Крипто-лотерея</div>
+            
+            <div class="lottery-wheel" id="lotteryWheel">
+                <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                <div class="center-text">
+                    <div class="big">🎰</div>
+                    <div class="sub">10% шанс</div>
+                </div>
+            </div>
+            
+            <div class="lottery-controls">
+                <input type="number" id="lotteryBetInput" placeholder="Ставка (RUB)" min="1" step="1" value="10">
+                <button class="lottery-btn" id="lotteryBtn">🎰 Крутить!</button>
+            </div>
+            
+            <div class="lottery-info">
+                <span>🎯 Шанс: <span class="stat-value">10%</span></span>
+                <span>💰 Мин. ставка: <span class="stat-value">1 ₽</span></span>
+                <span>🏆 Выигрыш: <span class="stat-value">×2, ×5, ×10, ×100</span></span>
+                <span>🎰 Сыграно: <span class="stat-value" id="lotteryTotalPlays">0</span></span>
+            </div>
+            
+            <div class="lottery-result" id="lotteryResult">
+                <span style="color:#4a617c;">Нажмите "Крутить!", чтобы попытать удачу</span>
+            </div>
+        </div>
+        
+        <div class="lottery-history-box">
+            <div class="history-title">📋 история лотереи</div>
+            <div id="lotteryHistoryList"><div class="history-item" style="color:#4a617c;">Сыграйте в лотерею!</div></div>
+        </div>
+    </div>
+
     <!-- TAB FISHING -->
     <div id="tab-fishing" class="tab-content">
         <div class="fishing-panel glass">
@@ -353,7 +421,6 @@
             </div>
         </div>
 
-        <!-- Магазин наживок -->
         <div style="margin-top: 10px; font-size: 13px; color: #8ba0be;">🛒 Магазин наживок</div>
         <div class="bait-shop" id="baitShop"></div>
 
@@ -532,14 +599,13 @@
         { id: 'shrimp', name: 'Креветка', icon: '🦐', price: 800, bonus: 2.5, desc: 'Отличная наживка' },
         { id: 'squid', name: 'Кальмар', icon: '🦑', price: 2000, bonus: 4.0, desc: 'Деликатесная наживка' },
         { id: 'golden_bait', name: 'Золотая наживка', icon: '✨', price: 5000, bonus: 8.0, desc: '⭐ Легендарная наживка!' },
-        { id: 'grandfother_bait', name: 'Дедушкина наживка', icon: '✨', price: 10000, bonus: 9, desc: 'Дедушкина наживка!' },
     ];
 
-    // Монеты для рыбалки с базовыми шансами 
+    // Монеты для рыбалки
     const FISHING_REWARDS = [
         { id: 'ton', symbol: '🔶', name: 'TONCOIN', min: 0.0001, max: 0.01, weight: 25 },
-        { id: 'btc', symbol: '₿', name: 'BTC', min: 0.0001, max: 1, weight: 5 },
-        { id: 'eth', symbol: '⟠', name: 'ETH', min: 1, max: 999, weight: 10 },
+        { id: 'btc', symbol: '₿', name: 'BTC', min: 0.0000001, max: 0.000001, weight: 5 },
+        { id: 'eth', symbol: '⟠', name: 'ETH', min: 0.00001, max: 0.0005, weight: 10 },
         { id: 'sol', symbol: '◎', name: 'SOL', min: 0.001, max: 0.05, weight: 15 },
         { id: 'xrp', symbol: '✕', name: 'XRP', min: 0.01, max: 0.5, weight: 20 },
         { id: 'ada', symbol: '₳', name: 'ADA', min: 0.01, max: 1, weight: 15 },
@@ -549,7 +615,7 @@
         { id: 'usdt', symbol: '💵', name: 'USDT', min: 0.01, max: 1, weight: 20 },
     ];
 
-    // Трофеи (редкие рыбы)
+    // Трофеи
     const FISHING_TROPHIES = [
         { id: 'btc', symbol: '🐋', name: 'КИТ BTC', min: 0.00001, max: 0.00005, weight: 0.5 },
         { id: 'eth', symbol: '🐉', name: 'ДРАКОН ETH', min: 0.001, max: 0.005, weight: 0.5 },
@@ -604,9 +670,11 @@
         fishingHistory: [],
         fishingCount: 0,
         bestCatch: 0,
-        // Наживки: { baitId: count }
         baits: {},
         activeBait: null,
+        // Лотерея
+        lotteryHistory: [],
+        lotteryPlays: 0,
         selectedAssetId: 'ton',
         tradeAmount: 1.0,
         chartData: {},
@@ -663,6 +731,15 @@
     const fishingHistoryList = document.getElementById('fishingHistoryList');
     const baitShop = document.getElementById('baitShop');
     const activeBaitDisplay = document.getElementById('activeBaitDisplay');
+
+    // Lottery DOM
+    const lotteryBtn = document.getElementById('lotteryBtn');
+    const lotteryBetInput = document.getElementById('lotteryBetInput');
+    const lotteryResult = document.getElementById('lotteryResult');
+    const lotteryTotalPlays = document.getElementById('lotteryTotalPlays');
+    const lotteryHistoryList = document.getElementById('lotteryHistoryList');
+    const wheelCanvas = document.getElementById('wheelCanvas');
+    const wheelCtx = wheelCanvas.getContext('2d');
 
     const transferSuccessScreen = document.getElementById('transferSuccessScreen');
     const transferSuccessAmount = document.getElementById('transferSuccessAmount');
@@ -751,9 +828,182 @@
         setTimeout(() => { container.innerHTML = ''; }, 4500);
     }
 
-    // ==================== РЫБАЛКА С НАЖИВКАМИ ====================
+    // ==================== ЛОТЕРЕЯ ====================
+    const LOTTERY_SEGMENTS = [
+        { label: '×2', color: '#fbbf24', multiplier: 2 },
+        { label: '×5', color: '#f59e0b', multiplier: 5 },
+        { label: '×10', color: '#f97316', multiplier: 10 },
+        { label: '×100', color: '#ef4444', multiplier: 100 },
+        { label: '0', color: '#4a617c', multiplier: 0 },
+        { label: '0', color: '#4a617c', multiplier: 0 },
+        { label: '0', color: '#4a617c', multiplier: 0 },
+        { label: '0', color: '#4a617c', multiplier: 0 },
+        { label: '0', color: '#4a617c', multiplier: 0 },
+        { label: '0', color: '#4a617c', multiplier: 0 },
+    ];
+
+    function drawWheel(rotation = 0) {
+        const w = wheelCanvas.width;
+        const h = wheelCanvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const radius = Math.min(w, h) / 2 - 10;
+        const segments = LOTTERY_SEGMENTS.length;
+        const angleStep = (2 * Math.PI) / segments;
+
+        wheelCtx.clearRect(0, 0, w, h);
+        
+        // Рисуем сегменты
+        for (let i = 0; i < segments; i++) {
+            const startAngle = i * angleStep + rotation;
+            const endAngle = startAngle + angleStep;
+            
+            wheelCtx.beginPath();
+            wheelCtx.moveTo(cx, cy);
+            wheelCtx.arc(cx, cy, radius, startAngle, endAngle);
+            wheelCtx.closePath();
+            wheelCtx.fillStyle = LOTTERY_SEGMENTS[i].color;
+            wheelCtx.fill();
+            wheelCtx.strokeStyle = 'rgba(255,255,255,0.1)';
+            wheelCtx.lineWidth = 1;
+            wheelCtx.stroke();
+            
+            // Текст
+            const textAngle = startAngle + angleStep / 2;
+            const textRadius = radius * 0.65;
+            const tx = cx + Math.cos(textAngle) * textRadius;
+            const ty = cy + Math.sin(textAngle) * textRadius;
+            wheelCtx.fillStyle = '#fff';
+            wheelCtx.font = '14px Inter';
+            wheelCtx.textAlign = 'center';
+            wheelCtx.textBaseline = 'middle';
+            wheelCtx.fillText(LOTTERY_SEGMENTS[i].label, tx, ty);
+        }
+        
+        // Внешняя обводка
+        wheelCtx.beginPath();
+        wheelCtx.arc(cx, cy, radius, 0, 2 * Math.PI);
+        wheelCtx.strokeStyle = 'rgba(255,215,0,0.3)';
+        wheelCtx.lineWidth = 3;
+        wheelCtx.stroke();
+        
+        // Стрелка сверху
+        wheelCtx.beginPath();
+        wheelCtx.moveTo(cx - 12, 12);
+        wheelCtx.lineTo(cx, 0);
+        wheelCtx.lineTo(cx + 12, 12);
+        wheelCtx.closePath();
+        wheelCtx.fillStyle = '#fbbf24';
+        wheelCtx.fill();
+        wheelCtx.shadowColor = '#fbbf24';
+        wheelCtx.shadowBlur = 20;
+        wheelCtx.fill();
+        wheelCtx.shadowBlur = 0;
+    }
+
+    function spinLottery() {
+        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+        
+        const bet = parseInt(lotteryBetInput.value);
+        if (isNaN(bet) || bet < 1) {
+            showToast('❌ Минимальная ставка 1 ₽', false);
+            return;
+        }
+        if (bet > state.rub) {
+            showToast(`❌ Недостаточно RUB! У вас ${formatRub(state.rub)}`, false);
+            return;
+        }
+        
+        // Спин
+        const segments = LOTTERY_SEGMENTS.length;
+        const randomIndex = Math.floor(Math.random() * segments);
+        const multiplier = LOTTERY_SEGMENTS[randomIndex].multiplier;
+        const win = bet * multiplier;
+        const isWin = multiplier > 0;
+        
+        // Анимация вращения
+        const spins = 5 + Math.random() * 3;
+        const finalAngle = spins * 2 * Math.PI + (randomIndex / segments) * 2 * Math.PI;
+        const duration = 2000;
+        const startTime = Date.now();
+        const startRotation = 0;
+        
+        function animateWheel() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const currentAngle = startRotation + finalAngle * eased;
+            drawWheel(currentAngle);
+            
+            if (progress < 1) {
+                requestAnimationFrame(animateWheel);
+            } else {
+                // Результат
+                state.rub -= bet;
+                if (isWin) {
+                    state.rub += win;
+                    launchConfetti();
+                    lotteryResult.innerHTML = `
+                        <span class="result-win">🎉 ВЫИГРЫШ! ×${multiplier}</span>
+                        <span class="result-amount">+${formatRub(win)}</span>
+                    `;
+                    showToast(`🎉 Вы выиграли ${formatRub(win)}! (×${multiplier})`);
+                } else {
+                    lotteryResult.innerHTML = `
+                        <span class="result-lose">😔 Проигрыш</span>
+                        <span style="color:#4a617c;">-${formatRub(bet)}</span>
+                    `;
+                    showToast(`😔 Проигрыш ${formatRub(bet)}`, false);
+                }
+                
+                // Сохраняем историю
+                state.lotteryPlays = (state.lotteryPlays || 0) + 1;
+                state.lotteryHistory.unshift({
+                    bet: bet,
+                    win: win,
+                    multiplier: multiplier,
+                    isWin: isWin,
+                    time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
+                });
+                if (state.lotteryHistory.length > 30) state.lotteryHistory.pop();
+                
+                addHistory('lottery', isWin ? '🎰 ВЫИГРЫШ' : '🎰 ПРОИГРЫШ', isWin ? win : bet, 1, isWin ? `×${multiplier}` : '');
+                
+                updateBalances();
+                renderPortfolio();
+                updateLotteryUI();
+                saveToFirebase();
+            }
+        }
+        
+        animateWheel();
+    }
+
+    function updateLotteryUI() {
+        lotteryTotalPlays.textContent = state.lotteryPlays || 0;
+        renderLotteryHistory();
+    }
+
+    function renderLotteryHistory() {
+        if (!state.lotteryHistory || state.lotteryHistory.length === 0) {
+            lotteryHistoryList.innerHTML = `<div class="history-item" style="color:#4a617c;">Сыграйте в лотерею!</div>`;
+            return;
+        }
+        lotteryHistoryList.innerHTML = '';
+        state.lotteryHistory.slice(0, 15).forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            const result = item.isWin ? `✅ +${formatRub(item.win)}` : `❌ -${formatRub(item.bet)}`;
+            div.innerHTML = `
+                <span><span class="side-lottery">🎰</span> ${item.isWin ? 'Выигрыш' : 'Проигрыш'} ${result}</span>
+                <span>${item.time}</span>
+            `;
+            lotteryHistoryList.appendChild(div);
+        });
+    }
+
+    // ==================== РЫБАЛКА ====================
     function getRandomReward() {
-        // Получаем бонус от активной наживки
         let bonus = 1.0;
         let baitId = null;
         if (state.activeBait && state.baits[state.activeBait] > 0) {
@@ -761,7 +1011,6 @@
             if (bait) {
                 bonus = bait.bonus;
                 baitId = state.activeBait;
-                // Уменьшаем количество наживки
                 state.baits[state.activeBait] = (state.baits[state.activeBait] || 0) - 1;
                 if (state.baits[state.activeBait] <= 0) {
                     state.activeBait = null;
@@ -769,17 +1018,12 @@
             }
         }
         
-        // Смешиваем все награды с весом, умноженным на бонус
         const allRewards = [...FISHING_REWARDS, ...FISHING_TROPHIES];
-        // Увеличиваем шанс трофеев в зависимости от бонуса
         let totalWeight = 0;
         const weightedRewards = allRewards.map(r => {
             const isTrophy = FISHING_TROPHIES.some(t => t.id === r.id && t.name === r.name);
             let weight = r.weight;
-            if (isTrophy) {
-                weight = r.weight * bonus; // Трофеи получают бонус
-            }
-            // Увеличиваем диапазон выпадения для редких монет
+            if (isTrophy) weight = r.weight * bonus;
             totalWeight += weight;
             return { ...r, weight: weight };
         });
@@ -794,7 +1038,6 @@
             }
         }
         
-        // Увеличиваем количество в зависимости от бонуса
         const amount = (selected.min + Math.random() * (selected.max - selected.min)) * bonus;
         const roundedAmount = Math.round(amount * 100000) / 100000;
         
@@ -808,36 +1051,29 @@
 
     function goFishing() {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-        
-        // Проверяем наличие наживки
         if (!state.activeBait || (state.baits[state.activeBait] || 0) <= 0) {
             showToast('⚠️ Нет активной наживки! Купите в магазине.', false);
             return;
         }
         
-        // Анимация всплеска
         fishingSplash.classList.remove('active');
         void fishingSplash.offsetWidth;
         fishingSplash.classList.add('active');
         setTimeout(() => fishingSplash.classList.remove('active'), 800);
         
-        // Выбираем награду
         const reward = getRandomReward();
         
-        // Добавляем монету в баланс
         if (reward.id === 'usdt') {
             state.balances['usdt'] = (state.balances['usdt'] || 0) + reward.amount;
         } else {
             state.balances[reward.id] = (state.balances[reward.id] || 0) + reward.amount;
         }
         
-        // Обновляем статистику рыбалки
         state.fishingCount = (state.fishingCount || 0) + 1;
         if (reward.amount > (state.bestCatch || 0)) {
             state.bestCatch = reward.amount;
         }
         
-        // Добавляем в историю уловов
         const catchEntry = {
             symbol: reward.symbol,
             name: reward.name,
@@ -849,9 +1085,7 @@
         state.fishingHistory.unshift(catchEntry);
         if (state.fishingHistory.length > 30) state.fishingHistory.pop();
         
-        // Отображаем результат
         const isTrophy = FISHING_TROPHIES.some(t => t.id === reward.id && t.name === reward.name);
-        const emoji = isTrophy ? '🏆' : '🎣';
         const trophyText = isTrophy ? ' ТРОФЕЙ!' : '';
         const baitText = reward.baitUsed ? ` (${BAIT_TYPES.find(b => b.id === reward.baitUsed)?.name})` : '';
         
@@ -864,17 +1098,14 @@
             </div>
         `;
         
-        // Добавляем в общую историю
         addHistory('fish', reward.symbol, reward.amount, 1, `🐟 ${reward.name} ${baitText}`);
         
-        // Обновляем UI
         updateBalances();
         renderPortfolio();
         updateFishingUI();
         renderBaitShop();
         saveToFirebase();
         
-        // Если трофей — запускаем конфетти
         if (isTrophy) {
             launchConfetti();
             showToast(`🏆 ТРОФЕЙ! Вы поймали ${reward.symbol} ${reward.amount.toFixed(6)} ${reward.name}!`);
@@ -886,8 +1117,6 @@
     function updateFishingUI() {
         fishingTotalCount.textContent = state.fishingCount || 0;
         fishingBestCatch.textContent = state.bestCatch ? state.bestCatch.toFixed(6) : '—';
-        
-        // Активная наживка
         if (state.activeBait && state.baits[state.activeBait] > 0) {
             const bait = BAIT_TYPES.find(b => b.id === state.activeBait);
             activeBaitDisplay.textContent = `${bait?.icon || ''} ${bait?.name || state.activeBait} (${state.baits[state.activeBait]} шт.)`;
@@ -895,7 +1124,6 @@
             activeBaitDisplay.textContent = 'Нет';
             if (state.activeBait) state.activeBait = null;
         }
-        
         renderFishingHistory();
     }
 
@@ -916,7 +1144,6 @@
         });
     }
 
-    // ==================== МАГАЗИН НАЖИВОК ====================
     function renderBaitShop() {
         baitShop.innerHTML = '';
         BAIT_TYPES.forEach(bait => {
@@ -945,7 +1172,6 @@
                 const action = btn.dataset.action;
                 const bait = BAIT_TYPES.find(b => b.id === baitId);
                 if (!bait) return;
-                
                 if (action === 'buy') {
                     if (state.rub < bait.price) {
                         showToast(`❌ Недостаточно RUB для покупки ${bait.name}`, false);
@@ -962,7 +1188,6 @@
                     state.activeBait = baitId;
                     showToast(`🎣 Выбрана наживка: ${bait.name} (×${bait.bonus.toFixed(1)} к улову)`);
                 }
-                
                 updateBalances();
                 renderBaitShop();
                 updateFishingUI();
@@ -994,6 +1219,8 @@
                 bestCatch: state.bestCatch || 0,
                 baits: state.baits || {},
                 activeBait: state.activeBait || null,
+                lotteryHistory: state.lotteryHistory || [],
+                lotteryPlays: state.lotteryPlays || 0,
                 miningCoin: state.miningCoin,
                 lastActive: Date.now()
             };
@@ -1020,6 +1247,8 @@
                     state.bestCatch = data.bestCatch || 0;
                     state.baits = data.baits || {};
                     state.activeBait = data.activeBait || null;
+                    state.lotteryHistory = data.lotteryHistory || [];
+                    state.lotteryPlays = data.lotteryPlays || 0;
                     state.miningCoin = data.miningCoin || 'ton';
                     
                     DEFAULT_ASSETS.forEach(a => {
@@ -1055,6 +1284,8 @@
         updateTradeInfo();
         updateFishingUI();
         renderBaitShop();
+        updateLotteryUI();
+        drawWheel();
         mineCoinSelect.value = state.miningCoin || 'ton';
     }
 
@@ -1353,6 +1584,7 @@
             else if (item.type === 'transfer') { sideClass = 'side-transfer'; txt = '📤 Перевод'; }
             else if (item.type === 'receive') { sideClass = 'side-transfer'; txt = '📥 Получено'; }
             else if (item.type === 'fish') { sideClass = 'side-fish'; txt = '🎣 Рыбалка'; }
+            else if (item.type === 'lottery') { sideClass = 'side-lottery'; txt = '🎰 Лотерея'; }
             div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
             historyList.appendChild(div);
         });
@@ -1705,6 +1937,8 @@
                     bestCatch: 0,
                     baits: {},
                     activeBait: null,
+                    lotteryHistory: [],
+                    lotteryPlays: 0,
                     miningCoin: 'ton',
                     registered: Date.now()
                 };
@@ -1864,6 +2098,8 @@
         updateTradeInfo();
         updateFishingUI();
         renderBaitShop();
+        updateLotteryUI();
+        drawWheel();
 
         if (state.miningActive && isLoggedIn) {
             startMiningLoop();
@@ -1871,6 +2107,7 @@
         }
 
         fishingPool.addEventListener('click', goFishing);
+        lotteryBtn.addEventListener('click', spinLottery);
 
         setInterval(() => {
             if (isLoggedIn && firebaseAvailable) {
@@ -1966,6 +2203,7 @@
                 if (btn.dataset.tab === 'portfolio') renderPortfolio();
                 if (btn.dataset.tab === 'transfer') { updateTransferBalance(); renderTransferHistory(); }
                 if (btn.dataset.tab === 'fishing') { updateFishingUI(); renderBaitShop(); }
+                if (btn.dataset.tab === 'lottery') { updateLotteryUI(); drawWheel(); }
                 if (btn.dataset.tab === 'trade') { setTimeout(updateChart, 100); updateTradeInfo(); }
             });
         });
@@ -2024,6 +2262,8 @@
                 state.bestCatch = 0;
                 state.baits = {};
                 state.activeBait = null;
+                state.lotteryHistory = [];
+                state.lotteryPlays = 0;
                 DEFAULT_ASSETS.forEach(a => {
                     state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
                     state.chartData[a.id] = [];
@@ -2049,6 +2289,8 @@
                 updateTradeInfo();
                 updateFishingUI();
                 renderBaitShop();
+                updateLotteryUI();
+                drawWheel();
                 saveToFirebase();
                 showToast('🔄 Сброшено');
             }
