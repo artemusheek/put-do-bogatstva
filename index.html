@@ -12,7 +12,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; }
         .glass { background: rgba(18, 28, 46, 0.55); backdrop-filter: blur(32px) saturate(180%); -webkit-backdrop-filter: blur(32px) saturate(180%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); border-radius: 44px; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .glass:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 12px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1); }
         .app-container { max-width: 960px; width: 100%; padding: 24px 22px 28px; }
 
         .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,14,23,0.92); backdrop-filter: blur(30px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
@@ -47,9 +46,8 @@
         .user-badge { background: rgba(59,130,246,0.15); padding: 6px 16px; border-radius: 40px; font-size: 13px; color: #b7d6f5; border: 1px solid rgba(59,130,246,0.15); display: flex; align-items: center; gap: 8px; }
         .user-badge .online-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; display: inline-block; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .admin-badge { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
 
-        /* ===== ГРАФИК ===== */
+        /* ГРАФИК */
         .chart-wrapper { padding: 14px 12px 8px; margin: 6px 0 14px; background: rgba(0,0,0,0.2); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); }
         .chart-header { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 8px 4px; }
         .chart-header .pair { font-weight: 600; font-size: 16px; color: #d6e8ff; }
@@ -83,6 +81,30 @@
         .trade-info { display: flex; justify-content: space-between; color: #8ba0be; font-size: 12px; padding: 0 4px; margin-top: 6px; }
         .trade-info span:last-child { color: #d6e8ff; font-weight: 500; }
 
+        /* ===== ПЕРЕВОДЫ (БАНКОВСКИЙ СТИЛЬ) ===== */
+        .transfer-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
+        .transfer-panel .transfer-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .transfer-panel .transfer-title .icon { font-size: 18px; }
+        .transfer-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .transfer-row input, .transfer-row select { background: rgba(0,0,0,0.3); color: #d6e8ff; border: 1px solid rgba(255,255,255,0.06); padding: 10px 16px; border-radius: 40px; font-size: 14px; outline: none; flex: 1; min-width: 120px; transition: 0.2s; }
+        .transfer-row input:focus, .transfer-row select:focus { border-color: #3b82f6; box-shadow: 0 0 30px rgba(59,130,246,0.05); }
+        .transfer-row input::placeholder { color: #4a617c; }
+        .transfer-row select option { background: #0b121a; color: white; }
+        .transfer-btn { padding: 10px 28px; border: none; border-radius: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 20px rgba(59,130,246,0.2); }
+        .transfer-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(59,130,246,0.3); }
+        .transfer-btn:active { transform: scale(0.94); }
+
+        /* Банковские эффекты */
+        .transfer-success { animation: successPulse 0.6s ease; }
+        @keyframes successPulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); } 50% { box-shadow: 0 0 40px 10px rgba(74,222,128,0.1); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
+        .transfer-fail { animation: failShake 0.4s ease; }
+        @keyframes failShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16,28,46,0.95); backdrop-filter: blur(20px); color: #d6e8ff; padding: 14px 32px; border-radius: 40px; font-size: 14px; border: 1px solid rgba(59,130,246,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.6); z-index: 999; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; transform: translateX(-50%) translateY(20px); }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: rgba(74,222,128,0.3); }
+        .toast.error { border-color: rgba(248,113,113,0.3); }
+
         .history-box { margin-top: 12px; padding: 8px 12px 2px; background: rgba(0,0,0,0.15); border-radius: 24px; border: 1px solid rgba(255,255,255,0.03); max-height: 110px; overflow-y: auto; }
         .history-box::-webkit-scrollbar { width: 3px; }
         .history-box::-webkit-scrollbar-thumb { background: #2a4055; border-radius: 10px; }
@@ -91,6 +113,7 @@
         .history-item:last-child { border-bottom: none; }
         .history-item .side-buy { color: #4ade80; }
         .history-item .side-sell { color: #f87171; }
+        .history-item .side-transfer { color: #60a5fa; }
 
         .mining-panel { display: flex; flex-direction: column; gap: 14px; }
         .mining-stats { display: flex; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.15); padding: 12px 14px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.04); justify-content: space-between; align-items: center; }
@@ -124,13 +147,6 @@
         .logout-btn:hover { background: rgba(107,47,58,0.2); }
 
         .footer-note { text-align: center; color: #3f5b78; font-size: 10px; margin-top: 10px; }
-        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16,28,46,0.9); backdrop-filter: blur(20px); color: #d6e8ff; padding: 10px 28px; border-radius: 40px; font-size: 14px; border: 1px solid rgba(59,130,246,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.6); z-index: 999; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
-        .toast.show { opacity: 1; }
-
-        .leaderboard { margin-top: 12px; background: rgba(0,0,0,0.15); border-radius: 24px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.04); max-height: 350px; overflow-y: auto; }
-        .leaderboard .lb-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .leaderboard .lb-item .name { color: #b7d6f5; }
-        .leaderboard .lb-item .total { color: #c8b6ff; font-weight: 600; }
 
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; margin: 10px 0; }
         .portfolio-item { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.03); }
@@ -138,17 +154,10 @@
         .portfolio-item .p-name { font-size: 11px; color: #8ba0be; }
         .portfolio-item .p-balance { font-size: 13px; font-weight: 600; color: #b7e0ff; }
 
-        .admin-panel { background: rgba(0,0,0,0.3); border-radius: 28px; padding: 16px; border: 1px solid rgba(239,68,68,0.2); margin-top: 12px; }
-        .admin-panel .admin-title { color: #f87171; font-weight: 700; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .admin-panel .admin-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: rgba(0,0,0,0.2); padding: 10px 14px; border-radius: 20px; margin-bottom: 8px; }
-        .admin-panel select, .admin-panel input { background: rgba(0,0,0,0.3); color: #d6e8ff; border: 1px solid rgba(255,255,255,0.06); padding: 6px 12px; border-radius: 30px; font-size: 13px; outline: none; flex: 1; min-width: 100px; }
-        .admin-panel select option { background: #0b121a; color: white; }
-        .admin-panel .admin-btn { padding: 6px 18px; border: none; border-radius: 30px; background: #ef4444; color: white; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.15s; }
-        .admin-panel .admin-btn:hover { opacity: 0.8; }
-        .admin-panel .admin-btn:active { transform: scale(0.94); }
-        .admin-panel .admin-btn.green { background: #22c55e; }
-        .admin-panel .admin-user-list { max-height: 200px; overflow-y: auto; margin-top: 8px; }
-        .admin-panel .admin-user-list .user-item { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 13px; color: #b7d6f5; }
+        .leaderboard { margin-top: 12px; background: rgba(0,0,0,0.15); border-radius: 24px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.04); max-height: 350px; overflow-y: auto; }
+        .leaderboard .lb-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .leaderboard .lb-item .name { color: #b7d6f5; }
+        .leaderboard .lb-item .total { color: #c8b6ff; font-weight: 600; }
 
         @media (max-width: 600px) {
             .app-container { padding: 16px; }
@@ -156,6 +165,8 @@
             .market-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
             .shop-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
             .tab-btn { font-size: 11px; padding: 8px 4px; min-width: 50px; }
+            .transfer-row input, .transfer-row select { min-width: 80px; font-size: 13px; padding: 8px 12px; }
+            .transfer-btn { padding: 8px 18px; font-size: 13px; }
         }
     </style>
 </head>
@@ -178,7 +189,6 @@
         <div class="user-badge">
             <span class="online-dot"></span>
             <span id="userNameDisplay">Игрок</span>
-            <span class="admin-badge" id="adminBadge" style="display:none;">👑 АДМИН</span>
         </div>
         <div style="display:flex; gap:12px; font-size:12px; color:#6e88a3;">
             <span>👥 <span id="onlineCount">0</span></span>
@@ -187,12 +197,13 @@
 
     <div class="tabs">
         <button class="tab-btn active" data-tab="trade">📊 Трейдинг</button>
+        <button class="tab-btn" data-tab="transfer">💸 Переводы</button>
         <button class="tab-btn" data-tab="mining">⛏️ Майнинг</button>
         <button class="tab-btn" data-tab="portfolio">💼 Портфель</button>
         <button class="tab-btn" data-tab="leaderboard">🏆 Рейтинг</button>
-        <button class="tab-btn" data-tab="admin" id="adminTabBtn" style="display:none;">👑 Админ</button>
     </div>
 
+    <!-- TAB TRADE -->
     <div id="tab-trade" class="tab-content active">
         <div class="balance-panel">
             <div class="balance-item"><span class="label">🇷🇺 RUB</span><span class="value rub" id="rubBalance">0 ₽</span></div>
@@ -232,11 +243,50 @@
         </div>
 
         <div class="history-box">
-            <div class="history-title">📋 последние сделки</div>
+            <div class="history-title">📋 последние операции</div>
             <div id="historyList"><div class="history-item" style="color:#4a617c;">Начните торговать</div></div>
         </div>
     </div>
 
+    <!-- TAB TRANSFER (ПЕРЕВОДЫ) -->
+    <div id="tab-transfer" class="tab-content">
+        <div class="transfer-panel glass" id="transferPanel">
+            <div class="transfer-title"><span class="icon">💸</span> Перевод средств</div>
+            
+            <div class="transfer-row" style="margin-bottom:10px;">
+                <select id="transferCoinSelect">
+                    <option value="ton">🔶 TONCOIN</option>
+                    <option value="btc">₿ BTC</option>
+                    <option value="eth">⟠ ETH</option>
+                    <option value="usdt">💵 USDT</option>
+                    <option value="sol">◎ SOL</option>
+                    <option value="ada">₳ ADA</option>
+                    <option value="xrp">✕ XRP</option>
+                    <option value="dot">● DOT</option>
+                    <option value="avax">▲ AVAX</option>
+                    <option value="matic">◆ MATIC</option>
+                </select>
+                <input type="number" id="transferAmountInput" placeholder="Сумма" step="0.0001" min="0.0001">
+            </div>
+            
+            <div class="transfer-row">
+                <input type="text" id="transferToInput" placeholder="👤 Кому (имя пользователя)">
+                <button class="transfer-btn" id="transferBtn">💸 Отправить</button>
+            </div>
+            
+            <div style="margin-top:10px; font-size:12px; color:#4a617c; display:flex; justify-content:space-between; flex-wrap:wrap;">
+                <span>Ваш баланс: <span id="transferBalanceDisplay" style="color:#b7e0ff;">0</span></span>
+                <span>Комиссия: <span style="color:#6e88a3;">0%</span></span>
+            </div>
+        </div>
+        
+        <div class="history-box" style="margin-top:12px;">
+            <div class="history-title">📋 история переводов</div>
+            <div id="transferHistoryList"><div class="history-item" style="color:#4a617c;">Переводов пока нет</div></div>
+        </div>
+    </div>
+
+    <!-- TAB MINING -->
     <div id="tab-mining" class="tab-content">
         <div class="mining-panel">
             <div class="mining-stats">
@@ -264,6 +314,7 @@
         </div>
     </div>
 
+    <!-- TAB PORTFOLIO -->
     <div id="tab-portfolio" class="tab-content">
         <div style="margin-bottom:12px;">
             <div class="history-title">💰 Все ваши активы</div>
@@ -274,42 +325,10 @@
         </div>
     </div>
 
+    <!-- TAB LEADERBOARD -->
     <div id="tab-leaderboard" class="tab-content">
         <div class="leaderboard" id="leaderboardList">
             <div style="color:#4a617c; text-align:center; padding:20px;">Загрузка рейтинга...</div>
-        </div>
-    </div>
-
-    <div id="tab-admin" class="tab-content">
-        <div class="admin-panel" id="adminPanel">
-            <div class="admin-title">👑 Админ-панель</div>
-            <div style="margin-bottom:12px;">
-                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:rgba(0,0,0,0.15); padding:10px 14px; border-radius:20px;">
-                    <select id="adminUserSelect" style="flex:2; min-width:150px;">
-                        <option value="">-- Выберите пользователя --</option>
-                    </select>
-                    <select id="adminCoinSelect" style="flex:1; min-width:100px;">
-                        <option value="rub">RUB</option>
-                        <option value="ton">TONCOIN</option>
-                        <option value="btc">BTC</option>
-                        <option value="eth">ETH</option>
-                        <option value="usdt">USDT</option>
-                        <option value="sol">SOL</option>
-                        <option value="ada">ADA</option>
-                        <option value="xrp">XRP</option>
-                        <option value="dot">DOT</option>
-                        <option value="avax">AVAX</option>
-                        <option value="matic">MATIC</option>
-                    </select>
-                    <input type="number" id="adminAmountInput" placeholder="Количество" step="0.0001" style="flex:1; min-width:80px;">
-                    <button class="admin-btn green" id="adminAddCoinBtn">➕ Добавить</button>
-                    <button class="admin-btn" id="adminSetCoinBtn">✏️ Установить</button>
-                </div>
-            </div>
-            <div style="font-size:12px; color:#6e88a3; margin-bottom:6px;">👥 Список пользователей:</div>
-            <div class="admin-user-list" id="adminUserList">
-                <div style="color:#4a617c; text-align:center; padding:10px;">Загрузка...</div>
-            </div>
         </div>
     </div>
 
@@ -365,7 +384,7 @@
 
     // ==================== СОСТОЯНИЕ ====================
     let myUsername = '', myUserId = '', myPassword = '';
-    let isLoggedIn = false, isAdmin = false;
+    let isLoggedIn = false;
     let currentShopTab = 'gpu';
 
     const DEFAULT_ASSETS = [
@@ -420,10 +439,11 @@
         balances: {},
         assets: JSON.parse(JSON.stringify(DEFAULT_ASSETS)),
         history: [],
+        transferHistory: [],
         selectedAssetId: 'ton',
         tradeAmount: 1.0,
-        chartData: {}, // { assetId: [prices] }
-        tradePoints: {}, // { assetId: [{price, type, index}] }
+        chartData: {},
+        tradePoints: {},
         gear: { gpu: {}, cpu: {}, ram: {} },
         miningActive: false,
         minedTotal: 0,
@@ -431,14 +451,13 @@
         totalPower: 0,
     };
 
-    // Инициализация балансов и графиков
     DEFAULT_ASSETS.forEach(a => {
         state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
         state.chartData[a.id] = [];
         state.tradePoints[a.id] = [];
     });
 
-    // DOM элементы
+    // DOM
     const rubEl = document.getElementById('rubBalance');
     const tonEl = document.getElementById('tonBalance');
     const totalValueEl = document.getElementById('totalValue');
@@ -459,6 +478,14 @@
     const toggleMiningBtn = document.getElementById('toggleMiningBtn');
     const mineCoinSelect = document.getElementById('mineCoinSelect');
 
+    // Transfer DOM
+    const transferCoinSelect = document.getElementById('transferCoinSelect');
+    const transferAmountInput = document.getElementById('transferAmountInput');
+    const transferToInput = document.getElementById('transferToInput');
+    const transferBtn = document.getElementById('transferBtn');
+    const transferBalanceDisplay = document.getElementById('transferBalanceDisplay');
+    const transferHistoryList = document.getElementById('transferHistoryList');
+
     const loginOverlay = document.getElementById('loginOverlay');
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
@@ -471,16 +498,6 @@
     const portfolioGrid = document.getElementById('portfolioGrid');
     const portfolioTotal = document.getElementById('portfolioTotal');
 
-    // Admin DOM
-    const adminTabBtn = document.getElementById('adminTabBtn');
-    const adminBadge = document.getElementById('adminBadge');
-    const adminUserSelect = document.getElementById('adminUserSelect');
-    const adminCoinSelect = document.getElementById('adminCoinSelect');
-    const adminAmountInput = document.getElementById('adminAmountInput');
-    const adminAddCoinBtn = document.getElementById('adminAddCoinBtn');
-    const adminSetCoinBtn = document.getElementById('adminSetCoinBtn');
-    const adminUserList = document.getElementById('adminUserList');
-
     // ==================== ВСПОМОГАТЕЛЬНЫЕ ====================
     function formatRub(v) {
         if (v >= 1000) return v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
@@ -489,6 +506,7 @@
     function formatCoin(v) { return v.toFixed(4); }
     function getAsset(id) { return state.assets.find(a => a.id === id); }
     function getSelectedAsset() { return getAsset(state.selectedAssetId); }
+    
     function calcTotal() {
         let total = state.rub;
         state.assets.forEach(asset => {
@@ -497,6 +515,7 @@
         });
         return total;
     }
+    
     function calcTotalPower() {
         let total = 0;
         ['gpu', 'cpu', 'ram'].forEach(type => {
@@ -510,160 +529,7 @@
         return total;
     }
 
-    // ==================== КРАСИВЫЙ ГОРИЗОНТАЛЬНЫЙ ГРАФИК ====================
-    function updateChart() {
-        const asset = getSelectedAsset();
-        if (!asset) return;
-        
-        // Добавляем новую точку
-        if (!state.chartData[asset.id]) state.chartData[asset.id] = [];
-        state.chartData[asset.id].push(asset.price);
-        if (state.chartData[asset.id].length > 50) state.chartData[asset.id].shift();
-
-        const data = state.chartData[asset.id];
-        const w = chartCanvas.parentElement.clientWidth || 700;
-        const h = chartCanvas.parentElement.clientHeight || 160;
-        
-        chartCanvas.width = w;
-        chartCanvas.height = h;
-        
-        ctx.clearRect(0, 0, w, h);
-        
-        if (data.length < 2) {
-            ctx.fillStyle = '#4a617c';
-            ctx.font = '14px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('⏳ накопление данных...', w/2, h/2);
-            return;
-        }
-
-        const pad = { top: 20, bottom: 30, left: 70, right: 10 };
-        const graphW = w - pad.left - pad.right;
-        const graphH = h - pad.top - pad.bottom;
-        
-        const min = Math.min(...data) * 0.998;
-        const max = Math.max(...data) * 1.002;
-        const range = max - min || 1;
-
-        // Сетка (горизонтальные линии)
-        const gridLines = 5;
-        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 5]);
-        
-        for (let i = 0; i <= gridLines; i++) {
-            const y = pad.top + graphH - (i / gridLines) * graphH;
-            const price = min + (i / gridLines) * range;
-            
-            ctx.beginPath();
-            ctx.moveTo(pad.left, y);
-            ctx.lineTo(w - pad.right, y);
-            ctx.stroke();
-            
-            // Подписи цен справа
-            ctx.fillStyle = '#6e88a3';
-            ctx.font = '11px Inter';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(price.toFixed(2), pad.left - 8, y);
-        }
-        ctx.setLineDash([]);
-
-        // Градиентная линия
-        const gradient = ctx.createLinearGradient(0, pad.top, 0, pad.top + graphH);
-        const color = asset.id === 'ton' ? '#3b82f6' : 
-                      asset.id === 'btc' ? '#f7931a' :
-                      asset.id === 'eth' ? '#627eea' :
-                      asset.id === 'sol' ? '#9945ff' :
-                      asset.id === 'xrp' ? '#00aae4' : '#3b82f6';
-        
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2.5;
-        ctx.shadowColor = color + '66';
-        ctx.shadowBlur = 12;
-
-        for (let i = 0; i < data.length; i++) {
-            const x = pad.left + (i / (data.length - 1)) * graphW;
-            const y = pad.top + graphH - ((data[i] - min) / range) * graphH;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-
-        // Заливка под графиком
-        const lastX = pad.left + ((data.length - 1) / (data.length - 1)) * graphW;
-        const lastY = pad.top + graphH - ((data[data.length - 1] - min) / range) * graphH;
-        ctx.lineTo(lastX, pad.top + graphH);
-        ctx.lineTo(pad.left, pad.top + graphH);
-        ctx.closePath();
-        const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + graphH);
-        grad.addColorStop(0, color + '33');
-        grad.addColorStop(1, color + '08');
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        // Точки сделок
-        const points = (state.tradePoints[asset.id] || []).filter(p => p.index < data.length);
-        points.forEach(p => {
-            const idx = p.index;
-            const x = pad.left + (idx / (data.length - 1)) * graphW;
-            const y = pad.top + graphH - ((p.price - min) / range) * graphH;
-            const pointColor = p.type === 'buy' ? '#4ade80' : '#f87171';
-
-            // Вертикальная линия
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(x, pad.top + graphH);
-            ctx.strokeStyle = pointColor + '88';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 4]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Точка
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, 2 * Math.PI);
-            ctx.fillStyle = pointColor;
-            ctx.shadowColor = pointColor;
-            ctx.shadowBlur = 16;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-        });
-
-        // Текущая цена (последняя точка с анимацией)
-        const lastPrice = data[data.length - 1];
-        const lx = pad.left + ((data.length - 1) / (data.length - 1)) * graphW;
-        const ly = pad.top + graphH - ((lastPrice - min) / range) * graphH;
-        
-        // Свечение
-        const glow = ctx.createRadialGradient(lx, ly, 0, lx, ly, 20);
-        glow.addColorStop(0, color + '66');
-        glow.addColorStop(1, color + '00');
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(lx, ly, 20, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Точка
-        ctx.beginPath();
-        ctx.arc(lx, ly, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = color;
-        ctx.shadowColor = color;
-        ctx.shadowBlur = 20;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // Подпись текущей цены
-        ctx.fillStyle = '#d6e8ff';
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(lastPrice.toFixed(2), lx + 10, ly - 4);
-    }
-
-    // ==================== СОХРАНЕНИЕ В FIREBASE ====================
+    // ==================== СОХРАНЕНИЕ ====================
     function saveToFirebase(forcedTotal) {
         if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
         try {
@@ -676,13 +542,12 @@
                 gear: state.gear,
                 minedTotal: state.minedTotal,
                 total: total,
-                admin: isAdmin,
                 chartData: state.chartData,
                 tradePoints: state.tradePoints,
+                transferHistory: state.transferHistory || [],
                 lastActive: Date.now()
             };
-            db.ref('users/' + myUserId).set(data)
-                .catch(error => console.warn('⚠️ Ошибка:', error.message));
+            db.ref('users/' + myUserId).set(data).catch(error => console.warn('⚠️ Ошибка:', error.message));
         } catch(e) { console.warn('⚠️ Ошибка:', e.message); }
     }
 
@@ -696,9 +561,9 @@
                     state.balances = data.balances || {};
                     state.gear = data.gear || { gpu: {}, cpu: {}, ram: {} };
                     state.minedTotal = data.minedTotal || 0;
-                    isAdmin = data.admin || false;
                     state.chartData = data.chartData || {};
                     state.tradePoints = data.tradePoints || {};
+                    state.transferHistory = data.transferHistory || [];
                     
                     DEFAULT_ASSETS.forEach(a => {
                         if (state.balances[a.id] === undefined) {
@@ -733,18 +598,11 @@
         updatePriceDisplay();
         updateChart();
         renderHistory();
-        
-        if (isAdmin) {
-            adminTabBtn.style.display = 'block';
-            adminBadge.style.display = 'inline-block';
-            loadAdminUsers();
-        } else {
-            adminTabBtn.style.display = 'none';
-            adminBadge.style.display = 'none';
-        }
+        renderTransferHistory();
+        updateTransferBalance();
     }
 
-    // ==================== ЦЕНЫ В FIREBASE ====================
+    // ==================== ЦЕНЫ ====================
     function savePricesToFirebase() {
         if (!firebaseAvailable) return;
         const prices = {};
@@ -805,85 +663,136 @@
         db.ref('prices').on('value', pricesListener);
     }
 
-    // ==================== АДМИН ФУНКЦИИ ====================
-    function loadAdminUsers() {
-        if (!firebaseAvailable || !isAdmin) return;
-        db.ref('users').once('value')
-            .then(snapshot => {
-                const data = snapshot.val();
-                if (!data) {
-                    adminUserList.innerHTML = '<div style="color:#4a617c; text-align:center; padding:10px;">Нет пользователей</div>';
-                    adminUserSelect.innerHTML = '<option value="">-- Нет пользователей --</option>';
-                    return;
-                }
-                let html = '';
-                let options = '<option value="">-- Выберите пользователя --</option>';
-                const entries = Object.entries(data);
-                entries.forEach(([id, user]) => {
-                    if (user.username) {
-                        html += `<div class="user-item"><span>${user.username}</span><span style="color:#6e88a3;">${formatRub(user.total || 0)}</span></div>`;
-                        options += `<option value="${id}">${user.username}</option>`;
-                    }
-                });
-                adminUserList.innerHTML = html || '<div style="color:#4a617c; text-align:center; padding:10px;">Нет пользователей</div>';
-                adminUserSelect.innerHTML = options;
-            })
-            .catch(error => console.warn('⚠️ Ошибка загрузки пользователей:', error.message));
-    }
-
-    function adminAddCoin() {
-        const userId = adminUserSelect.value;
-        const coinId = adminCoinSelect.value;
-        const amount = parseFloat(adminAmountInput.value);
-        if (!userId) { showToast('❌ Выберите пользователя!'); return; }
-        if (isNaN(amount) || amount <= 0) { showToast('❌ Введите корректное количество!'); return; }
+    // ==================== ГРАФИК ====================
+    function updateChart() {
+        const asset = getSelectedAsset();
+        if (!asset) return;
         
-        db.ref('users/' + userId).once('value')
-            .then(snapshot => {
-                const userData = snapshot.val();
-                if (!userData) { showToast('❌ Пользователь не найден!'); return; }
-                const username = userData.username || 'Пользователь';
-                if (coinId === 'rub') {
-                    const newRub = (userData.rub || 0) + amount;
-                    db.ref('users/' + userId + '/rub').set(newRub);
-                    showToast(`✅ Добавлено ${formatRub(amount)} ${username}`);
-                } else {
-                    const balances = userData.balances || {};
-                    balances[coinId] = (balances[coinId] || 0) + amount;
-                    db.ref('users/' + userId + '/balances').set(balances);
-                    const asset = getAsset(coinId);
-                    showToast(`✅ Добавлено ${formatCoin(amount)} ${asset ? asset.symbol : coinId} ${username}`);
-                }
-                setTimeout(loadAdminUsers, 500);
-            })
-            .catch(error => showToast('❌ Ошибка: ' + error.message));
-    }
+        if (!state.chartData[asset.id]) state.chartData[asset.id] = [];
+        state.chartData[asset.id].push(asset.price);
+        if (state.chartData[asset.id].length > 50) state.chartData[asset.id].shift();
 
-    function adminSetCoin() {
-        const userId = adminUserSelect.value;
-        const coinId = adminCoinSelect.value;
-        const amount = parseFloat(adminAmountInput.value);
-        if (!userId) { showToast('❌ Выберите пользователя!'); return; }
-        if (isNaN(amount) || amount < 0) { showToast('❌ Введите корректное количество!'); return; }
+        const data = state.chartData[asset.id];
+        const w = chartCanvas.parentElement.clientWidth || 700;
+        const h = chartCanvas.parentElement.clientHeight || 160;
         
-        db.ref('users/' + userId).once('value')
-            .then(snapshot => {
-                const userData = snapshot.val();
-                if (!userData) { showToast('❌ Пользователь не найден!'); return; }
-                const username = userData.username || 'Пользователь';
-                if (coinId === 'rub') {
-                    db.ref('users/' + userId + '/rub').set(amount);
-                    showToast(`✅ Установлено RUB: ${formatRub(amount)} ${username}`);
-                } else {
-                    const balances = userData.balances || {};
-                    balances[coinId] = amount;
-                    db.ref('users/' + userId + '/balances').set(balances);
-                    const asset = getAsset(coinId);
-                    showToast(`✅ Установлено ${formatCoin(amount)} ${asset ? asset.symbol : coinId} ${username}`);
-                }
-                setTimeout(loadAdminUsers, 500);
-            })
-            .catch(error => showToast('❌ Ошибка: ' + error.message));
+        chartCanvas.width = w;
+        chartCanvas.height = h;
+        ctx.clearRect(0, 0, w, h);
+        
+        if (data.length < 2) {
+            ctx.fillStyle = '#4a617c';
+            ctx.font = '14px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('⏳ накопление данных...', w/2, h/2);
+            return;
+        }
+
+        const pad = { top: 20, bottom: 30, left: 70, right: 10 };
+        const graphW = w - pad.left - pad.right;
+        const graphH = h - pad.top - pad.bottom;
+        
+        const min = Math.min(...data) * 0.998;
+        const max = Math.max(...data) * 1.002;
+        const range = max - min || 1;
+
+        const gridLines = 5;
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 5]);
+        
+        for (let i = 0; i <= gridLines; i++) {
+            const y = pad.top + graphH - (i / gridLines) * graphH;
+            const price = min + (i / gridLines) * range;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(w - pad.right, y);
+            ctx.stroke();
+            ctx.fillStyle = '#6e88a3';
+            ctx.font = '11px Inter';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(price.toFixed(2), pad.left - 8, y);
+        }
+        ctx.setLineDash([]);
+
+        const color = asset.id === 'ton' ? '#3b82f6' : 
+                      asset.id === 'btc' ? '#f7931a' :
+                      asset.id === 'eth' ? '#627eea' :
+                      asset.id === 'sol' ? '#9945ff' :
+                      asset.id === 'xrp' ? '#00aae4' : '#3b82f6';
+        
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = color + '66';
+        ctx.shadowBlur = 12;
+
+        for (let i = 0; i < data.length; i++) {
+            const x = pad.left + (i / (data.length - 1)) * graphW;
+            const y = pad.top + graphH - ((data[i] - min) / range) * graphH;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        const lastX = pad.left + ((data.length - 1) / (data.length - 1)) * graphW;
+        const lastY = pad.top + graphH - ((data[data.length - 1] - min) / range) * graphH;
+        ctx.lineTo(lastX, pad.top + graphH);
+        ctx.lineTo(pad.left, pad.top + graphH);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + graphH);
+        grad.addColorStop(0, color + '33');
+        grad.addColorStop(1, color + '08');
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        const points = (state.tradePoints[asset.id] || []).filter(p => p.index < data.length);
+        points.forEach(p => {
+            const idx = p.index;
+            const x = pad.left + (idx / (data.length - 1)) * graphW;
+            const y = pad.top + graphH - ((p.price - min) / range) * graphH;
+            const pointColor = p.type === 'buy' ? '#4ade80' : '#f87171';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, pad.top + graphH);
+            ctx.strokeStyle = pointColor + '88';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = pointColor;
+            ctx.shadowColor = pointColor;
+            ctx.shadowBlur = 16;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+
+        const lastPrice = data[data.length - 1];
+        const lx = pad.left + ((data.length - 1) / (data.length - 1)) * graphW;
+        const ly = pad.top + graphH - ((lastPrice - min) / range) * graphH;
+        const glow = ctx.createRadialGradient(lx, ly, 0, lx, ly, 20);
+        glow.addColorStop(0, color + '66');
+        glow.addColorStop(1, color + '00');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 20, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(lx, ly, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 20;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#d6e8ff';
+        ctx.font = '12px Inter';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(lastPrice.toFixed(2), lx + 10, ly - 4);
     }
 
     // ==================== UI ====================
@@ -892,6 +801,7 @@
         const tonBalance = state.balances['ton'] || 0;
         tonEl.textContent = formatCoin(tonBalance) + ' TON';
         totalValueEl.textContent = formatRub(calcTotal());
+        updateTransferBalance();
     }
 
     function updatePriceDisplay() {
@@ -902,6 +812,13 @@
             chartPair.textContent = asset.symbol + ' / RUB';
             chartPrice.textContent = formatRub(asset.price);
         }
+    }
+
+    function updateTransferBalance() {
+        const coinId = transferCoinSelect.value;
+        const balance = state.balances[coinId] || 0;
+        const asset = getAsset(coinId);
+        transferBalanceDisplay.textContent = formatCoin(balance) + ' ' + (asset ? asset.symbol : coinId.toUpperCase());
     }
 
     function renderPortfolio() {
@@ -949,11 +866,12 @@
     }
 
     // ==================== ИСТОРИЯ ====================
-    function addHistory(type, symbol, amount, price) {
+    function addHistory(type, symbol, amount, price, extra = '') {
         state.history.unshift({
             type, symbol, amount: Math.round(amount * 1000) / 1000,
             price: Math.round(price * 100) / 100,
-            time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
+            time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' }),
+            extra: extra
         });
         if (state.history.length > 30) state.history.pop();
         renderHistory();
@@ -961,17 +879,38 @@
 
     function renderHistory() {
         if (state.history.length === 0) {
-            historyList.innerHTML = `<div class="history-item" style="color:#4a617c;">Сделок пока нет</div>`;
+            historyList.innerHTML = `<div class="history-item" style="color:#4a617c;">Операций пока нет</div>`;
             return;
         }
         historyList.innerHTML = '';
         state.history.forEach(item => {
             const div = document.createElement('div');
             div.className = 'history-item';
-            const side = item.type === 'buy' ? 'side-buy' : 'side-sell';
-            const txt = item.type === 'buy' ? 'Покупка' : 'Продажа';
-            div.innerHTML = `<span><span class="${side}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
+            let sideClass = 'side-buy';
+            let txt = 'Покупка';
+            if (item.type === 'sell') { sideClass = 'side-sell'; txt = 'Продажа'; }
+            else if (item.type === 'transfer') { sideClass = 'side-transfer'; txt = '📤 Перевод'; }
+            else if (item.type === 'receive') { sideClass = 'side-transfer'; txt = '📥 Получено'; }
+            div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
             historyList.appendChild(div);
+        });
+    }
+
+    // ==================== ИСТОРИЯ ПЕРЕВОДОВ ====================
+    function renderTransferHistory() {
+        if (!state.transferHistory || state.transferHistory.length === 0) {
+            transferHistoryList.innerHTML = `<div class="history-item" style="color:#4a617c;">Переводов пока нет</div>`;
+            return;
+        }
+        transferHistoryList.innerHTML = '';
+        state.transferHistory.slice(0, 15).forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            const isOut = item.from === myUserId;
+            const sign = isOut ? '➜' : '➜';
+            const name = isOut ? (item.toUsername || 'получатель') : (item.fromUsername || 'отправитель');
+            div.innerHTML = `<span><span style="color:${isOut ? '#f87171' : '#4ade80'}">${isOut ? '📤' : '📥'}</span> ${item.symbol} ${item.amount.toFixed(3)} ${sign} ${name}</span><span>${item.time || ''}</span>`;
+            transferHistoryList.appendChild(div);
         });
     }
 
@@ -1013,6 +952,119 @@
         const total = calcTotal();
         saveToFirebase(total);
         showToast(`✅ ${type === 'buy' ? 'Покупка' : 'Продажа'} ${amount.toFixed(1)} ${asset.symbol}`);
+    }
+
+    // ==================== ПЕРЕВОДЫ ====================
+    function executeTransfer() {
+        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
+        
+        const coinId = transferCoinSelect.value;
+        const amount = parseFloat(transferAmountInput.value);
+        const toUsername = transferToInput.value.trim();
+        
+        if (!toUsername) { showToast('❌ Укажите получателя!'); return; }
+        if (toUsername === myUsername) { showToast('❌ Нельзя перевести самому себе!'); return; }
+        if (isNaN(amount) || amount <= 0) { showToast('❌ Введите корректную сумму!'); return; }
+        
+        const asset = getAsset(coinId);
+        const balance = state.balances[coinId] || 0;
+        if (balance < amount) { showToast(`❌ Недостаточно ${asset ? asset.symbol : coinId}!`); return; }
+        
+        // Ищем получателя
+        db.ref('users').orderByChild('username').equalTo(toUsername).once('value')
+            .then(snapshot => {
+                const data = snapshot.val();
+                if (!data) { showToast('❌ Пользователь не найден!'); return; }
+                
+                let toUserId = null;
+                let toUserData = null;
+                for (const [id, user] of Object.entries(data)) {
+                    if (user.username === toUsername) {
+                        toUserId = id;
+                        toUserData = user;
+                        break;
+                    }
+                }
+                
+                if (!toUserId) { showToast('❌ Пользователь не найден!'); return; }
+                
+                // Списываем у отправителя
+                state.balances[coinId] = balance - amount;
+                
+                // Добавляем получателю
+                const toBalances = toUserData.balances || {};
+                toBalances[coinId] = (toBalances[coinId] || 0) + amount;
+                
+                // Сохраняем получателя
+                db.ref('users/' + toUserId + '/balances').set(toBalances);
+                
+                // Обновляем total получателя
+                const toTotal = (toUserData.total || 0) + (amount * (asset ? asset.price : 0));
+                db.ref('users/' + toUserId + '/total').set(toTotal);
+                
+                // Сохраняем историю перевода у отправителя
+                const transferEntry = {
+                    from: myUserId,
+                    fromUsername: myUsername,
+                    to: toUserId,
+                    toUsername: toUsername,
+                    symbol: asset ? asset.symbol : coinId.toUpperCase(),
+                    amount: Math.round(amount * 1000) / 1000,
+                    time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
+                };
+                
+                if (!state.transferHistory) state.transferHistory = [];
+                state.transferHistory.unshift(transferEntry);
+                if (state.transferHistory.length > 30) state.transferHistory.pop();
+                
+                // Добавляем в историю операций
+                addHistory('transfer', asset ? asset.symbol : coinId.toUpperCase(), amount, asset ? asset.price : 0, '→ ' + toUsername);
+                
+                // Сохраняем у отправителя
+                const total = calcTotal();
+                saveToFirebase(total);
+                
+                // Банковский эффект успеха
+                document.getElementById('transferPanel').classList.add('transfer-success');
+                setTimeout(() => {
+                    document.getElementById('transferPanel').classList.remove('transfer-success');
+                }, 600);
+                
+                // Обновляем UI
+                updateBalances();
+                renderTransferHistory();
+                renderPortfolio();
+                transferAmountInput.value = '';
+                transferToInput.value = '';
+                showToast(`✅ Перевод ${amount.toFixed(4)} ${asset ? asset.symbol : coinId} → ${toUsername} выполнен!`);
+                
+                // Обновляем историю получателя (добавляем запись о получении)
+                const receiveEntry = {
+                    type: 'receive',
+                    symbol: asset ? asset.symbol : coinId.toUpperCase(),
+                    amount: Math.round(amount * 1000) / 1000,
+                    price: asset ? asset.price : 0,
+                    extra: 'от ' + myUsername,
+                    time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
+                };
+                // Добавляем в историю получателя через отдельную запись в Firebase
+                db.ref('users/' + toUserId + '/history').once('value')
+                    .then(snap => {
+                        let hist = snap.val() || [];
+                        if (!Array.isArray(hist)) hist = [];
+                        hist.unshift(receiveEntry);
+                        if (hist.length > 30) hist.pop();
+                        db.ref('users/' + toUserId + '/history').set(hist);
+                    })
+                    .catch(e => console.warn(e));
+                
+                playBeep('buy');
+            })
+            .catch(error => {
+                showToast('❌ Ошибка: ' + error.message);
+                document.getElementById('transferPanel').classList.add('transfer-fail');
+                setTimeout(() => document.getElementById('transferPanel').classList.remove('transfer-fail'), 400);
+            });
     }
 
     // ==================== МАЙНИНГ ====================
@@ -1139,30 +1191,29 @@
 
     // ==================== TOAST ====================
     let toastTimeout = null;
-    function showToast(msg) {
+    function showToast(msg, isSuccess = true) {
         const el = document.getElementById('toast');
         el.textContent = msg;
-        el.classList.add('show');
+        el.className = 'toast show ' + (isSuccess ? 'success' : 'error');
         clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => el.classList.remove('show'), 2500);
+        toastTimeout = setTimeout(() => el.classList.remove('show'), 3000);
     }
 
     // ==================== АВТОРИЗАЦИЯ ====================
     function registerUser() {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
-        if (!username || !password) { showToast('❌ Введите имя и пароль!'); return; }
-        if (password.length < 4) { showToast('❌ Пароль должен быть минимум 4 символа'); return; }
+        if (!username || !password) { showToast('❌ Введите имя и пароль!', false); return; }
+        if (password.length < 4) { showToast('❌ Пароль должен быть минимум 4 символа', false); return; }
 
         myUsername = username;
         myPassword = password;
         myUserId = 'user_' + username.replace(/\s/g, '_') + '_' + Date.now().toString(36);
-        isAdmin = false;
 
         db.ref('users').orderByChild('username').equalTo(username).once('value')
             .then(snapshot => {
                 if (snapshot.val()) {
-                    showToast('❌ Пользователь с таким именем уже существует!');
+                    showToast('❌ Пользователь с таким именем уже существует!', false);
                     return;
                 }
                 const userData = {
@@ -1173,9 +1224,10 @@
                     gear: { gpu: {}, cpu: {}, ram: {} },
                     minedTotal: 0,
                     total: 0,
-                    admin: false,
                     chartData: {},
                     tradePoints: {},
+                    transferHistory: [],
+                    history: [],
                     registered: Date.now()
                 };
                 DEFAULT_ASSETS.forEach(a => {
@@ -1191,20 +1243,20 @@
                         setTimeout(() => savePricesToFirebase(), 1000);
                         enterGame();
                     })
-                    .catch(e => showToast('❌ Ошибка регистрации: ' + e.message));
+                    .catch(e => showToast('❌ Ошибка регистрации: ' + e.message, false));
             })
-            .catch(e => showToast('❌ Ошибка: ' + e.message));
+            .catch(e => showToast('❌ Ошибка: ' + e.message, false));
     }
 
     function loginUser() {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
-        if (!username || !password) { showToast('❌ Введите имя и пароль!'); return; }
+        if (!username || !password) { showToast('❌ Введите имя и пароль!', false); return; }
 
         db.ref('users').orderByChild('username').equalTo(username).once('value')
             .then(snapshot => {
                 const data = snapshot.val();
-                if (!data) { showToast('❌ Пользователь не найден! Зарегистрируйтесь.'); return; }
+                if (!data) { showToast('❌ Пользователь не найден! Зарегистрируйтесь.', false); return; }
                 let found = false;
                 for (const [id, user] of Object.entries(data)) {
                     if (user.username === username) {
@@ -1212,12 +1264,11 @@
                             myUserId = id;
                             myUsername = username;
                             myPassword = password;
-                            isAdmin = user.admin || false;
                             isLoggedIn = true;
                             found = true;
                             break;
                         } else {
-                            showToast('❌ Неправильный пароль!');
+                            showToast('❌ Неправильный пароль!', false);
                             return;
                         }
                     }
@@ -1226,10 +1277,10 @@
                     saveSession();
                     enterGame();
                 } else {
-                    showToast('❌ Ошибка входа');
+                    showToast('❌ Ошибка входа', false);
                 }
             })
-            .catch(e => showToast('❌ Ошибка: ' + e.message));
+            .catch(e => showToast('❌ Ошибка: ' + e.message, false));
     }
 
     function logout() {
@@ -1238,7 +1289,6 @@
         saveToFirebase(total);
         clearSession();
         isLoggedIn = false;
-        isAdmin = false;
         loginOverlay.style.display = 'flex';
         document.getElementById('appContainer').style.display = 'none';
         showToast('👋 Вы вышли из аккаунта');
@@ -1246,7 +1296,7 @@
 
     function saveSession() {
         if (!isLoggedIn) return;
-        const session = { username: myUsername, userId: myUserId, password: myPassword, isAdmin: isAdmin, timestamp: Date.now() };
+        const session = { username: myUsername, userId: myUserId, password: myPassword, timestamp: Date.now() };
         setCookie('cryptoSession', session, 365);
     }
 
@@ -1256,7 +1306,6 @@
             myUsername = session.username;
             myUserId = session.userId;
             myPassword = session.password || '';
-            isAdmin = session.isAdmin || false;
             isLoggedIn = true;
             return true;
         }
@@ -1265,8 +1314,7 @@
 
     function clearSession() {
         isLoggedIn = false;
-        isAdmin = false;
-        const session = { username: myUsername, userId: myUserId, password: myPassword, isAdmin: false, loggedOut: true, timestamp: Date.now() };
+        const session = { username: myUsername, userId: myUserId, password: myPassword, loggedOut: true, timestamp: Date.now() };
         setCookie('cryptoSession', session, 365);
     }
 
@@ -1281,17 +1329,11 @@
         loginOverlay.style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
 
-        if (isAdmin) {
-            adminTabBtn.style.display = 'block';
-            adminBadge.style.display = 'inline-block';
-        }
-
         if (firebaseAvailable) {
             loadFromFirebase().then(() => {
                 loadPricesFromFirebase();
                 syncPrices();
                 loadLeaderboard();
-                if (isAdmin) loadAdminUsers();
                 initGame();
             });
             db.ref('.info/connected').on('value', snap => {
@@ -1324,8 +1366,7 @@
             let html = '<div class="history-title">🏆 Топ игроков</div>';
             entries.slice(0, 20).forEach(([id, u], i) => {
                 const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-                const adminTag = u.admin ? ' 👑' : '';
-                html += `<div class="lb-item"><span class="name">${medal} ${u.username}${adminTag}</span><span class="total">${formatRub(u.total || 0)}</span></div>`;
+                html += `<div class="lb-item"><span class="name">${medal} ${u.username}</span><span class="total">${formatRub(u.total || 0)}</span></div>`;
             });
             leaderboardList.innerHTML = html;
             onlineCount.textContent = entries.length;
@@ -1343,6 +1384,8 @@
         renderShop();
         updateMiningUI();
         renderPortfolio();
+        renderTransferHistory();
+        updateTransferBalance();
 
         if (state.miningActive && isLoggedIn) {
             startMiningLoop();
@@ -1387,13 +1430,10 @@
 
     // ==================== СОБЫТИЯ ====================
     document.addEventListener('DOMContentLoaded', () => {
-        // Автовход
         if (loadSession() && isSessionActive() && firebaseAvailable) {
             db.ref('users/' + myUserId).once('value')
                 .then(snapshot => {
                     if (snapshot.exists()) {
-                        const data = snapshot.val();
-                        isAdmin = data.admin || false;
                         userNameDisplay.textContent = myUsername;
                         isLoggedIn = true;
                         loginOverlay.style.display = 'none';
@@ -1402,11 +1442,6 @@
                             loadPricesFromFirebase();
                             syncPrices();
                             loadLeaderboard();
-                            if (isAdmin) {
-                                adminTabBtn.style.display = 'block';
-                                adminBadge.style.display = 'inline-block';
-                                loadAdminUsers();
-                            }
                             initGame();
                         });
                     } else {
@@ -1420,10 +1455,6 @@
             isLoggedIn = true;
             loginOverlay.style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
-            if (isAdmin) {
-                adminTabBtn.style.display = 'block';
-                adminBadge.style.display = 'inline-block';
-            }
             loadPricesFromFirebase();
             initGame();
         }
@@ -1459,7 +1490,7 @@
                 document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
                 if (btn.dataset.tab === 'leaderboard') loadLeaderboard();
                 if (btn.dataset.tab === 'portfolio') renderPortfolio();
-                if (btn.dataset.tab === 'admin' && isAdmin) loadAdminUsers();
+                if (btn.dataset.tab === 'transfer') { updateTransferBalance(); renderTransferHistory(); }
                 if (btn.dataset.tab === 'trade') setTimeout(updateChart, 100);
             });
         });
@@ -1490,6 +1521,12 @@
         document.getElementById('buyBtn').addEventListener('click', () => executeTrade('buy'));
         document.getElementById('sellBtn').addEventListener('click', () => executeTrade('sell'));
 
+        // Transfer
+        transferBtn.addEventListener('click', executeTransfer);
+        transferAmountInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeTransfer(); });
+        transferToInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeTransfer(); });
+        transferCoinSelect.addEventListener('change', updateTransferBalance);
+
         // Mining
         toggleMiningBtn.addEventListener('click', toggleMining);
         mineCoinSelect.addEventListener('change', () => {
@@ -1500,13 +1537,14 @@
 
         // Reset
         document.getElementById('resetBtn').addEventListener('click', () => {
-            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
             if (confirm('Сбросить прогресс?')) {
                 if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
                 state.rub = 0;
                 state.balances = {};
                 state.chartData = {};
                 state.tradePoints = {};
+                state.transferHistory = [];
                 DEFAULT_ASSETS.forEach(a => {
                     state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
                     state.chartData[a.id] = [];
@@ -1527,6 +1565,7 @@
                 renderShop();
                 updateMiningUI();
                 renderPortfolio();
+                renderTransferHistory();
                 const total = calcTotal();
                 saveToFirebase(total);
                 showToast('🔄 Сброшено');
@@ -1535,7 +1574,7 @@
 
         // Save
         document.getElementById('saveBtn').addEventListener('click', () => {
-            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
             const total = calcTotal();
             saveToFirebase(total);
             savePricesToFirebase();
@@ -1548,10 +1587,6 @@
                 logout();
             }
         });
-
-        // Admin
-        adminAddCoinBtn.addEventListener('click', adminAddCoin);
-        adminSetCoinBtn.addEventListener('click', adminSetCoin);
 
         // Resize chart
         window.addEventListener('resize', () => {
