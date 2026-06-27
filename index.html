@@ -401,9 +401,9 @@ let state = {
 };
 
 DEFAULT_ASSETS.forEach(a => {
-    state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-    state.chartData[a.id] = [];
-    state.tradePoints[a.id] = [];
+    if (!state.balances[a.id]) state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
+    if (!state.chartData[a.id]) state.chartData[a.id] = [];
+    if (!state.tradePoints[a.id]) state.tradePoints[a.id] = [];
 });
 
 // ==================== DOM ====================
@@ -503,7 +503,7 @@ function launchConfetti() {
     setTimeout(() => { container.innerHTML = ''; }, 4500);
 }
 
-// ==================== СОХРАНЕНИЕ (БЕЗ АВТОЗАМЕНЫ) ====================
+// ==================== СОХРАНЕНИЕ В FIREBASE ====================
 function saveToFirebase() {
     if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
     try {
@@ -524,13 +524,14 @@ function saveToFirebase() {
     } catch(e) { console.warn('⚠️ Ошибка:', e.message); }
 }
 
-// ==================== ЗАГРУЗКА (БЕЗ ПЕРЕЗАПИСИ) ====================
+// ==================== ЗАГРУЗКА ИЗ FIREBASE (БЕЗ ПЕРЕЗАПИСИ) ====================
 function loadFromFirebase() {
     if (!firebaseAvailable || !myUserId || !isLoggedIn) return Promise.resolve(false);
     return db.ref('users/' + myUserId).once('value')
         .then(snapshot => {
             const data = snapshot.val();
             if (data) {
+                // ✅ ПРОСТО ЗАГРУЖАЕМ ДАННЫЕ ИЗ FIREBASE КАК ЕСТЬ
                 state.rub = data.rub ?? 0;
                 state.balances = data.balances || {};
                 state.chartData = data.chartData || {};
@@ -538,6 +539,7 @@ function loadFromFirebase() {
                 state.transferHistory = data.transferHistory || [];
                 state.history = data.history || [];
                 
+                // Дополняем недостающие активы только если их нет в базе
                 DEFAULT_ASSETS.forEach(a => {
                     if (state.balances[a.id] === undefined) {
                         state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
