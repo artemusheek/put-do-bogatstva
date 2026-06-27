@@ -22,7 +22,6 @@
             color: #eef4fa;
         }
 
-        /* Liquid Glass эффект (iOS 27 style) */
         .glass {
             background: rgba(18, 28, 46, 0.55);
             backdrop-filter: blur(32px) saturate(180%);
@@ -44,7 +43,6 @@
             padding: 24px 22px 28px;
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 8px;
@@ -89,7 +87,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Балансы */
         .balance-panel {
             display: flex;
             flex-wrap: wrap;
@@ -127,13 +124,13 @@
         .value.ton { color: #6ee7b7; }
         .value.total { color: #c8b6ff; }
 
-        /* График */
         .chart-wrapper {
             padding: 14px 12px 8px;
             margin: 6px 0 14px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 32px;
             border: 1px solid rgba(255, 255, 255, 0.04);
+            position: relative;
         }
 
         .chart-header {
@@ -160,13 +157,12 @@
 
         #priceChart {
             width: 100%;
-            height: 110px;
+            height: 130px;
             display: block;
             border-radius: 16px;
             background: transparent;
         }
 
-        /* Сетка рынка */
         .market-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
@@ -199,7 +195,6 @@
         .positive { color: #4ade80; }
         .negative { color: #f87171; }
 
-        /* Торговля */
         .trade-panel {
             padding: 14px 14px 12px;
             margin: 4px 0 12px;
@@ -286,7 +281,6 @@
         }
         .trade-info span:last-child { color: #d6e8ff; font-weight: 500; }
 
-        /* История */
         .history-box {
             margin-top: 12px;
             padding: 8px 12px 2px;
@@ -319,7 +313,6 @@
         .history-item .side-buy { color: #4ade80; }
         .history-item .side-sell { color: #f87171; }
 
-        /* ===== МАЙНИНГ ТАБ ===== */
         .mining-panel {
             display: flex;
             flex-direction: column;
@@ -390,10 +383,9 @@
         .mining-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0a1a22; }
         .mining-btn.active { background: #0f3b2a; color: #7ddfa0; border-color: #1b7a4a; }
 
-        /* видеокарты */
         .gpu-shop {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 8px;
             margin-top: 4px;
         }
@@ -409,36 +401,36 @@
 
         .gpu-card .gpu-name {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             color: #d6e8ff;
         }
 
         .gpu-card .gpu-hash {
-            font-size: 12px;
+            font-size: 11px;
             color: #8ba0be;
         }
 
         .gpu-card .gpu-price {
-            font-size: 13px;
+            font-size: 12px;
             color: #b7e0ff;
             font-weight: 600;
             margin: 4px 0;
         }
 
         .gpu-card .gpu-count {
-            font-size: 12px;
+            font-size: 11px;
             color: #8ba0be;
         }
 
         .gpu-card .buy-gpu-btn {
             margin-top: 6px;
-            padding: 6px 18px;
+            padding: 6px 16px;
             border: none;
             border-radius: 30px;
             background: #1a3a4a;
             color: #8fd0e8;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             transition: 0.1s;
             border: 1px solid rgba(255,255,255,0.04);
@@ -503,16 +495,15 @@
 <body>
 
 <div class="app-container glass">
-    <!-- Tabs -->
     <div class="tabs">
         <button class="tab-btn active" data-tab="trade">📊 Трейдинг</button>
         <button class="tab-btn" data-tab="mining">⛏️ Майнинг</button>
     </div>
 
-    <!-- ===== TAB TRADE ===== -->
     <div id="tab-trade" class="tab-content active">
         <div class="balance-panel">
             <div class="balance-item"><span class="label">🇷🇺 RUB</span><span class="value rub" id="rubBalance">0 ₽</span></div>
+            <div class="balance-item"><span class="label">🔶 TON</span><span class="value ton" id="tonBalance">1.0000 TON</span></div>
             <div class="balance-item"><span class="label">📊 итого</span><span class="value total" id="totalValue">0 ₽</span></div>
         </div>
 
@@ -521,7 +512,7 @@
                 <span class="pair" id="chartPair">TON / RUB</span>
                 <span class="price-badge" id="chartPrice">240.50 ₽</span>
             </div>
-            <canvas id="priceChart" width="700" height="110"></canvas>
+            <canvas id="priceChart" width="700" height="130"></canvas>
         </div>
 
         <div class="market-grid" id="marketGrid"></div>
@@ -551,7 +542,6 @@
         </div>
     </div>
 
-    <!-- ===== TAB MINING ===== -->
     <div id="tab-mining" class="tab-content">
         <div class="mining-panel">
             <div class="mining-stats">
@@ -587,7 +577,6 @@
 
 <script>
     (function() {
-        // ---------- ЗВУКИ ----------
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
 
@@ -607,7 +596,6 @@
             } catch(e) {}
         }
 
-        // ---------- COOKIE ----------
         function setCookie(name, value, days = 14) {
             const d = new Date();
             d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
@@ -622,7 +610,6 @@
             return null;
         }
 
-        // ---------- ДАННЫЕ ----------
         const DEFAULT_ASSETS = [
             { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50, change: 0 },
             { id: 'btc', name: 'BTC', symbol: '₿', price: 4520000, change: 0 },
@@ -636,16 +623,24 @@
             { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83, change: 0 },
         ];
 
+        // НОВЫЕ ВИДЕОКАРТЫ: старые дешёвые + новые
         const GPU_TYPES = [
-            { id: 'rx6600', name: 'RX 6600', hash: 1.2, price: 22000 },
-            { id: 'rx7600', name: 'RX 7600', hash: 2.0, price: 35000 },
-            { id: 'rx9600', name: 'RX 9600 TX', hash: 3.8, price: 62000 },
-            { id: 'rtx4060', name: 'RTX 4060', hash: 2.5, price: 42000 },
-            { id: 'rtx4070', name: 'RTX 4070', hash: 4.2, price: 78000 },
-            { id: 'rtx4090', name: 'RTX 4090', hash: 8.5, price: 165000 },
+            // старые дешёвые
+            { id: 'gtx750ti', name: 'GTX 750 Ti', hash: 0.3, price: 3500 },
+            { id: 'gtx960', name: 'GTX 960', hash: 0.5, price: 5500 },
+            { id: 'rx560', name: 'RX 560', hash: 0.6, price: 6500 },
+            { id: 'gtx1050ti', name: 'GTX 1050 Ti', hash: 0.8, price: 8500 },
+            { id: 'rx570', name: 'RX 570', hash: 1.0, price: 12000 },
+            // средние
+            { id: 'rx6600', name: 'RX 6600', hash: 1.8, price: 22000 },
+            { id: 'rx7600', name: 'RX 7600', hash: 2.5, price: 35000 },
+            { id: 'rx9600tx', name: 'RX 9600 TX', hash: 4.0, price: 62000 },
+            // топовые
+            { id: 'rtx4060', name: 'RTX 4060', hash: 3.2, price: 42000 },
+            { id: 'rtx4070', name: 'RTX 4070', hash: 5.0, price: 78000 },
+            { id: 'rtx4090', name: 'RTX 4090', hash: 9.0, price: 165000 },
         ];
 
-        // ---------- СОСТОЯНИЕ ----------
         let state = {
             rub: 0,
             ton: 1.0,
@@ -654,12 +649,12 @@
             selectedAssetId: 'ton',
             tradeAmount: 1.0,
             chartData: [],
-            // mining
-            gpus: {}, // { gpuId: count }
+            tradePoints: [], // { price, type, index }
+            gpus: {},
             miningActive: false,
             minedTotal: 0,
             miningCoin: 'ton',
-            hashPerGPU: 0, // суммарный хешрейт
+            hashPerGPU: 0,
         };
 
         // DOM
@@ -677,7 +672,6 @@
         const chartPrice = document.getElementById('chartPrice');
         const toastEl = document.getElementById('toast');
 
-        // mining DOM
         const hashrateDisplay = document.getElementById('hashrateDisplay');
         const minedDisplay = document.getElementById('minedDisplay');
         const miningStatus = document.getElementById('miningStatus');
@@ -685,7 +679,6 @@
         const toggleMiningBtn = document.getElementById('toggleMiningBtn');
         const mineCoinSelect = document.getElementById('mineCoinSelect');
 
-        // ---------- ВСПОМОГАТЕЛЬНЫЕ ----------
         function formatRub(v) {
             if (v >= 1000) return v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
             return v.toFixed(2) + ' ₽';
@@ -696,7 +689,6 @@
         function getSelectedPrice() { const a = getAsset(state.selectedAssetId); return a ? a.price : 0; }
         function getSelectedAsset() { return getAsset(state.selectedAssetId); }
 
-        // ---------- СОХРАНЕНИЕ / ЗАГРУЗКА ----------
         function saveGame() {
             const data = {
                 rub: state.rub,
@@ -705,7 +697,8 @@
                 history: state.history.slice(0, 30),
                 selectedAssetId: state.selectedAssetId,
                 tradeAmount: state.tradeAmount,
-                chartData: state.chartData.slice(-40),
+                chartData: state.chartData.slice(-50),
+                tradePoints: state.tradePoints.slice(-20),
                 gpus: state.gpus,
                 minedTotal: state.minedTotal,
                 miningCoin: state.miningCoin,
@@ -733,7 +726,9 @@
                     state.selectedAssetId = saved.selectedAssetId || 'ton';
                     state.tradeAmount = saved.tradeAmount ?? 1.0;
                     state.chartData = saved.chartData || [];
-                    if (state.chartData.length > 60) state.chartData = state.chartData.slice(-40);
+                    state.tradePoints = saved.tradePoints || [];
+                    if (state.chartData.length > 60) state.chartData = state.chartData.slice(-50);
+                    if (state.tradePoints.length > 30) state.tradePoints = state.tradePoints.slice(-20);
                     state.gpus = saved.gpus || {};
                     state.minedTotal = saved.minedTotal || 0;
                     state.miningCoin = saved.miningCoin || 'ton';
@@ -744,7 +739,6 @@
             return false;
         }
 
-        // ---------- ОБНОВЛЕНИЕ UI ----------
         function updateBalances() {
             rubEl.textContent = formatRub(state.rub);
             tonEl.textContent = formatTon(state.ton);
@@ -763,12 +757,12 @@
             }
         }
 
-        // ---------- ГРАФИК (чувствительный) ----------
+        // ГРАФИК с точками сделок
         function updateChart() {
             const asset = getSelectedAsset();
             if (!asset) return;
             state.chartData.push(asset.price);
-            if (state.chartData.length > 55) state.chartData.shift();
+            if (state.chartData.length > 60) state.chartData.shift();
 
             const w = chartCanvas.width;
             const h = chartCanvas.height;
@@ -781,19 +775,19 @@
             }
 
             const data = state.chartData;
-            const min = Math.min(...data) * 0.992;
-            const max = Math.max(...data) * 1.008;
+            const min = Math.min(...data) * 0.99;
+            const max = Math.max(...data) * 1.01;
             const range = max - min || 1;
-            const pad = 4;
+            const pad = 6;
             const graphW = w - pad * 2;
             const graphH = h - pad * 2;
 
-            // градиентная линия
+            // линия
             ctx.beginPath();
             ctx.strokeStyle = '#3b82f6';
-            ctx.lineWidth = 2.8;
-            ctx.shadowColor = 'rgba(59,130,246,0.4)';
-            ctx.shadowBlur = 12;
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = 'rgba(59,130,246,0.3)';
+            ctx.shadowBlur = 10;
 
             for (let i = 0; i < data.length; i++) {
                 const x = pad + (i / (data.length - 1)) * graphW;
@@ -804,33 +798,69 @@
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // заливка с градиентом
+            // заливка
             const lastX = pad + ((data.length - 1) / (data.length - 1)) * graphW;
             const lastY = pad + graphH - ((data[data.length - 1] - min) / range) * graphH;
             ctx.lineTo(lastX, pad + graphH);
             ctx.lineTo(pad, pad + graphH);
             ctx.closePath();
             const grad = ctx.createLinearGradient(0, pad, 0, pad + graphH);
-            grad.addColorStop(0, 'rgba(59,130,246,0.25)');
-            grad.addColorStop(0.5, 'rgba(59,130,246,0.08)');
+            grad.addColorStop(0, 'rgba(59,130,246,0.2)');
+            grad.addColorStop(0.6, 'rgba(59,130,246,0.05)');
             grad.addColorStop(1, 'rgba(59,130,246,0.01)');
             ctx.fillStyle = grad;
             ctx.fill();
 
-            // точки (эффект)
+            // ТОЧКИ СДЕЛОК с линиями
+            const points = state.tradePoints.filter(p => p.index < data.length);
+            points.forEach(p => {
+                const idx = p.index;
+                const x = pad + (idx / (data.length - 1)) * graphW;
+                const y = pad + graphH - ((p.price - min) / range) * graphH;
+                const color = p.type === 'buy' ? '#4ade80' : '#f87171';
+
+                // вертикальная линия от точки до низа графика
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, pad + graphH);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // точка
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = color;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 14;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // обводка точки
+                ctx.beginPath();
+                ctx.arc(x, y, 7, 0, 2 * Math.PI);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.3;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            });
+
+            // последняя точка свечение
             const last = data[data.length - 1];
-            const lastX2 = pad + ((data.length - 1) / (data.length - 1)) * graphW;
-            const lastY2 = pad + graphH - ((last - min) / range) * graphH;
+            const lx = pad + ((data.length - 1) / (data.length - 1)) * graphW;
+            const ly = pad + graphH - ((last - min) / range) * graphH;
             ctx.beginPath();
-            ctx.arc(lastX2, lastY2, 4, 0, 2 * Math.PI);
+            ctx.arc(lx, ly, 4, 0, 2 * Math.PI);
             ctx.fillStyle = '#60a5fa';
-            ctx.shadowColor = 'rgba(59,130,246,0.6)';
-            ctx.shadowBlur = 16;
+            ctx.shadowColor = 'rgba(59,130,246,0.5)';
+            ctx.shadowBlur = 18;
             ctx.fill();
             ctx.shadowBlur = 0;
         }
 
-        // ---------- РЕНДЕР РЫНКА ----------
         function renderMarket() {
             marketGrid.innerHTML = '';
             state.assets.forEach(asset => {
@@ -855,7 +885,6 @@
             });
         }
 
-        // ---------- ИСТОРИЯ ----------
         function addHistory(type, symbol, amount, price) {
             state.history.unshift({
                 type, symbol, amount: Math.round(amount * 1000) / 1000,
@@ -882,7 +911,6 @@
             });
         }
 
-        // ---------- ТОРГОВЛЯ ----------
         function executeTrade(type) {
             const amount = state.tradeAmount;
             if (amount <= 0) return;
@@ -897,12 +925,17 @@
                 state.ton += amount;
                 playBeep('buy');
                 addHistory('buy', asset.symbol, amount, price);
+                // добавляем точку на график
+                state.tradePoints.push({ price: price, type: 'buy', index: state.chartData.length - 1 });
+                if (state.tradePoints.length > 30) state.tradePoints.shift();
             } else {
                 if (state.ton < amount) { showToast('❌ Недостаточно TONCOIN!'); return; }
                 state.ton -= amount;
                 state.rub += totalCost;
                 playBeep('sell');
                 addHistory('sell', asset.symbol, amount, price);
+                state.tradePoints.push({ price: price, type: 'sell', index: state.chartData.length - 1 });
+                if (state.tradePoints.length > 30) state.tradePoints.shift();
             }
             updateBalances();
             renderMarket();
@@ -911,7 +944,7 @@
             saveGame();
         }
 
-        // ---------- МАЙНИНГ ----------
+        // МАЙНИНГ
         function calcHashrate() {
             let total = 0;
             for (const [id, count] of Object.entries(state.gpus)) {
@@ -969,7 +1002,6 @@
             toggleMiningBtn.classList.toggle('active', state.miningActive);
         }
 
-        // цикл майнинга
         let miningInterval = null;
 
         function toggleMining() {
@@ -1006,8 +1038,7 @@
                     showToast('⛔ Майнинг остановлен: нет видеокарт');
                     return;
                 }
-                // добыча за 5 секунд: hash * 0.0002 (баланс)
-                const reward = hashrate * 0.0002;
+                const reward = hashrate * 0.00015;
                 state.minedTotal += reward;
                 state.ton += reward;
                 updateBalances();
@@ -1015,7 +1046,6 @@
             }, 5000);
         }
 
-        // ---------- TOAST ----------
         let toastTimeout = null;
         function showToast(msg) {
             toastEl.textContent = msg;
@@ -1024,7 +1054,6 @@
             toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2200);
         }
 
-        // ---------- ИНИЦИАЛИЗАЦИЯ ----------
         function initGame() {
             const loaded = loadGame();
             if (!loaded) {
@@ -1035,6 +1064,7 @@
                 state.selectedAssetId = 'ton';
                 state.tradeAmount = 1.0;
                 state.chartData = [];
+                state.tradePoints = [];
                 state.gpus = {};
                 state.minedTotal = 0;
                 state.miningCoin = 'ton';
@@ -1044,7 +1074,7 @@
             if (!state.assets || state.assets.length === 0) {
                 state.assets = JSON.parse(JSON.stringify(DEFAULT_ASSETS));
             }
-            if (state.chartData.length > 60) state.chartData = state.chartData.slice(-40);
+            if (state.chartData.length > 60) state.chartData = state.chartData.slice(-50);
             if (!state.gpus) state.gpus = {};
 
             renderMarket();
@@ -1056,7 +1086,6 @@
             renderGPUshop();
             updateMiningUI();
 
-            // если было активно — возобновляем
             if (state.miningActive) {
                 startMiningLoop();
                 updateMiningUI();
@@ -1066,11 +1095,9 @@
             window._saveInterval = setInterval(() => saveGame(), 30000);
         }
 
-        // ---------- ПОДПИСКИ ----------
         document.addEventListener('DOMContentLoaded', () => {
             initGame();
 
-            // Tabs
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1080,7 +1107,6 @@
                 });
             });
 
-            // Trade
             document.getElementById('decAmount').addEventListener('click', () => {
                 let v = state.tradeAmount - 0.5;
                 if (v < 0.1) v = 0.1;
@@ -1096,14 +1122,12 @@
             document.getElementById('buyBtn').addEventListener('click', () => executeTrade('buy'));
             document.getElementById('sellBtn').addEventListener('click', () => executeTrade('sell'));
 
-            // Mining
             toggleMiningBtn.addEventListener('click', toggleMining);
             mineCoinSelect.addEventListener('change', () => {
                 state.miningCoin = mineCoinSelect.value;
                 saveGame();
             });
 
-            // Reset
             document.getElementById('resetBtn').addEventListener('click', () => {
                 if (confirm('Сбросить прогресс?')) {
                     document.cookie = 'cryptoTraderSave=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
@@ -1115,6 +1139,7 @@
                     state.selectedAssetId = 'ton';
                     state.tradeAmount = 1.0;
                     state.chartData = [];
+                    state.tradePoints = [];
                     state.gpus = {};
                     state.minedTotal = 0;
                     state.miningActive = false;
@@ -1132,7 +1157,6 @@
 
             document.getElementById('saveBtn').addEventListener('click', saveGame);
 
-            // Колебание цен (5 сек)
             setInterval(() => {
                 state.assets.forEach(asset => {
                     const volatility = (Math.random() * 4 - 2) / 100;
