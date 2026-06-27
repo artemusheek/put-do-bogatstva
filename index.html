@@ -77,7 +77,7 @@
         .login-box p {
             color: #8ba0be;
             font-size: 14px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .login-box input {
@@ -90,6 +90,7 @@
             font-size: 16px;
             outline: none;
             transition: 0.2s;
+            margin-bottom: 10px;
         }
 
         .login-box input:focus {
@@ -99,7 +100,7 @@
 
         .login-box .login-btn {
             width: 100%;
-            margin-top: 14px;
+            margin-top: 6px;
             padding: 14px;
             border: none;
             border-radius: 40px;
@@ -114,8 +115,18 @@
         .login-box .login-btn:hover { transform: scale(1.02); }
         .login-box .login-btn:active { transform: scale(0.96); }
 
+        .login-box .register-link {
+            color: #8ba0be;
+            font-size: 13px;
+            margin-top: 12px;
+            cursor: pointer;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .login-box .register-link:hover { color: #b7d6f5; }
+
         .online-status {
-            color: #4ade80;
             font-size: 12px;
             margin-top: 10px;
         }
@@ -199,6 +210,10 @@
         .value.rub { color: #7bc9ff; }
         .value.ton { color: #6ee7b7; }
         .value.total { color: #c8b6ff; }
+        .value.btc { color: #f7931a; }
+        .value.eth { color: #627eea; }
+        .value.sol { color: #9945ff; }
+        .value.xrp { color: #00aae4; }
 
         .user-badge {
             background: rgba(59, 130, 246, 0.15);
@@ -545,7 +560,7 @@
             margin-top: 14px;
         }
 
-        .reset-btn, .save-btn {
+        .reset-btn, .save-btn, .logout-btn {
             background: transparent;
             border: 1px solid #2f4862;
             color: #8baecf;
@@ -555,7 +570,8 @@
             cursor: pointer;
             transition: 0.1s;
         }
-        .reset-btn:active, .save-btn:active { background: #1f3142; color: white; }
+        .reset-btn:active, .save-btn:active, .logout-btn:active { background: #1f3142; color: white; }
+        .logout-btn { border-color: #6b2f3a; color: #f7a1b0; }
 
         .footer-note {
             text-align: center;
@@ -611,6 +627,25 @@
             font-weight: 600;
         }
 
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .portfolio-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .portfolio-item .p-icon { font-size: 18px; }
+        .portfolio-item .p-name { font-size: 11px; color: #8ba0be; }
+        .portfolio-item .p-balance { font-size: 13px; font-weight: 600; color: #b7e0ff; }
+
         @media (max-width: 600px) {
             .app-container { padding: 16px; }
             .balance-item .value { font-size: 14px; }
@@ -625,9 +660,13 @@
 <div class="login-overlay" id="loginOverlay">
     <div class="login-box glass">
         <h1>🚀 Крипто-трейдер</h1>
-        <p>Введите имя, чтобы присоединиться к онлайн-игре</p>
-        <input type="text" id="usernameInput" placeholder="Ваше имя..." maxlength="20" autofocus>
-        <button class="login-btn" id="loginBtn">Войти в игру</button>
+        <p>Введите данные для входа</p>
+        <input type="text" id="usernameInput" placeholder="Имя пользователя..." maxlength="20" autofocus>
+        <input type="password" id="passwordInput" placeholder="Пароль..." maxlength="30">
+        <button class="login-btn" id="loginBtn">🔑 Войти</button>
+        <div style="margin-top:10px;">
+            <span class="register-link" id="registerLink">📝 Зарегистрироваться</span>
+        </div>
         <div class="online-status" id="onlineStatus">🔄 Подключение...</div>
     </div>
 </div>
@@ -646,12 +685,15 @@
     <div class="tabs">
         <button class="tab-btn active" data-tab="trade">📊 Трейдинг</button>
         <button class="tab-btn" data-tab="mining">⛏️ Майнинг</button>
+        <button class="tab-btn" data-tab="portfolio">💼 Портфель</button>
         <button class="tab-btn" data-tab="leaderboard">🏆 Рейтинг</button>
     </div>
 
+    <!-- TAB TRADE -->
     <div id="tab-trade" class="tab-content active">
         <div class="balance-panel">
             <div class="balance-item"><span class="label">🇷🇺 RUB</span><span class="value rub" id="rubBalance">0 ₽</span></div>
+            <div class="balance-item"><span class="label">🔶 TON</span><span class="value ton" id="tonBalance">1.0000 TON</span></div>
             <div class="balance-item"><span class="label">📊 итого</span><span class="value total" id="totalValue">0 ₽</span></div>
         </div>
 
@@ -690,6 +732,7 @@
         </div>
     </div>
 
+    <!-- TAB MINING -->
     <div id="tab-mining" class="tab-content">
         <div class="mining-panel">
             <div class="mining-stats">
@@ -714,6 +757,18 @@
         </div>
     </div>
 
+    <!-- TAB PORTFOLIO -->
+    <div id="tab-portfolio" class="tab-content">
+        <div style="margin-bottom:12px;">
+            <div class="history-title">💰 Все ваши активы</div>
+            <div class="portfolio-grid" id="portfolioGrid"></div>
+        </div>
+        <div style="background:rgba(0,0,0,0.15); border-radius:20px; padding:12px; border:1px solid rgba(255,255,255,0.03);">
+            <div class="history-title">📊 Итого: <span id="portfolioTotal" style="color:#c8b6ff; font-weight:700;">0 ₽</span></div>
+        </div>
+    </div>
+
+    <!-- TAB LEADERBOARD -->
     <div id="tab-leaderboard" class="tab-content">
         <div class="leaderboard" id="leaderboardList">
             <div style="color:#4a617c; text-align:center; padding:20px;">Загрузка рейтинга...</div>
@@ -721,6 +776,7 @@
     </div>
 
     <div class="reset-area">
+        <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
         <button class="reset-btn" id="resetBtn">⟳ Сброс</button>
         <button class="save-btn" id="saveBtn">💾 Сохранить</button>
     </div>
@@ -746,48 +802,40 @@
     // Инициализация Firebase
     let firebaseAvailable = false;
     let db = null;
-    let testPassed = false;
 
     try {
         const app = firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         firebaseAvailable = true;
-        console.log('🔥 Firebase подключен к проекту: put-do-bogatstva');
-        
-        // Тестируем соединение
-        db.ref('.info/connected').on('value', (snap) => {
-            if (snap.val() === true) {
-                console.log('✅ Соединение с Firebase установлено');
-                document.getElementById('onlineStatus').textContent = '🟢 Онлайн';
-                document.getElementById('onlineStatus').style.color = '#4ade80';
-                testPassed = true;
-            } else {
-                console.log('⏳ Ожидание соединения...');
-            }
-        });
-
-        // Тестовая запись для проверки
-        db.ref('test').set({
-            timestamp: Date.now(),
-            message: 'Connection test'
-        }).then(() => {
-            console.log('✅ Тестовая запись успешно создана');
-        }).catch((error) => {
-            console.warn('⚠️ Ошибка записи:', error.message);
-            document.getElementById('onlineStatus').textContent = '⚠️ Ошибка записи в БД';
-            document.getElementById('onlineStatus').style.color = '#f87171';
-        });
-
+        console.log('🔥 Firebase подключен');
     } catch(e) {
-        console.warn('⚠️ Ошибка подключения Firebase:', e.message);
+        console.warn('⚠️ Ошибка Firebase:', e.message);
         firebaseAvailable = false;
-        document.getElementById('onlineStatus').textContent = '⚠️ Ошибка подключения';
-        document.getElementById('onlineStatus').style.color = '#f87171';
+    }
+
+    // ==================== COOKIE ====================
+    function setCookie(name, value, days = 30) {
+        const d = new Date();
+        d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + "; expires=" + d.toUTCString() + "; path=/";
+    }
+
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        if (match) {
+            try { return JSON.parse(decodeURIComponent(match[2])); } catch(e) { return null; }
+        }
+        return null;
+    }
+
+    function deleteCookie(name) {
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
     }
 
     // ==================== СОСТОЯНИЕ ====================
     let myUsername = '';
     let myUserId = '';
+    let myPassword = '';
 
     const DEFAULT_ASSETS = [
         { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50, change: 0 },
@@ -818,7 +866,7 @@
 
     let state = {
         rub: 0,
-        ton: 1.0,
+        balances: {}, // { assetId: amount }
         assets: JSON.parse(JSON.stringify(DEFAULT_ASSETS)),
         history: [],
         selectedAssetId: 'ton',
@@ -831,6 +879,11 @@
         miningCoin: 'ton',
         hashPerGPU: 0,
     };
+
+    // Инициализация балансов
+    DEFAULT_ASSETS.forEach(a => {
+        state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
+    });
 
     // DOM
     const rubEl = document.getElementById('rubBalance');
@@ -856,40 +909,75 @@
 
     const loginOverlay = document.getElementById('loginOverlay');
     const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
     const loginBtn = document.getElementById('loginBtn');
+    const registerLink = document.getElementById('registerLink');
     const onlineStatus = document.getElementById('onlineStatus');
     const userNameDisplay = document.getElementById('userNameDisplay');
     const onlineCount = document.getElementById('onlineCount');
     const leaderboardList = document.getElementById('leaderboardList');
+    const portfolioGrid = document.getElementById('portfolioGrid');
+    const portfolioTotal = document.getElementById('portfolioTotal');
 
     // ==================== ВСПОМОГАТЕЛЬНЫЕ ====================
     function formatRub(v) {
         if (v >= 1000) return v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
         return v.toFixed(2) + ' ₽';
     }
-    function formatTon(v) { return v.toFixed(4) + ' TON'; }
+    function formatCoin(v) { return v.toFixed(4); }
 
     function getAsset(id) { return state.assets.find(a => a.id === id); }
     function getSelectedPrice() { const a = getAsset(state.selectedAssetId); return a ? a.price : 0; }
     function getSelectedAsset() { return getAsset(state.selectedAssetId); }
 
     function calcTotal() {
-        const tonPrice = getAsset('ton')?.price || 240.5;
-        return state.rub + state.ton * tonPrice;
+        let total = state.rub;
+        state.assets.forEach(asset => {
+            const balance = state.balances[asset.id] || 0;
+            total += balance * asset.price;
+        });
+        return total;
+    }
+
+    // ==================== COOKIE СЕССИЯ ====================
+    function saveSession() {
+        const session = {
+            username: myUsername,
+            userId: myUserId,
+            password: myPassword,
+            timestamp: Date.now()
+        };
+        setCookie('cryptoSession', session, 30);
+        console.log('✅ Сессия сохранена в куки');
+    }
+
+    function loadSession() {
+        const session = getCookie('cryptoSession');
+        if (session && session.username && session.userId) {
+            myUsername = session.username;
+            myUserId = session.userId;
+            myPassword = session.password || '';
+            console.log('✅ Сессия загружена:', myUsername);
+            return true;
+        }
+        return false;
+    }
+
+    function clearSession() {
+        deleteCookie('cryptoSession');
+        console.log('🗑️ Сессия удалена');
     }
 
     // ==================== FIREBASE ФУНКЦИИ ====================
     function saveToFirebase() {
-        if (!firebaseAvailable || !myUserId) {
-            console.log('⏳ Firebase не доступен или пользователь не авторизован');
-            return;
-        }
+        if (!firebaseAvailable || !myUserId) return;
         try {
             const total = calcTotal();
             const data = {
                 username: myUsername,
+                password: myPassword,
                 rub: state.rub,
-                ton: state.ton,
+                balances: state.balances,
                 gpus: state.gpus,
                 minedTotal: state.minedTotal,
                 total: total,
@@ -897,82 +985,74 @@
             };
             
             db.ref('users/' + myUserId).set(data)
-                .then(() => {
-                    console.log('✅ Данные сохранены в Firebase');
-                })
-                .catch((error) => {
-                    console.warn('⚠️ Ошибка сохранения:', error.message);
-                });
-        } catch(e) { 
-            console.warn('⚠️ Ошибка сохранения:', e.message);
-        }
+                .then(() => console.log('✅ Данные сохранены'))
+                .catch(error => console.warn('⚠️ Ошибка:', error.message));
+        } catch(e) { console.warn('⚠️ Ошибка:', e.message); }
     }
 
     function loadFromFirebase() {
         if (!firebaseAvailable || !myUserId) return;
         
-        console.log('📥 Загрузка данных для:', myUserId);
-        db.ref('users/' + myUserId).once('value')
+        return db.ref('users/' + myUserId).once('value')
             .then(snapshot => {
                 const data = snapshot.val();
                 if (data) {
-                    console.log('✅ Данные загружены:', data);
                     state.rub = data.rub ?? 0;
-                    state.ton = data.ton ?? 1.0;
+                    state.balances = data.balances || {};
                     state.gpus = data.gpus || {};
                     state.minedTotal = data.minedTotal || 0;
+                    
+                    // Проверяем, что все активы есть в балансах
+                    DEFAULT_ASSETS.forEach(a => {
+                        if (state.balances[a.id] === undefined) {
+                            state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
+                        }
+                    });
+                    
                     updateBalances();
                     renderGPUshop();
                     updateMiningUI();
-                    showToast('✅ Данные загружены из Firebase');
-                } else {
-                    console.log('ℹ️ Новый пользователь, данных нет');
-                    // Создаем запись сразу
-                    saveToFirebase();
+                    renderPortfolio();
+                    showToast('✅ Данные загружены');
+                    return true;
                 }
+                return false;
             })
             .catch(error => {
                 console.warn('⚠️ Ошибка загрузки:', error.message);
+                return false;
             });
     }
 
-    // Синхронизация цен монет
     function syncPrices() {
         if (!firebaseAvailable) return;
-        
-        db.ref('prices').once('value')
-            .then(snapshot => {
-                const prices = snapshot.val();
-                if (prices) {
-                    state.assets.forEach(asset => {
-                        if (prices[asset.id] !== undefined) {
-                            const oldPrice = asset.price;
-                            asset.price = prices[asset.id];
-                            const change = ((asset.price - oldPrice) / oldPrice) * 100;
-                            asset.change = Math.round(change * 100) / 100;
-                        }
-                    });
-                    renderMarket();
-                    updatePriceDisplay();
-                    updateChart();
-                    updateBalances();
-                }
-            })
-            .catch(error => {
-                console.warn('⚠️ Ошибка синхронизации цен:', error.message);
-            });
+        db.ref('prices').on('value', snapshot => {
+            const prices = snapshot.val();
+            if (prices) {
+                state.assets.forEach(asset => {
+                    if (prices[asset.id] !== undefined) {
+                        const oldPrice = asset.price;
+                        asset.price = prices[asset.id];
+                        const change = ((asset.price - oldPrice) / oldPrice) * 100;
+                        asset.change = Math.round(change * 100) / 100;
+                    }
+                });
+                renderMarket();
+                updatePriceDisplay();
+                updateChart();
+                updateBalances();
+                renderPortfolio();
+            }
+        });
     }
 
-    // Обновить цены в Firebase
     function updatePricesInFirebase() {
         if (!firebaseAvailable) return;
         const prices = {};
         state.assets.forEach(a => { prices[a.id] = a.price; });
-        db.ref('prices').update(prices)
-            .catch(error => console.warn('⚠️ Ошибка обновления цен:', error.message));
+        db.ref('prices').update(prices).catch(e => console.warn(e));
     }
 
-    // Получить рейтинг
     function loadLeaderboard() {
         if (!firebaseAvailable) {
             leaderboardList.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Офлайн режим</div>';
@@ -997,10 +1077,11 @@
         });
     }
 
-    // ==================== ОБНОВЛЕНИЕ UI ====================
+    // ==================== UI ====================
     function updateBalances() {
         rubEl.textContent = formatRub(state.rub);
-        tonEl.textContent = formatTon(state.ton);
+        const tonBalance = state.balances['ton'] || 0;
+        tonEl.textContent = formatCoin(tonBalance) + ' TON';
         totalValueEl.textContent = formatRub(calcTotal());
     }
 
@@ -1014,7 +1095,27 @@
         }
     }
 
-    // ГРАФИК
+    function renderPortfolio() {
+        portfolioGrid.innerHTML = '';
+        let total = state.rub;
+        state.assets.forEach(asset => {
+            const balance = state.balances[asset.id] || 0;
+            const value = balance * asset.price;
+            total += value;
+            const div = document.createElement('div');
+            div.className = 'portfolio-item';
+            div.innerHTML = `
+                <div class="p-icon">${asset.symbol}</div>
+                <div class="p-name">${asset.name}</div>
+                <div class="p-balance">${formatCoin(balance)}</div>
+                <div style="font-size:11px;color:#8ba0be;">${formatRub(value)}</div>
+            `;
+            portfolioGrid.appendChild(div);
+        });
+        portfolioTotal.textContent = formatRub(total);
+    }
+
+    // ==================== ГРАФИК ====================
     function updateChart() {
         const asset = getSelectedAsset();
         if (!asset) return;
@@ -1089,14 +1190,6 @@
             ctx.shadowBlur = 14;
             ctx.fill();
             ctx.shadowBlur = 0;
-
-            ctx.beginPath();
-            ctx.arc(x, y, 7, 0, 2 * Math.PI);
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-            ctx.globalAlpha = 0.3;
-            ctx.stroke();
-            ctx.globalAlpha = 1;
         });
 
         const last = data[data.length - 1];
@@ -1111,6 +1204,7 @@
         ctx.shadowBlur = 0;
     }
 
+    // ==================== РЫНОК ====================
     function renderMarket() {
         marketGrid.innerHTML = '';
         state.assets.forEach(asset => {
@@ -1135,6 +1229,7 @@
         });
     }
 
+    // ==================== ИСТОРИЯ ====================
     function addHistory(type, symbol, amount, price) {
         state.history.unshift({
             type, symbol, amount: Math.round(amount * 1000) / 1000,
@@ -1170,30 +1265,33 @@
         const price = asset.price;
         const totalCost = amount * price;
 
+        const currentBalance = state.balances[asset.id] || 0;
+
         if (type === 'buy') {
             if (state.rub < totalCost) { showToast('❌ Недостаточно RUB!'); return; }
             state.rub -= totalCost;
-            state.ton += amount;
+            state.balances[asset.id] = (state.balances[asset.id] || 0) + amount;
             playBeep('buy');
             addHistory('buy', asset.symbol, amount, price);
             state.tradePoints.push({ price: price, type: 'buy', index: state.chartData.length - 1 });
-            if (state.tradePoints.length > 30) state.tradePoints.shift();
         } else {
-            if (state.ton < amount) { showToast('❌ Недостаточно TONCOIN!'); return; }
-            state.ton -= amount;
+            if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!'); return; }
+            state.balances[asset.id] = currentBalance - amount;
             state.rub += totalCost;
             playBeep('sell');
             addHistory('sell', asset.symbol, amount, price);
             state.tradePoints.push({ price: price, type: 'sell', index: state.chartData.length - 1 });
-            if (state.tradePoints.length > 30) state.tradePoints.shift();
         }
+        if (state.tradePoints.length > 30) state.tradePoints.shift();
+        
         updateBalances();
         renderMarket();
         updatePriceDisplay();
         updateChart();
+        renderPortfolio();
         saveToFirebase();
         updatePricesInFirebase();
-        showToast(`✅ ${type === 'buy' ? 'Покупка' : 'Продажа'} ${amount.toFixed(1)} ${asset.symbol} за ${formatRub(totalCost)}`);
+        showToast(`✅ ${type === 'buy' ? 'Покупка' : 'Продажа'} ${amount.toFixed(1)} ${asset.symbol}`);
     }
 
     // ==================== МАЙНИНГ ====================
@@ -1294,9 +1392,10 @@
             }
             const reward = hashrate * 0.00015;
             state.minedTotal += reward;
-            state.ton += reward;
+            state.balances['ton'] = (state.balances['ton'] || 0) + reward;
             updateBalances();
             updateMiningUI();
+            renderPortfolio();
             saveToFirebase();
         }, 5000);
     }
@@ -1317,7 +1416,6 @@
             gain.connect(audioCtx.destination);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.08);
-            if (type === 'buy') setTimeout(() => { osc.frequency.value = 1100; }, 30);
         } catch(e) {}
     }
 
@@ -1330,44 +1428,118 @@
         toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2500);
     }
 
-    // ==================== ВХОД ====================
-    function enterGame() {
-        const name = usernameInput.value.trim();
-        if (!name) {
-            showToast('Введите имя!');
+    // ==================== АВТОРИЗАЦИЯ ====================
+    function registerUser() {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+        if (!username || !password) {
+            showToast('❌ Введите имя и пароль!');
             return;
         }
-        myUsername = name;
-        myUserId = 'user_' + name.replace(/\s/g, '_') + Date.now().toString(36);
+        if (password.length < 4) {
+            showToast('❌ Пароль должен быть минимум 4 символа');
+            return;
+        }
+
+        myUsername = username;
+        myPassword = password;
+        myUserId = 'user_' + username.replace(/\s/g, '_') + '_' + Date.now().toString(36);
+
+        // Проверяем, есть ли уже такой пользователь
+        db.ref('users').orderByChild('username').equalTo(username).once('value')
+            .then(snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    showToast('❌ Пользователь с таким именем уже существует!');
+                    return;
+                }
+                // Регистрируем
+                const userData = {
+                    username: myUsername,
+                    password: myPassword,
+                    rub: 0,
+                    balances: {},
+                    gpus: {},
+                    minedTotal: 0,
+                    total: 0,
+                    registered: Date.now()
+                };
+                DEFAULT_ASSETS.forEach(a => {
+                    userData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
+                });
+                
+                db.ref('users/' + myUserId).set(userData)
+                    .then(() => {
+                        showToast('✅ Регистрация успешна!');
+                        loginUser();
+                    })
+                    .catch(e => {
+                        showToast('❌ Ошибка регистрации: ' + e.message);
+                    });
+            })
+            .catch(e => {
+                showToast('❌ Ошибка: ' + e.message);
+            });
+    }
+
+    function loginUser() {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+        if (!username || !password) {
+            showToast('❌ Введите имя и пароль!');
+            return;
+        }
+
+        // Ищем пользователя
+        db.ref('users').orderByChild('username').equalTo(username).once('value')
+            .then(snapshot => {
+                const data = snapshot.val();
+                if (!data) {
+                    showToast('❌ Пользователь не найден! Зарегистрируйтесь.');
+                    return;
+                }
+                
+                // Находим запись
+                let found = false;
+                for (const [id, user] of Object.entries(data)) {
+                    if (user.username === username) {
+                        if (user.password === password) {
+                            myUserId = id;
+                            myUsername = username;
+                            myPassword = password;
+                            found = true;
+                            break;
+                        } else {
+                            showToast('❌ Неправильный пароль!');
+                            return;
+                        }
+                    }
+                }
+                
+                if (found) {
+                    enterGame();
+                } else {
+                    showToast('❌ Ошибка входа');
+                }
+            })
+            .catch(e => {
+                showToast('❌ Ошибка: ' + e.message);
+            });
+    }
+
+    function enterGame() {
         userNameDisplay.textContent = myUsername;
         loginOverlay.style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
+        saveSession();
 
         if (firebaseAvailable) {
-            loadFromFirebase();
-            syncPrices();
-            loadLeaderboard();
-            
-            // Слушаем изменения цен
-            db.ref('prices').on('value', snapshot => {
-                const prices = snapshot.val();
-                if (prices) {
-                    state.assets.forEach(asset => {
-                        if (prices[asset.id] !== undefined) {
-                            const oldPrice = asset.price;
-                            asset.price = prices[asset.id];
-                            const change = ((asset.price - oldPrice) / oldPrice) * 100;
-                            asset.change = Math.round(change * 100) / 100;
-                        }
-                    });
-                    renderMarket();
-                    updatePriceDisplay();
-                    updateChart();
-                    updateBalances();
-                }
+            loadFromFirebase().then(() => {
+                syncPrices();
+                loadLeaderboard();
+                initGame();
             });
-
-            // Статус соединения
+            
             db.ref('.info/connected').on('value', snap => {
                 if (snap.val() === true) {
                     onlineStatus.textContent = '🟢 Онлайн';
@@ -1378,9 +1550,8 @@
         } else {
             onlineStatus.textContent = '📡 Офлайн режим';
             onlineStatus.style.color = '#fbbf24';
+            initGame();
         }
-
-        initGame();
     }
 
     // ==================== ИНИЦИАЛИЗАЦИЯ ====================
@@ -1393,13 +1564,13 @@
         updateChart();
         renderGPUshop();
         updateMiningUI();
+        renderPortfolio();
 
         if (state.miningActive) {
             startMiningLoop();
             updateMiningUI();
         }
 
-        // Колебание цен
         setInterval(() => {
             state.assets.forEach(asset => {
                 const volatility = (Math.random() * 4 - 2) / 100;
@@ -1414,20 +1585,60 @@
             updatePriceDisplay();
             updateChart();
             updateBalances();
+            renderPortfolio();
             updatePricesInFirebase();
         }, 5000);
 
-        // Автосохранение
-        setInterval(() => { 
-            saveToFirebase(); 
-        }, 15000);
+        setInterval(() => { saveToFirebase(); }, 15000);
     }
 
     // ==================== СОБЫТИЯ ====================
-    loginBtn.addEventListener('click', enterGame);
-    usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') enterGame(); });
+    loginBtn.addEventListener('click', () => {
+        if (registerLink.textContent.includes('Зарегистрироваться')) {
+            registerUser();
+        } else {
+            loginUser();
+        }
+    });
+
+    registerLink.addEventListener('click', () => {
+        if (registerLink.textContent.includes('Зарегистрироваться')) {
+            registerLink.textContent = '🔑 Уже есть аккаунт? Войти';
+            loginBtn.textContent = '📝 Зарегистрироваться';
+        } else {
+            registerLink.textContent = '📝 Зарегистрироваться';
+            loginBtn.textContent = '🔑 Войти';
+        }
+    });
+
+    usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
+    passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
 
     document.addEventListener('DOMContentLoaded', () => {
+        // Проверяем сохраненную сессию
+        if (loadSession() && firebaseAvailable) {
+            // Проверяем, существует ли пользователь
+            db.ref('users/' + myUserId).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        userNameDisplay.textContent = myUsername;
+                        loginOverlay.style.display = 'none';
+                        document.getElementById('appContainer').style.display = 'block';
+                        loadFromFirebase().then(() => {
+                            syncPrices();
+                            loadLeaderboard();
+                            initGame();
+                        });
+                    } else {
+                        clearSession();
+                    }
+                })
+                .catch(() => {
+                    // Если ошибка, показываем вход
+                });
+        }
+
+        // Tabs
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1435,6 +1646,7 @@
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
                 document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
                 if (btn.dataset.tab === 'leaderboard') loadLeaderboard();
+                if (btn.dataset.tab === 'portfolio') renderPortfolio();
             });
         });
 
@@ -1463,8 +1675,10 @@
             if (confirm('Сбросить прогресс?')) {
                 if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
                 state.rub = 0;
-                state.ton = 1.0;
-                state.assets = JSON.parse(JSON.stringify(DEFAULT_ASSETS));
+                state.balances = {};
+                DEFAULT_ASSETS.forEach(a => {
+                    state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
+                });
                 state.history = [];
                 state.selectedAssetId = 'ton';
                 state.tradeAmount = 1.0;
@@ -1481,6 +1695,7 @@
                 updateChart();
                 renderGPUshop();
                 updateMiningUI();
+                renderPortfolio();
                 saveToFirebase();
                 showToast('🔄 Сброшено');
             }
@@ -1490,14 +1705,15 @@
             saveToFirebase();
             showToast('✅ Сохранено в Firebase');
         });
-    });
 
-    // Логируем ошибки
-    console.log('🚀 Игра запущена');
-    console.log('📡 Firebase доступен:', firebaseAvailable);
-    if (firebaseAvailable) {
-        console.log('🔗 URL базы:', firebaseConfig.databaseURL);
-    }
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('Выйти из аккаунта?')) {
+                clearSession();
+                if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
+                location.reload();
+            }
+        });
+    });
 </script>
 </body>
 </html>
