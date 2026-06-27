@@ -38,7 +38,7 @@
         }
 
         .app-container {
-            max-width: 920px;
+            max-width: 960px;
             width: 100%;
             padding: 24px 22px 28px;
         }
@@ -139,20 +139,22 @@
             padding: 6px;
             border-radius: 60px;
             border: 1px solid rgba(255, 255, 255, 0.04);
+            flex-wrap: wrap;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 12px 8px;
+            padding: 10px 6px;
             border: none;
             border-radius: 40px;
             background: transparent;
             color: #8ba0be;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 13px;
             cursor: pointer;
             transition: 0.2s;
             letter-spacing: 0.3px;
+            min-width: 70px;
         }
 
         .tab-btn.active {
@@ -446,7 +448,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .mining-stats .stat .val {
@@ -494,14 +496,14 @@
         .mining-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0a1a22; }
         .mining-btn.active { background: #0f3b2a; color: #7ddfa0; border-color: #1b7a4a; }
 
-        .gpu-shop {
+        .shop-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 8px;
             margin-top: 4px;
         }
 
-        .gpu-card {
+        .shop-card {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 24px;
             padding: 12px 8px;
@@ -510,30 +512,30 @@
             transition: 0.15s;
         }
 
-        .gpu-card .gpu-name {
+        .shop-card .item-name {
             font-weight: 600;
             font-size: 13px;
             color: #d6e8ff;
         }
 
-        .gpu-card .gpu-hash {
+        .shop-card .item-power {
             font-size: 11px;
             color: #8ba0be;
         }
 
-        .gpu-card .gpu-price {
+        .shop-card .item-price {
             font-size: 12px;
             color: #b7e0ff;
             font-weight: 600;
             margin: 4px 0;
         }
 
-        .gpu-card .gpu-count {
+        .shop-card .item-count {
             font-size: 11px;
             color: #8ba0be;
         }
 
-        .gpu-card .buy-gpu-btn {
+        .shop-card .buy-btn {
             margin-top: 6px;
             padding: 6px 16px;
             border: none;
@@ -547,7 +549,35 @@
             border: 1px solid rgba(255,255,255,0.04);
         }
 
-        .gpu-card .buy-gpu-btn:active { transform: scale(0.94); background: #2a5a6a; }
+        .shop-card .buy-btn:active { transform: scale(0.94); background: #2a5a6a; }
+
+        .shop-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .shop-tab {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            color: #8ba0be;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .shop-tab.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: white;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .shop-tab:active { transform: scale(0.94); }
 
         .reset-area {
             display: flex;
@@ -648,7 +678,8 @@
             .app-container { padding: 16px; }
             .balance-item .value { font-size: 14px; }
             .market-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
-            .gpu-shop { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            .shop-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            .tab-btn { font-size: 11px; padding: 8px 4px; min-width: 50px; }
         }
     </style>
 </head>
@@ -750,8 +781,15 @@
                 <button class="mining-btn" id="toggleMiningBtn">▶ Запустить майнинг</button>
             </div>
 
-            <div style="margin-top: 6px; font-size: 13px; color: #8ba0be;">🛒 Магазин видеокарт</div>
-            <div class="gpu-shop" id="gpuShop"></div>
+            <div style="margin-top: 6px; font-size: 13px; color: #8ba0be;">🛒 Магазин оборудования</div>
+            
+            <div class="shop-tabs">
+                <button class="shop-tab active" data-shop="gpu">🎮 Видеокарты</button>
+                <button class="shop-tab" data-shop="cpu">💻 Процессоры</button>
+                <button class="shop-tab" data-shop="ram">🧠 Оперативная память</button>
+            </div>
+            
+            <div class="shop-grid" id="shopGrid"></div>
         </div>
     </div>
 
@@ -826,15 +864,12 @@
         return null;
     }
 
-    function deleteCookie(name) {
-        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-    }
-
     // ==================== СОСТОЯНИЕ ====================
     let myUsername = '';
     let myUserId = '';
     let myPassword = '';
     let isLoggedIn = false;
+    let currentShopTab = 'gpu';
 
     const DEFAULT_ASSETS = [
         { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50, change: 0 },
@@ -849,19 +884,40 @@
         { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83, change: 0 },
     ];
 
-    const GPU_TYPES = [
-        { id: 'gtx750ti', name: 'GTX 750 Ti', hash: 0.3, price: 3500 },
-        { id: 'gtx960', name: 'GTX 960', hash: 0.5, price: 5500 },
-        { id: 'rx560', name: 'RX 560', hash: 0.6, price: 6500 },
-        { id: 'gtx1050ti', name: 'GTX 1050 Ti', hash: 0.8, price: 8500 },
-        { id: 'rx570', name: 'RX 570', hash: 1.0, price: 12000 },
-        { id: 'rx6600', name: 'RX 6600', hash: 1.8, price: 22000 },
-        { id: 'rx7600', name: 'RX 7600', hash: 2.5, price: 35000 },
-        { id: 'rx9600tx', name: 'RX 9600 TX', hash: 4.0, price: 62000 },
-        { id: 'rtx4060', name: 'RTX 4060', hash: 3.2, price: 42000 },
-        { id: 'rtx4070', name: 'RTX 4070', hash: 5.0, price: 78000 },
-        { id: 'rtx4090', name: 'RTX 4090', hash: 9.0, price: 165000 },
-    ];
+    // ==================== ОБОРУДОВАНИЕ ДЛЯ МАЙНИНГА ====================
+    const MINING_GEAR = {
+        gpu: [
+            { id: 'gtx750ti', name: 'GTX 750 Ti', power: 0.3, price: 3500, icon: '🎮' },
+            { id: 'gtx960', name: 'GTX 960', power: 0.5, price: 5500, icon: '🎮' },
+            { id: 'rx560', name: 'RX 560', power: 0.6, price: 6500, icon: '🎮' },
+            { id: 'gtx1050ti', name: 'GTX 1050 Ti', power: 0.8, price: 8500, icon: '🎮' },
+            { id: 'rx570', name: 'RX 570', power: 1.0, price: 12000, icon: '🎮' },
+            { id: 'rx6600', name: 'RX 6600', power: 1.8, price: 22000, icon: '🎮' },
+            { id: 'rx7600', name: 'RX 7600', power: 2.5, price: 35000, icon: '🎮' },
+            { id: 'rx9600tx', name: 'RX 9600 TX', power: 4.0, price: 62000, icon: '🎮' },
+            { id: 'rtx4060', name: 'RTX 4060', power: 3.2, price: 42000, icon: '🎮' },
+            { id: 'rtx4070', name: 'RTX 4070', power: 5.0, price: 78000, icon: '🎮' },
+            { id: 'rtx4090', name: 'RTX 4090', power: 9.0, price: 165000, icon: '🎮' },
+        ],
+        cpu: [
+            { id: 'i3_10th', name: 'Intel i3-10100', power: 0.15, price: 8000, icon: '💻' },
+            { id: 'i5_10th', name: 'Intel i5-10400', power: 0.25, price: 14000, icon: '💻' },
+            { id: 'i7_10th', name: 'Intel i7-10700', power: 0.4, price: 22000, icon: '💻' },
+            { id: 'i9_10th', name: 'Intel i9-10900', power: 0.6, price: 35000, icon: '💻' },
+            { id: 'ryzen5_3600', name: 'Ryzen 5 3600', power: 0.3, price: 16000, icon: '💻' },
+            { id: 'ryzen7_5800x', name: 'Ryzen 7 5800X', power: 0.5, price: 28000, icon: '💻' },
+            { id: 'ryzen9_5950x', name: 'Ryzen 9 5950X', power: 0.8, price: 45000, icon: '💻' },
+            { id: 'threadripper', name: 'Threadripper 3990X', power: 1.5, price: 85000, icon: '💻' },
+        ],
+        ram: [
+            { id: 'ddr4_8gb', name: 'DDR4 8GB 2666', power: 0.05, price: 2500, icon: '🧠' },
+            { id: 'ddr4_16gb', name: 'DDR4 16GB 3200', power: 0.08, price: 4500, icon: '🧠' },
+            { id: 'ddr4_32gb', name: 'DDR4 32GB 3600', power: 0.12, price: 7500, icon: '🧠' },
+            { id: 'ddr5_16gb', name: 'DDR5 16GB 4800', power: 0.1, price: 6500, icon: '🧠' },
+            { id: 'ddr5_32gb', name: 'DDR5 32GB 5200', power: 0.15, price: 11000, icon: '🧠' },
+            { id: 'ddr5_64gb', name: 'DDR5 64GB 5600', power: 0.25, price: 18000, icon: '🧠' },
+        ]
+    };
 
     let state = {
         rub: 0,
@@ -872,11 +928,15 @@
         tradeAmount: 1.0,
         chartData: [],
         tradePoints: [],
-        gpus: {},
+        gear: {
+            gpu: {},
+            cpu: {},
+            ram: {}
+        },
         miningActive: false,
         minedTotal: 0,
         miningCoin: 'ton',
-        hashPerGPU: 0,
+        totalPower: 0,
     };
 
     // Инициализация балансов
@@ -902,7 +962,7 @@
     const hashrateDisplay = document.getElementById('hashrateDisplay');
     const minedDisplay = document.getElementById('minedDisplay');
     const miningStatus = document.getElementById('miningStatus');
-    const gpuShop = document.getElementById('gpuShop');
+    const shopGrid = document.getElementById('shopGrid');
     const toggleMiningBtn = document.getElementById('toggleMiningBtn');
     const mineCoinSelect = document.getElementById('mineCoinSelect');
 
@@ -938,6 +998,19 @@
         return total;
     }
 
+    function calcTotalPower() {
+        let total = 0;
+        ['gpu', 'cpu', 'ram'].forEach(type => {
+            const items = state.gear[type] || {};
+            Object.entries(items).forEach(([id, count]) => {
+                const gearItem = MINING_GEAR[type].find(g => g.id === id);
+                if (gearItem) total += gearItem.power * count;
+            });
+        });
+        state.totalPower = total;
+        return total;
+    }
+
     // ==================== COOKIE СЕССИЯ ====================
     function saveSession() {
         if (!isLoggedIn) return;
@@ -948,7 +1021,6 @@
             timestamp: Date.now()
         };
         setCookie('cryptoSession', session, 365);
-        console.log('✅ Сессия сохранена в куки');
     }
 
     function loadSession() {
@@ -958,7 +1030,6 @@
             myUserId = session.userId;
             myPassword = session.password || '';
             isLoggedIn = true;
-            console.log('✅ Сессия загружена:', myUsername);
             return true;
         }
         return false;
@@ -974,7 +1045,6 @@
             timestamp: Date.now()
         };
         setCookie('cryptoSession', session, 365);
-        console.log('👋 Сессия помечена как вышедшая');
     }
 
     function isSessionActive() {
@@ -995,12 +1065,11 @@
                 password: myPassword,
                 rub: state.rub,
                 balances: state.balances,
-                gpus: state.gpus,
+                gear: state.gear,
                 minedTotal: state.minedTotal,
                 total: total,
                 lastActive: Date.now()
             };
-            
             db.ref('users/' + myUserId).set(data)
                 .then(() => console.log('✅ Данные сохранены'))
                 .catch(error => console.warn('⚠️ Ошибка:', error.message));
@@ -1016,7 +1085,7 @@
                 if (data) {
                     state.rub = data.rub ?? 0;
                     state.balances = data.balances || {};
-                    state.gpus = data.gpus || {};
+                    state.gear = data.gear || { gpu: {}, cpu: {}, ram: {} };
                     state.minedTotal = data.minedTotal || 0;
                     
                     DEFAULT_ASSETS.forEach(a => {
@@ -1026,7 +1095,7 @@
                     });
                     
                     updateBalances();
-                    renderGPUshop();
+                    renderShop();
                     updateMiningUI();
                     renderPortfolio();
                     return true;
@@ -1049,9 +1118,44 @@
             .catch(e => console.warn('⚠️ Ошибка сохранения цен:', e.message));
     }
 
+    function loadPricesFromFirebase() {
+        if (!firebaseAvailable) return;
+        db.ref('prices').once('value')
+            .then(snapshot => {
+                const prices = snapshot.val();
+                if (prices) {
+                    state.assets.forEach(asset => {
+                        if (prices[asset.id] !== undefined) {
+                            const oldPrice = asset.price;
+                            asset.price = prices[asset.id];
+                            const change = ((asset.price - oldPrice) / oldPrice) * 100;
+                            asset.change = Math.round(change * 100) / 100;
+                        }
+                    });
+                    renderMarket();
+                    updatePriceDisplay();
+                    updateChart();
+                    updateBalances();
+                    renderPortfolio();
+                    console.log('✅ Цены загружены из Firebase');
+                } else {
+                    savePricesToFirebase();
+                }
+            })
+            .catch(error => {
+                console.warn('⚠️ Ошибка загрузки цен:', error.message);
+            });
+    }
+
+    // СЛУШАЕМ ИЗМЕНЕНИЯ ЦЕН В РЕАЛЬНОМ ВРЕМЕНИ
+    let pricesListener = null;
+
     function syncPrices() {
         if (!firebaseAvailable) return;
-        db.ref('prices').on('value', snapshot => {
+        if (pricesListener) {
+            db.ref('prices').off('value', pricesListener);
+        }
+        pricesListener = (snapshot) => {
             const prices = snapshot.val();
             if (prices) {
                 state.assets.forEach(asset => {
@@ -1068,14 +1172,8 @@
                 updateBalances();
                 renderPortfolio();
             }
-        });
-    }
-
-    function updatePricesInFirebase() {
-        if (!firebaseAvailable) return;
-        const prices = {};
-        state.assets.forEach(a => { prices[a.id] = a.price; });
-        db.ref('prices').update(prices).catch(e => console.warn(e));
+        };
+        db.ref('prices').on('value', pricesListener);
     }
 
     // ==================== UI ====================
@@ -1299,57 +1397,52 @@
     }
 
     // ==================== МАЙНИНГ ====================
-    function calcHashrate() {
-        let total = 0;
-        for (const [id, count] of Object.entries(state.gpus)) {
-            const gpu = GPU_TYPES.find(g => g.id === id);
-            if (gpu) total += gpu.hash * count;
-        }
-        state.hashPerGPU = total;
-        return total;
-    }
-
-    function renderGPUshop() {
-        gpuShop.innerHTML = '';
-        GPU_TYPES.forEach(gpu => {
-            const count = state.gpus[gpu.id] || 0;
+    function renderShop() {
+        const items = MINING_GEAR[currentShopTab] || [];
+        shopGrid.innerHTML = '';
+        
+        items.forEach(item => {
+            const count = state.gear[currentShopTab]?.[item.id] || 0;
             const card = document.createElement('div');
-            card.className = 'gpu-card';
+            card.className = 'shop-card';
             card.innerHTML = `
-                <div class="gpu-name">${gpu.name}</div>
-                <div class="gpu-hash">⚡ ${gpu.hash} MH/s</div>
-                <div class="gpu-price">${formatRub(gpu.price)}</div>
-                <div class="gpu-count">🖥️ ${count} шт.</div>
-                <button class="buy-gpu-btn" data-gpu-id="${gpu.id}">Купить</button>
+                <div style="font-size:24px;">${item.icon}</div>
+                <div class="item-name">${item.name}</div>
+                <div class="item-power">⚡ ${item.power} MH/s</div>
+                <div class="item-price">${formatRub(item.price)}</div>
+                <div class="item-count">🖥️ ${count} шт.</div>
+                <button class="buy-btn" data-type="${currentShopTab}" data-id="${item.id}">Купить</button>
             `;
-            gpuShop.appendChild(card);
+            shopGrid.appendChild(card);
         });
 
-        document.querySelectorAll('.buy-gpu-btn').forEach(btn => {
+        document.querySelectorAll('.buy-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
-                const gpuId = btn.dataset.gpuId;
-                const gpu = GPU_TYPES.find(g => g.id === gpuId);
-                if (!gpu) return;
-                if (state.rub < gpu.price) {
-                    showToast('❌ Недостаточно RUB для покупки ' + gpu.name);
+                const type = btn.dataset.type;
+                const id = btn.dataset.id;
+                const item = MINING_GEAR[type].find(g => g.id === id);
+                if (!item) return;
+                if (state.rub < item.price) {
+                    showToast('❌ Недостаточно RUB для покупки ' + item.name);
                     return;
                 }
-                state.rub -= gpu.price;
-                state.gpus[gpuId] = (state.gpus[gpuId] || 0) + 1;
+                state.rub -= item.price;
+                if (!state.gear[type]) state.gear[type] = {};
+                state.gear[type][id] = (state.gear[type][id] || 0) + 1;
                 updateBalances();
                 updateMiningUI();
-                renderGPUshop();
+                renderShop();
                 saveToFirebase();
-                showToast('✅ Куплен ' + gpu.name);
+                showToast('✅ Куплен ' + item.name);
                 playBeep('buy');
             });
         });
     }
 
     function updateMiningUI() {
-        const hashrate = calcHashrate();
-        hashrateDisplay.textContent = hashrate.toFixed(2) + ' MH/s';
+        const power = calcTotalPower();
+        hashrateDisplay.textContent = power.toFixed(2) + ' MH/s';
         minedDisplay.textContent = state.minedTotal.toFixed(4) + ' TON';
         miningStatus.textContent = state.miningActive ? '🟢 Работает' : '⏸ Остановлен';
         miningStatus.style.color = state.miningActive ? '#4ade80' : '#f87171';
@@ -1363,9 +1456,9 @@
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
         state.miningActive = !state.miningActive;
         if (state.miningActive) {
-            const hashrate = calcHashrate();
-            if (hashrate === 0) {
-                showToast('⚠️ Нет видеокарт! Купите в магазине.');
+            const power = calcTotalPower();
+            if (power === 0) {
+                showToast('⚠️ Нет оборудования! Купите в магазине.');
                 state.miningActive = false;
                 updateMiningUI();
                 return;
@@ -1387,16 +1480,16 @@
         if (miningInterval) clearInterval(miningInterval);
         miningInterval = setInterval(() => {
             if (!state.miningActive || !isLoggedIn) return;
-            const hashrate = calcHashrate();
-            if (hashrate === 0) {
+            const power = calcTotalPower();
+            if (power === 0) {
                 state.miningActive = false;
                 updateMiningUI();
                 clearInterval(miningInterval);
                 miningInterval = null;
-                showToast('⛔ Майнинг остановлен: нет видеокарт');
+                showToast('⛔ Майнинг остановлен: нет оборудования');
                 return;
             }
-            const reward = hashrate * 0.00015;
+            const reward = power * 0.0002;
             state.minedTotal += reward;
             state.balances['ton'] = (state.balances['ton'] || 0) + reward;
             updateBalances();
@@ -1463,7 +1556,7 @@
                     password: myPassword,
                     rub: 0,
                     balances: {},
-                    gpus: {},
+                    gear: { gpu: {}, cpu: {}, ram: {} },
                     minedTotal: 0,
                     total: 0,
                     registered: Date.now()
@@ -1478,7 +1571,7 @@
                         isLoggedIn = true;
                         saveSession();
                         // Сохраняем начальные цены
-                        savePricesToFirebase();
+                        setTimeout(() => savePricesToFirebase(), 1000);
                         enterGame();
                     })
                     .catch(e => {
@@ -1556,6 +1649,9 @@
 
         if (firebaseAvailable) {
             loadFromFirebase().then(() => {
+                // Загружаем цены
+                loadPricesFromFirebase();
+                // Подписываемся на изменения цен
                 syncPrices();
                 loadLeaderboard();
                 initGame();
@@ -1575,6 +1671,30 @@
         }
     }
 
+    function loadLeaderboard() {
+        if (!firebaseAvailable) {
+            leaderboardList.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Офлайн режим</div>';
+            return;
+        }
+        
+        db.ref('users').orderByChild('total').limitToLast(20).on('value', snapshot => {
+            const data = snapshot.val();
+            if (!data) {
+                leaderboardList.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
+                return;
+            }
+            const entries = Object.entries(data).filter(([id, u]) => u.username && u.total !== undefined);
+            entries.sort((a, b) => b[1].total - a[1].total);
+            let html = '<div class="history-title">🏆 Топ игроков</div>';
+            entries.slice(0, 20).forEach(([id, u], i) => {
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+                html += `<div class="lb-item"><span class="name">${medal} ${u.username}</span><span class="total">${formatRub(u.total || 0)}</span></div>`;
+            });
+            leaderboardList.innerHTML = html;
+            onlineCount.textContent = entries.length;
+        });
+    }
+
     // ==================== ИНИЦИАЛИЗАЦИЯ ====================
     function initGame() {
         renderMarket();
@@ -1583,7 +1703,7 @@
         tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
         renderHistory();
         updateChart();
-        renderGPUshop();
+        renderShop();
         updateMiningUI();
         renderPortfolio();
 
@@ -1592,27 +1712,38 @@
             updateMiningUI();
         }
 
-        // Автоматическое обновление цен (имитация рынка)
+        // АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ ЦЕН (только если есть активные игроки)
         setInterval(() => {
-            state.assets.forEach(asset => {
-                const volatility = (Math.random() * 4 - 2) / 100;
-                let newPrice = asset.price * (1 + volatility);
-                if (newPrice < 0.001) newPrice = 0.001;
-                newPrice = Math.round(newPrice * 100) / 100;
+            if (isLoggedIn && firebaseAvailable) {
+                // Генерируем новые цены
+                state.assets.forEach(asset => {
+                    const volatility = (Math.random() * 4 - 2) / 100;
+                    let newPrice = asset.price * (1 + volatility);
+                    if (newPrice < 0.001) newPrice = 0.001;
+                    newPrice = Math.round(newPrice * 100) / 100;
+                    
+                    const oldPrice = asset.price;
+                    if (newPrice !== oldPrice) {
+                        asset.price = newPrice;
+                        const change = ((asset.price - oldPrice) / oldPrice) * 100;
+                        asset.change = Math.round(change * 100) / 100;
+                    }
+                });
                 
-                const oldPrice = asset.price;
-                if (newPrice !== oldPrice) {
-                    asset.price = newPrice;
-                    const change = ((asset.price - oldPrice) / oldPrice) * 100;
-                    asset.change = Math.round(change * 100) / 100;
-                }
-            });
-            renderMarket();
-            updatePriceDisplay();
-            updateChart();
-            updateBalances();
-            renderPortfolio();
-            updatePricesInFirebase();
+                // Сохраняем в Firebase
+                const prices = {};
+                state.assets.forEach(a => { prices[a.id] = a.price; });
+                db.ref('prices').update(prices)
+                    .then(() => {
+                        // Обновляем UI сразу после сохранения
+                        renderMarket();
+                        updatePriceDisplay();
+                        updateChart();
+                        updateBalances();
+                        renderPortfolio();
+                    })
+                    .catch(e => console.warn(e));
+            }
         }, 5000);
 
         // Автосохранение данных пользователя
@@ -1654,6 +1785,7 @@
                         loginOverlay.style.display = 'none';
                         document.getElementById('appContainer').style.display = 'block';
                         loadFromFirebase().then(() => {
+                            loadPricesFromFirebase();
                             syncPrices();
                             loadLeaderboard();
                             initGame();
@@ -1669,6 +1801,7 @@
             isLoggedIn = true;
             loginOverlay.style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
+            loadPricesFromFirebase();
             initGame();
         }
 
@@ -1681,6 +1814,16 @@
                 document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
                 if (btn.dataset.tab === 'leaderboard') loadLeaderboard();
                 if (btn.dataset.tab === 'portfolio') renderPortfolio();
+            });
+        });
+
+        // Shop tabs
+        document.querySelectorAll('.shop-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.shop-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentShopTab = btn.dataset.shop;
+                renderShop();
             });
         });
 
@@ -1719,7 +1862,7 @@
                 state.tradeAmount = 1.0;
                 state.chartData = [];
                 state.tradePoints = [];
-                state.gpus = {};
+                state.gear = { gpu: {}, cpu: {}, ram: {} };
                 state.minedTotal = 0;
                 state.miningActive = false;
                 renderMarket();
@@ -1728,7 +1871,7 @@
                 tradeAmountSpan.textContent = '1.0';
                 renderHistory();
                 updateChart();
-                renderGPUshop();
+                renderShop();
                 updateMiningUI();
                 renderPortfolio();
                 saveToFirebase();
