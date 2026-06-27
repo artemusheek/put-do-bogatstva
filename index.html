@@ -47,7 +47,6 @@
         .user-badge .online-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; display: inline-block; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* ГРАФИК */
         .chart-wrapper { padding: 14px 12px 8px; margin: 6px 0 14px; background: rgba(0,0,0,0.2); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); }
         .chart-header { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 8px 4px; }
         .chart-header .pair { font-weight: 600; font-size: 16px; color: #d6e8ff; }
@@ -81,7 +80,6 @@
         .trade-info { display: flex; justify-content: space-between; color: #8ba0be; font-size: 12px; padding: 0 4px; margin-top: 6px; }
         .trade-info span:last-child { color: #d6e8ff; font-weight: 500; }
 
-        /* ===== ПЕРЕВОДЫ (БАНКОВСКИЙ СТИЛЬ) ===== */
         .transfer-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
         .transfer-panel .transfer-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .transfer-panel .transfer-title .icon { font-size: 18px; }
@@ -93,17 +91,10 @@
         .transfer-btn { padding: 10px 28px; border: none; border-radius: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 20px rgba(59,130,246,0.2); }
         .transfer-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(59,130,246,0.3); }
         .transfer-btn:active { transform: scale(0.94); }
-
-        /* Банковские эффекты */
         .transfer-success { animation: successPulse 0.6s ease; }
         @keyframes successPulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); } 50% { box-shadow: 0 0 40px 10px rgba(74,222,128,0.1); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
         .transfer-fail { animation: failShake 0.4s ease; }
         @keyframes failShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-
-        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16,28,46,0.95); backdrop-filter: blur(20px); color: #d6e8ff; padding: 14px 32px; border-radius: 40px; font-size: 14px; border: 1px solid rgba(59,130,246,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.6); z-index: 999; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; transform: translateX(-50%) translateY(20px); }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.success { border-color: rgba(74,222,128,0.3); }
-        .toast.error { border-color: rgba(248,113,113,0.3); }
 
         .history-box { margin-top: 12px; padding: 8px 12px 2px; background: rgba(0,0,0,0.15); border-radius: 24px; border: 1px solid rgba(255,255,255,0.03); max-height: 110px; overflow-y: auto; }
         .history-box::-webkit-scrollbar { width: 3px; }
@@ -147,6 +138,10 @@
         .logout-btn:hover { background: rgba(107,47,58,0.2); }
 
         .footer-note { text-align: center; color: #3f5b78; font-size: 10px; margin-top: 10px; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16,28,46,0.95); backdrop-filter: blur(20px); color: #d6e8ff; padding: 14px 32px; border-radius: 40px; font-size: 14px; border: 1px solid rgba(59,130,246,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.6); z-index: 999; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; transform: translateX(-50%) translateY(20px); }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: rgba(74,222,128,0.3); }
+        .toast.error { border-color: rgba(248,113,113,0.3); }
 
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; margin: 10px 0; }
         .portfolio-item { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.03); }
@@ -203,7 +198,6 @@
         <button class="tab-btn" data-tab="leaderboard">🏆 Рейтинг</button>
     </div>
 
-    <!-- TAB TRADE -->
     <div id="tab-trade" class="tab-content active">
         <div class="balance-panel">
             <div class="balance-item"><span class="label">🇷🇺 RUB</span><span class="value rub" id="rubBalance">0 ₽</span></div>
@@ -248,7 +242,6 @@
         </div>
     </div>
 
-    <!-- TAB TRANSFER (ПЕРЕВОДЫ) -->
     <div id="tab-transfer" class="tab-content">
         <div class="transfer-panel glass" id="transferPanel">
             <div class="transfer-title"><span class="icon">💸</span> Перевод средств</div>
@@ -286,7 +279,6 @@
         </div>
     </div>
 
-    <!-- TAB MINING -->
     <div id="tab-mining" class="tab-content">
         <div class="mining-panel">
             <div class="mining-stats">
@@ -314,7 +306,6 @@
         </div>
     </div>
 
-    <!-- TAB PORTFOLIO -->
     <div id="tab-portfolio" class="tab-content">
         <div style="margin-bottom:12px;">
             <div class="history-title">💰 Все ваши активы</div>
@@ -325,7 +316,6 @@
         </div>
     </div>
 
-    <!-- TAB LEADERBOARD -->
     <div id="tab-leaderboard" class="tab-content">
         <div class="leaderboard" id="leaderboardList">
             <div style="color:#4a617c; text-align:center; padding:20px;">Загрузка рейтинга...</div>
@@ -478,7 +468,6 @@
     const toggleMiningBtn = document.getElementById('toggleMiningBtn');
     const mineCoinSelect = document.getElementById('mineCoinSelect');
 
-    // Transfer DOM
     const transferCoinSelect = document.getElementById('transferCoinSelect');
     const transferAmountInput = document.getElementById('transferAmountInput');
     const transferToInput = document.getElementById('transferToInput');
@@ -529,7 +518,7 @@
         return total;
     }
 
-    // ==================== СОХРАНЕНИЕ ====================
+    // ==================== СОХРАНЕНИЕ (без защиты) ====================
     function saveToFirebase(forcedTotal) {
         if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
         try {
@@ -545,18 +534,21 @@
                 chartData: state.chartData,
                 tradePoints: state.tradePoints,
                 transferHistory: state.transferHistory || [],
+                history: state.history || [],
                 lastActive: Date.now()
             };
             db.ref('users/' + myUserId).set(data).catch(error => console.warn('⚠️ Ошибка:', error.message));
         } catch(e) { console.warn('⚠️ Ошибка:', e.message); }
     }
 
+    // ==================== ЗАГРУЗКА (без перезаписи) ====================
     function loadFromFirebase() {
         if (!firebaseAvailable || !myUserId || !isLoggedIn) return Promise.resolve(false);
         return db.ref('users/' + myUserId).once('value')
             .then(snapshot => {
                 const data = snapshot.val();
                 if (data) {
+                    // Загружаем ВСЁ что есть в Firebase БЕЗ ПЕРЕЗАПИСИ
                     state.rub = data.rub ?? 0;
                     state.balances = data.balances || {};
                     state.gear = data.gear || { gpu: {}, cpu: {}, ram: {} };
@@ -564,7 +556,9 @@
                     state.chartData = data.chartData || {};
                     state.tradePoints = data.tradePoints || {};
                     state.transferHistory = data.transferHistory || [];
+                    state.history = data.history || [];
                     
+                    // Добавляем недостающие активы
                     DEFAULT_ASSETS.forEach(a => {
                         if (state.balances[a.id] === undefined) {
                             state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
@@ -573,10 +567,8 @@
                         if (!state.tradePoints[a.id]) state.tradePoints[a.id] = [];
                     });
                     
+                    // total пересчитываем только для отображения, НЕ сохраняем обратно
                     const total = calcTotal();
-                    if (data.total !== total) {
-                        db.ref('users/' + myUserId + '/total').set(total);
-                    }
                     
                     updateUI();
                     return true;
@@ -907,16 +899,15 @@
             const div = document.createElement('div');
             div.className = 'history-item';
             const isOut = item.from === myUserId;
-            const sign = isOut ? '➜' : '➜';
             const name = isOut ? (item.toUsername || 'получатель') : (item.fromUsername || 'отправитель');
-            div.innerHTML = `<span><span style="color:${isOut ? '#f87171' : '#4ade80'}">${isOut ? '📤' : '📥'}</span> ${item.symbol} ${item.amount.toFixed(3)} ${sign} ${name}</span><span>${item.time || ''}</span>`;
+            div.innerHTML = `<span><span style="color:${isOut ? '#f87171' : '#4ade80'}">${isOut ? '📤' : '📥'}</span> ${item.symbol} ${item.amount.toFixed(3)} → ${name}</span><span>${item.time || ''}</span>`;
             transferHistoryList.appendChild(div);
         });
     }
 
     // ==================== ТОРГОВЛЯ ====================
     function executeTrade(type) {
-        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
+        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         const amount = state.tradeAmount;
         if (amount <= 0) return;
         const asset = getSelectedAsset();
@@ -926,7 +917,7 @@
         const currentBalance = state.balances[asset.id] || 0;
 
         if (type === 'buy') {
-            if (state.rub < totalCost) { showToast('❌ Недостаточно RUB!'); return; }
+            if (state.rub < totalCost) { showToast('❌ Недостаточно RUB!', false); return; }
             state.rub -= totalCost;
             state.balances[asset.id] = (state.balances[asset.id] || 0) + amount;
             playBeep('buy');
@@ -934,7 +925,7 @@
             if (!state.tradePoints[asset.id]) state.tradePoints[asset.id] = [];
             state.tradePoints[asset.id].push({ price: price, type: 'buy', index: (state.chartData[asset.id] || []).length - 1 });
         } else {
-            if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!'); return; }
+            if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!', false); return; }
             state.balances[asset.id] = currentBalance - amount;
             state.rub += totalCost;
             playBeep('sell');
@@ -949,32 +940,30 @@
         updatePriceDisplay();
         updateChart();
         renderPortfolio();
-        const total = calcTotal();
-        saveToFirebase(total);
+        saveToFirebase();
         showToast(`✅ ${type === 'buy' ? 'Покупка' : 'Продажа'} ${amount.toFixed(1)} ${asset.symbol}`);
     }
 
     // ==================== ПЕРЕВОДЫ ====================
     function executeTransfer() {
-        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
+        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         
         const coinId = transferCoinSelect.value;
         const amount = parseFloat(transferAmountInput.value);
         const toUsername = transferToInput.value.trim();
         
-        if (!toUsername) { showToast('❌ Укажите получателя!'); return; }
-        if (toUsername === myUsername) { showToast('❌ Нельзя перевести самому себе!'); return; }
-        if (isNaN(amount) || amount <= 0) { showToast('❌ Введите корректную сумму!'); return; }
+        if (!toUsername) { showToast('❌ Укажите получателя!', false); return; }
+        if (toUsername === myUsername) { showToast('❌ Нельзя перевести самому себе!', false); return; }
+        if (isNaN(amount) || amount <= 0) { showToast('❌ Введите корректную сумму!', false); return; }
         
         const asset = getAsset(coinId);
         const balance = state.balances[coinId] || 0;
-        if (balance < amount) { showToast(`❌ Недостаточно ${asset ? asset.symbol : coinId}!`); return; }
+        if (balance < amount) { showToast(`❌ Недостаточно ${asset ? asset.symbol : coinId}!`, false); return; }
         
-        // Ищем получателя
         db.ref('users').orderByChild('username').equalTo(toUsername).once('value')
             .then(snapshot => {
                 const data = snapshot.val();
-                if (!data) { showToast('❌ Пользователь не найден!'); return; }
+                if (!data) { showToast('❌ Пользователь не найден!', false); return; }
                 
                 let toUserId = null;
                 let toUserData = null;
@@ -986,23 +975,18 @@
                     }
                 }
                 
-                if (!toUserId) { showToast('❌ Пользователь не найден!'); return; }
+                if (!toUserId) { showToast('❌ Пользователь не найден!', false); return; }
                 
-                // Списываем у отправителя
                 state.balances[coinId] = balance - amount;
                 
-                // Добавляем получателю
                 const toBalances = toUserData.balances || {};
                 toBalances[coinId] = (toBalances[coinId] || 0) + amount;
                 
-                // Сохраняем получателя
                 db.ref('users/' + toUserId + '/balances').set(toBalances);
                 
-                // Обновляем total получателя
                 const toTotal = (toUserData.total || 0) + (amount * (asset ? asset.price : 0));
                 db.ref('users/' + toUserId + '/total').set(toTotal);
                 
-                // Сохраняем историю перевода у отправителя
                 const transferEntry = {
                     from: myUserId,
                     fromUsername: myUsername,
@@ -1017,20 +1001,15 @@
                 state.transferHistory.unshift(transferEntry);
                 if (state.transferHistory.length > 30) state.transferHistory.pop();
                 
-                // Добавляем в историю операций
                 addHistory('transfer', asset ? asset.symbol : coinId.toUpperCase(), amount, asset ? asset.price : 0, '→ ' + toUsername);
                 
-                // Сохраняем у отправителя
-                const total = calcTotal();
-                saveToFirebase(total);
+                saveToFirebase();
                 
-                // Банковский эффект успеха
                 document.getElementById('transferPanel').classList.add('transfer-success');
                 setTimeout(() => {
                     document.getElementById('transferPanel').classList.remove('transfer-success');
                 }, 600);
                 
-                // Обновляем UI
                 updateBalances();
                 renderTransferHistory();
                 renderPortfolio();
@@ -1038,7 +1017,6 @@
                 transferToInput.value = '';
                 showToast(`✅ Перевод ${amount.toFixed(4)} ${asset ? asset.symbol : coinId} → ${toUsername} выполнен!`);
                 
-                // Обновляем историю получателя (добавляем запись о получении)
                 const receiveEntry = {
                     type: 'receive',
                     symbol: asset ? asset.symbol : coinId.toUpperCase(),
@@ -1047,7 +1025,6 @@
                     extra: 'от ' + myUsername,
                     time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
                 };
-                // Добавляем в историю получателя через отдельную запись в Firebase
                 db.ref('users/' + toUserId + '/history').once('value')
                     .then(snap => {
                         let hist = snap.val() || [];
@@ -1061,7 +1038,7 @@
                 playBeep('buy');
             })
             .catch(error => {
-                showToast('❌ Ошибка: ' + error.message);
+                showToast('❌ Ошибка: ' + error.message, false);
                 document.getElementById('transferPanel').classList.add('transfer-fail');
                 setTimeout(() => document.getElementById('transferPanel').classList.remove('transfer-fail'), 400);
             });
@@ -1087,13 +1064,13 @@
         });
         document.querySelectorAll('.buy-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
+                if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
                 const type = btn.dataset.type;
                 const id = btn.dataset.id;
                 const item = MINING_GEAR[type].find(g => g.id === id);
                 if (!item) return;
                 if (state.rub < item.price) {
-                    showToast('❌ Недостаточно RUB для покупки ' + item.name);
+                    showToast('❌ Недостаточно RUB для покупки ' + item.name, false);
                     return;
                 }
                 state.rub -= item.price;
@@ -1102,8 +1079,7 @@
                 updateBalances();
                 updateMiningUI();
                 renderShop();
-                const total = calcTotal();
-                saveToFirebase(total);
+                saveToFirebase();
                 showToast('✅ Куплен ' + item.name);
                 playBeep('buy');
             });
@@ -1123,12 +1099,12 @@
     let miningInterval = null;
 
     function toggleMining() {
-        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
+        if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         state.miningActive = !state.miningActive;
         if (state.miningActive) {
             const power = calcTotalPower();
             if (power === 0) {
-                showToast('⚠️ Нет оборудования! Купите в магазине.');
+                showToast('⚠️ Нет оборудования! Купите в магазине.', false);
                 state.miningActive = false;
                 updateMiningUI();
                 return;
@@ -1143,8 +1119,7 @@
             showToast('⏸ Майнинг остановлен');
         }
         updateMiningUI();
-        const total = calcTotal();
-        saveToFirebase(total);
+        saveToFirebase();
     }
 
     function startMiningLoop() {
@@ -1157,7 +1132,7 @@
                 updateMiningUI();
                 clearInterval(miningInterval);
                 miningInterval = null;
-                showToast('⛔ Майнинг остановлен: нет оборудования');
+                showToast('⛔ Майнинг остановлен: нет оборудования', false);
                 return;
             }
             const reward = power * 0.0002;
@@ -1166,8 +1141,7 @@
             updateBalances();
             updateMiningUI();
             renderPortfolio();
-            const total = calcTotal();
-            saveToFirebase(total);
+            saveToFirebase();
         }, 5000);
     }
 
@@ -1285,8 +1259,7 @@
 
     function logout() {
         if (miningInterval) { clearInterval(miningInterval); miningInterval = null; state.miningActive = false; }
-        const total = calcTotal();
-        saveToFirebase(total);
+        saveToFirebase();
         clearSession();
         isLoggedIn = false;
         loginOverlay.style.display = 'flex';
@@ -1340,7 +1313,7 @@
                 if (snap.val() === true) {
                     onlineStatus.textContent = '🟢 Онлайн';
                     onlineStatus.style.color = '#4ade80';
-                    if (isLoggedIn) { const total = calcTotal(); saveToFirebase(total); }
+                    if (isLoggedIn) saveToFirebase();
                 }
             });
         } else {
@@ -1421,10 +1394,7 @@
         }, 5000);
 
         setInterval(() => { 
-            if (isLoggedIn) {
-                const total = calcTotal();
-                saveToFirebase(total);
-            }
+            if (isLoggedIn) saveToFirebase();
         }, 15000);
     }
 
@@ -1459,7 +1429,6 @@
             initGame();
         }
 
-        // Login/Register
         loginBtn.addEventListener('click', () => {
             if (registerLink.textContent.includes('Зарегистрироваться')) {
                 registerUser();
@@ -1481,7 +1450,6 @@
         usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
         passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
 
-        // Tabs
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1495,7 +1463,6 @@
             });
         });
 
-        // Shop tabs
         document.querySelectorAll('.shop-tab').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.shop-tab').forEach(b => b.classList.remove('active'));
@@ -1505,7 +1472,6 @@
             });
         });
 
-        // Trade
         document.getElementById('decAmount').addEventListener('click', () => {
             let v = state.tradeAmount - 0.5;
             if (v < 0.1) v = 0.1;
@@ -1521,21 +1487,17 @@
         document.getElementById('buyBtn').addEventListener('click', () => executeTrade('buy'));
         document.getElementById('sellBtn').addEventListener('click', () => executeTrade('sell'));
 
-        // Transfer
         transferBtn.addEventListener('click', executeTransfer);
         transferAmountInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeTransfer(); });
         transferToInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeTransfer(); });
         transferCoinSelect.addEventListener('change', updateTransferBalance);
 
-        // Mining
         toggleMiningBtn.addEventListener('click', toggleMining);
         mineCoinSelect.addEventListener('change', () => {
             state.miningCoin = mineCoinSelect.value;
-            const total = calcTotal();
-            saveToFirebase(total);
+            saveToFirebase();
         });
 
-        // Reset
         document.getElementById('resetBtn').addEventListener('click', () => {
             if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
             if (confirm('Сбросить прогресс?')) {
@@ -1566,29 +1528,24 @@
                 updateMiningUI();
                 renderPortfolio();
                 renderTransferHistory();
-                const total = calcTotal();
-                saveToFirebase(total);
+                saveToFirebase();
                 showToast('🔄 Сброшено');
             }
         });
 
-        // Save
         document.getElementById('saveBtn').addEventListener('click', () => {
             if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-            const total = calcTotal();
-            saveToFirebase(total);
+            saveToFirebase();
             savePricesToFirebase();
             showToast('✅ Сохранено в Firebase');
         });
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
             if (confirm('Выйти из аккаунта?')) {
                 logout();
             }
         });
 
-        // Resize chart
         window.addEventListener('resize', () => {
             if (document.getElementById('tab-trade').classList.contains('active')) {
                 setTimeout(updateChart, 100);
