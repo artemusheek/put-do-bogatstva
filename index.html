@@ -68,17 +68,23 @@
         .trade-panel { padding: 14px 14px 12px; margin: 4px 0 12px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); }
         .trade-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
         .trade-top .selected-label { font-weight: 500; color: #b6cef0; background: rgba(0,0,0,0.2); padding: 4px 16px; border-radius: 40px; font-size: 14px; }
+
         .amount-control { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.25); padding: 2px 8px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.04); }
         .amount-control button { background: none; border: none; color: #b7d6f5; font-size: 24px; font-weight: 300; cursor: pointer; width: 28px; transition: 0.1s; }
         .amount-control button:active { transform: scale(1.3); color: white; }
         .amount-control span { font-size: 20px; font-weight: 700; min-width: 44px; text-align: center; color: white; }
-        .trade-buttons { display: flex; gap: 10px; margin: 12px 0 4px; }
-        .trade-btn { flex: 1; padding: 12px 8px; border: none; border-radius: 40px; font-weight: 700; font-size: 15px; transition: 0.1s; cursor: pointer; box-shadow: 0 4px 0 #0b121a; }
+
+        .trade-buttons { display: flex; gap: 10px; margin: 8px 0 4px; flex-wrap: wrap; }
+        .trade-btn { flex: 1; padding: 12px 8px; border: none; border-radius: 40px; font-weight: 700; font-size: 15px; transition: 0.1s; cursor: pointer; box-shadow: 0 4px 0 #0b121a; min-width: 80px; }
         .trade-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0b121a; }
         .trade-btn.buy { background: #0f3b2a; color: #7ddfa0; border: 1px solid #1b7a4a; }
         .trade-btn.sell { background: #4a1e28; color: #f7a1b0; border: 1px solid #aa3f52; }
-        .trade-info { display: flex; justify-content: space-between; color: #8ba0be; font-size: 12px; padding: 0 4px; margin-top: 6px; }
+        .trade-btn.sell-all { background: #4a1e28; color: #f7a1b0; border: 1px solid #aa3f52; flex: 0.5; font-size: 13px; }
+        .trade-btn.buy-max { background: #0f3b2a; color: #7ddfa0; border: 1px solid #1b7a4a; flex: 0.5; font-size: 13px; }
+
+        .trade-info { display: flex; justify-content: space-between; color: #8ba0be; font-size: 12px; padding: 0 4px; margin-top: 8px; flex-wrap: wrap; gap: 4px; }
         .trade-info span:last-child { color: #d6e8ff; font-weight: 500; }
+        .trade-info .total-price { color: #c8b6ff; font-weight: 700; font-size: 14px; }
 
         .transfer-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
         .transfer-panel .transfer-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
@@ -150,7 +156,6 @@
         .leaderboard .lb-item .name { color: #b7d6f5; }
         .leaderboard .lb-item .total { color: #c8b6ff; font-weight: 600; }
 
-        /* ===== ЭКРАН ПЕРЕВОДА (Т-Банк стиль) ===== */
         .transfer-success-screen {
             position: fixed;
             top: 0;
@@ -235,7 +240,6 @@
         .transfer-success-screen .success-btn:hover { background: rgba(255,255,255,0.15); }
         .transfer-success-screen .success-btn:active { transform: scale(0.96); }
 
-        /* ===== КОНФЕТТИ ===== */
         .confetti-container {
             position: fixed;
             top: 0;
@@ -267,6 +271,8 @@
             .tab-btn { font-size: 11px; padding: 8px 4px; min-width: 50px; }
             .transfer-row input, .transfer-row select { min-width: 80px; font-size: 13px; padding: 8px 12px; }
             .transfer-btn { padding: 8px 18px; font-size: 13px; }
+            .trade-btn { font-size: 13px; padding: 10px 6px; min-width: 60px; }
+            .trade-btn.sell-all, .trade-btn.buy-max { font-size: 11px; flex: 0.4; }
         }
     </style>
 </head>
@@ -331,13 +337,21 @@
                     <button id="incAmount">+</button>
                 </div>
             </div>
+            
             <div class="trade-buttons">
                 <button class="trade-btn buy" id="buyBtn">🟢 Купить</button>
+                <button class="trade-btn buy-max" id="buyMaxBtn">📈 Купить макс</button>
                 <button class="trade-btn sell" id="sellBtn">🔴 Продать</button>
+                <button class="trade-btn sell-all" id="sellAllBtn">📉 Продать всё</button>
             </div>
+            
             <div class="trade-info">
                 <span>Цена (RUB)</span>
                 <span id="currentPriceDisplay">—</span>
+            </div>
+            <div class="trade-info">
+                <span>Итого: <span id="totalPriceDisplay" class="total-price">0 ₽</span></span>
+                <span>Баланс: <span id="balanceInfoDisplay" style="color:#8ba0be;">0</span></span>
             </div>
         </div>
 
@@ -435,7 +449,6 @@
     <div class="footer-note">P2P симулятор • Онлайн • Все данные синхронизируются</div>
 </div>
 
-<!-- ===== ЭКРАН УСПЕШНОГО ПЕРЕВОДА (Т-Банк стиль) ===== -->
 <div class="transfer-success-screen" id="transferSuccessScreen">
     <div class="success-icon">✓</div>
     <div class="success-text">Перевод выполнен</div>
@@ -447,7 +460,6 @@
     <button class="success-btn" id="transferSuccessBtn">✕ Закрыть</button>
 </div>
 
-<!-- ===== КОНФЕТТИ ===== -->
 <div class="confetti-container" id="confettiContainer"></div>
 
 <div id="toast" class="toast"></div>
@@ -510,7 +522,6 @@
         { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83, change: 0 },
     ];
 
-    // ===== ОБНОВЛЕННОЕ ОБОРУДОВАНИЕ =====
     const MINING_GEAR = {
         gpu: [
             { id: 'gtx750ti', name: 'GTX 750 Ti', power: 0.3, price: 3500, icon: '🎮' },
@@ -524,7 +535,6 @@
             { id: 'rtx4060', name: 'RTX 4060', power: 3.2, price: 42000, icon: '🎮' },
             { id: 'rtx4070', name: 'RTX 4070', power: 5.0, price: 78000, icon: '🎮' },
             { id: 'rtx4090', name: 'RTX 4090', power: 9.0, price: 165000, icon: '🎮' },
-            // ✅ НОВАЯ RTX 5090
             { id: 'rtx5090', name: 'RTX 5090', power: 14.0, price: 320000, icon: '🔥' },
         ],
         cpu: [
@@ -538,7 +548,6 @@
             { id: 'threadripper', name: 'Threadripper 3990X', power: 1.5, price: 85000, icon: '💻' },
         ],
         ram: [
-            // ✅ ЦЕНЫ СНИЖЕНЫ В 3 РАЗА, ХЕШРЕЙТ УВЕЛИЧЕН В 3 РАЗА
             { id: 'ddr4_8gb', name: 'DDR4 8GB 2666', power: 0.15, price: 833, icon: '🧠' },
             { id: 'ddr4_16gb', name: 'DDR4 16GB 3200', power: 0.24, price: 1500, icon: '🧠' },
             { id: 'ddr4_32gb', name: 'DDR4 32GB 3600', power: 0.36, price: 2500, icon: '🧠' },
@@ -578,6 +587,8 @@
     const marketGrid = document.getElementById('marketGrid');
     const selectedLabel = document.getElementById('selectedLabel');
     const currentPriceDisplay = document.getElementById('currentPriceDisplay');
+    const totalPriceDisplay = document.getElementById('totalPriceDisplay');
+    const balanceInfoDisplay = document.getElementById('balanceInfoDisplay');
     const tradeAmountSpan = document.getElementById('tradeAmount');
     const historyList = document.getElementById('historyList');
     const chartCanvas = document.getElementById('priceChart');
@@ -599,7 +610,6 @@
     const transferBalanceDisplay = document.getElementById('transferBalanceDisplay');
     const transferHistoryList = document.getElementById('transferHistoryList');
 
-    // ЭКРАН УСПЕШНОГО ПЕРЕВОДА
     const transferSuccessScreen = document.getElementById('transferSuccessScreen');
     const transferSuccessAmount = document.getElementById('transferSuccessAmount');
     const transferSuccessTo = document.getElementById('transferSuccessTo');
@@ -649,6 +659,25 @@
         return total;
     }
 
+    // Обновление информации о стоимости и балансе
+    function updateTradeInfo() {
+        const asset = getSelectedAsset();
+        if (!asset) return;
+        const amount = state.tradeAmount;
+        const price = asset.price;
+        const total = amount * price;
+        totalPriceDisplay.textContent = formatRub(total);
+        
+        const balance = state.balances[asset.id] || 0;
+        balanceInfoDisplay.textContent = formatCoin(balance) + ' ' + asset.symbol;
+    }
+
+    function getMaxBuyAmount() {
+        const asset = getSelectedAsset();
+        if (!asset) return 0;
+        return Math.floor((state.rub / asset.price) * 10000) / 10000;
+    }
+
     // ==================== КОНФЕТТИ ====================
     function launchConfetti() {
         const container = confettiContainer;
@@ -672,7 +701,6 @@
         setTimeout(() => { container.innerHTML = ''; }, 4500);
     }
 
-    // ==================== ПОКАЗ ЭКРАНА ПЕРЕВОДА ====================
     function showTransferSuccess(amount, symbol, toUsername) {
         transferSuccessAmount.textContent = `${amount.toFixed(4)} ${symbol}`;
         transferSuccessTo.textContent = `→ ${toUsername}`;
@@ -689,7 +717,7 @@
         if (e.target === transferSuccessScreen) hideTransferSuccess();
     });
 
-    // ==================== СОХРАНЕНИЕ (БЕЗ АВТОЗАМЕНЫ) ====================
+    // ==================== СОХРАНЕНИЕ ====================
     function saveToFirebase() {
         if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
         try {
@@ -759,6 +787,7 @@
         renderHistory();
         renderTransferHistory();
         updateTransferBalance();
+        updateTradeInfo();
         
         mineCoinSelect.value = state.miningCoin || 'ton';
     }
@@ -790,6 +819,7 @@
                     updateChart();
                     updateBalances();
                     renderPortfolio();
+                    updateTradeInfo();
                 } else {
                     savePricesToFirebase();
                 }
@@ -819,6 +849,7 @@
                 updateChart();
                 updateBalances();
                 renderPortfolio();
+                updateTradeInfo();
             }
         };
         db.ref('prices').on('value', pricesListener);
@@ -963,6 +994,7 @@
         tonEl.textContent = formatCoin(tonBalance) + ' TON';
         totalValueEl.textContent = formatRub(calcTotal());
         updateTransferBalance();
+        updateTradeInfo();
     }
 
     function updatePriceDisplay() {
@@ -972,6 +1004,7 @@
             selectedLabel.textContent = asset.symbol + ' ' + asset.name;
             chartPair.textContent = asset.symbol + ' / RUB';
             chartPrice.textContent = formatRub(asset.price);
+            updateTradeInfo();
         }
     }
 
@@ -1021,6 +1054,7 @@
                 renderMarket();
                 updatePriceDisplay();
                 updateChart();
+                updateTradeInfo();
             });
             marketGrid.appendChild(card);
         });
@@ -1050,6 +1084,8 @@
             let sideClass = 'side-buy';
             let txt = 'Покупка';
             if (item.type === 'sell') { sideClass = 'side-sell'; txt = 'Продажа'; }
+            else if (item.type === 'sell-all') { sideClass = 'side-sell'; txt = '📉 Продажа всё'; }
+            else if (item.type === 'buy-max') { sideClass = 'side-buy'; txt = '📈 Покупка макс'; }
             else if (item.type === 'transfer') { sideClass = 'side-transfer'; txt = '📤 Перевод'; }
             else if (item.type === 'receive') { sideClass = 'side-transfer'; txt = '📥 Получено'; }
             div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
@@ -1077,20 +1113,36 @@
     // ==================== ТОРГОВЛЯ ====================
     function executeTrade(type) {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-        const amount = state.tradeAmount;
-        if (amount <= 0) return;
         const asset = getSelectedAsset();
         if (!asset) return;
         const price = asset.price;
+        let amount = state.tradeAmount;
+        
+        if (type === 'buy-max') {
+            amount = getMaxBuyAmount();
+            if (amount <= 0) { showToast('❌ Недостаточно RUB для покупки!', false); return; }
+            state.tradeAmount = amount;
+            tradeAmountSpan.textContent = amount.toFixed(1);
+        }
+        
+        if (type === 'sell-all') {
+            amount = state.balances[asset.id] || 0;
+            if (amount <= 0) { showToast('❌ У вас нет ' + asset.symbol + ' для продажи!', false); return; }
+            state.tradeAmount = amount;
+            tradeAmountSpan.textContent = amount.toFixed(1);
+        }
+        
+        if (amount <= 0) return;
         const totalCost = amount * price;
         const currentBalance = state.balances[asset.id] || 0;
 
-        if (type === 'buy') {
+        if (type === 'buy' || type === 'buy-max') {
             if (state.rub < totalCost) { showToast('❌ Недостаточно RUB!', false); return; }
             state.rub -= totalCost;
             state.balances[asset.id] = (state.balances[asset.id] || 0) + amount;
             playBeep('buy');
-            addHistory('buy', asset.symbol, amount, price);
+            const historyType = type === 'buy-max' ? 'buy-max' : 'buy';
+            addHistory(historyType, asset.symbol, amount, price, type === 'buy-max' ? '(макс)' : '');
             if (!state.tradePoints[asset.id]) state.tradePoints[asset.id] = [];
             state.tradePoints[asset.id].push({ price: price, type: 'buy', index: (state.chartData[asset.id] || []).length - 1 });
         } else {
@@ -1098,7 +1150,8 @@
             state.balances[asset.id] = currentBalance - amount;
             state.rub += totalCost;
             playBeep('sell');
-            addHistory('sell', asset.symbol, amount, price);
+            const historyType = type === 'sell-all' ? 'sell-all' : 'sell';
+            addHistory(historyType, asset.symbol, amount, price, type === 'sell-all' ? '(всё)' : '');
             if (!state.tradePoints[asset.id]) state.tradePoints[asset.id] = [];
             state.tradePoints[asset.id].push({ price: price, type: 'sell', index: (state.chartData[asset.id] || []).length - 1 });
         }
@@ -1109,11 +1162,14 @@
         updatePriceDisplay();
         updateChart();
         renderPortfolio();
+        updateTradeInfo();
         saveToFirebase();
-        showToast(`✅ ${type === 'buy' ? 'Покупка' : 'Продажа'} ${amount.toFixed(1)} ${asset.symbol}`);
+        
+        const actionText = type === 'buy' ? 'Покупка' : type === 'buy-max' ? 'Покупка (макс)' : type === 'sell-all' ? 'Продажа (всё)' : 'Продажа';
+        showToast(`✅ ${actionText} ${amount.toFixed(4)} ${asset.symbol} за ${formatRub(totalCost)}`);
     }
 
-    // ==================== ПЕРЕВОДЫ С ЭКРАНОМ УСПЕХА ====================
+    // ==================== ПЕРЕВОДЫ ====================
     function executeTransfer() {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         
@@ -1174,7 +1230,6 @@
                 
                 saveToFirebase();
                 
-                // ✅ ПОКАЗЫВАЕМ ЭКРАН УСПЕХА С КОНФЕТТИ
                 showTransferSuccess(amount, asset ? asset.symbol : coinId.toUpperCase(), toUsername);
                 
                 updateBalances();
@@ -1533,17 +1588,18 @@
         renderPortfolio();
         renderTransferHistory();
         updateTransferBalance();
+        updateTradeInfo();
 
         if (state.miningActive && isLoggedIn) {
             startMiningLoop();
             updateMiningUI();
         }
 
-        // Увеличенная волатильность цен (±5%)
+        // Обновление цен с волатильностью ±5%
         setInterval(() => {
             if (isLoggedIn && firebaseAvailable) {
                 state.assets.forEach(asset => {
-                    const volatility = (Math.random() * 10 - 5) / 100; // ±5%
+                    const volatility = (Math.random() * 10 - 5) / 100;
                     let newPrice = asset.price * (1 + volatility);
                     if (newPrice < 0.001) newPrice = 0.001;
                     newPrice = Math.round(newPrice * 100) / 100;
@@ -1563,6 +1619,7 @@
                         updateChart();
                         updateBalances();
                         renderPortfolio();
+                        updateTradeInfo();
                     })
                     .catch(e => console.warn(e));
             }
@@ -1634,7 +1691,7 @@
                 if (btn.dataset.tab === 'leaderboard') loadLeaderboard();
                 if (btn.dataset.tab === 'portfolio') renderPortfolio();
                 if (btn.dataset.tab === 'transfer') { updateTransferBalance(); renderTransferHistory(); }
-                if (btn.dataset.tab === 'trade') setTimeout(updateChart, 100);
+                if (btn.dataset.tab === 'trade') { setTimeout(updateChart, 100); updateTradeInfo(); }
             });
         });
 
@@ -1647,20 +1704,27 @@
             });
         });
 
+        // Управление количеством
         document.getElementById('decAmount').addEventListener('click', () => {
             let v = state.tradeAmount - 0.5;
             if (v < 0.1) v = 0.1;
             state.tradeAmount = Math.round(v * 10) / 10;
             tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
+            updateTradeInfo();
         });
         document.getElementById('incAmount').addEventListener('click', () => {
             let v = state.tradeAmount + 0.5;
             if (v > 100) v = 100;
             state.tradeAmount = Math.round(v * 10) / 10;
             tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
+            updateTradeInfo();
         });
+
+        // Кнопки торговли
         document.getElementById('buyBtn').addEventListener('click', () => executeTrade('buy'));
+        document.getElementById('buyMaxBtn').addEventListener('click', () => executeTrade('buy-max'));
         document.getElementById('sellBtn').addEventListener('click', () => executeTrade('sell'));
+        document.getElementById('sellAllBtn').addEventListener('click', () => executeTrade('sell-all'));
 
         transferBtn.addEventListener('click', executeTransfer);
         transferAmountInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeTransfer(); });
@@ -1704,6 +1768,7 @@
                 updateMiningUI();
                 renderPortfolio();
                 renderTransferHistory();
+                updateTradeInfo();
                 saveToFirebase();
                 showToast('🔄 Сброшено');
             }
