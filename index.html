@@ -644,44 +644,6 @@
         .portfolio-item .p-name { font-size: 11px; color: #8ba0be; }
         .portfolio-item .p-balance { font-size: 13px; font-weight: 600; color: #b7e0ff; }
 
-        /* Редактирование цен */
-        .price-edit {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            margin-top: 4px;
-            justify-content: center;
-        }
-
-        .price-edit input {
-            width: 80px;
-            padding: 2px 8px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.3);
-            color: white;
-            font-size: 11px;
-            text-align: center;
-            outline: none;
-        }
-
-        .price-edit input:focus {
-            border-color: #3b82f6;
-        }
-
-        .price-edit .edit-btn {
-            background: rgba(59, 130, 246, 0.2);
-            border: none;
-            border-radius: 20px;
-            padding: 2px 10px;
-            color: #b7d6f5;
-            font-size: 10px;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-
-        .price-edit .edit-btn:hover { background: rgba(59, 130, 246, 0.4); }
-
         @media (max-width: 600px) {
             .app-container { padding: 16px; }
             .balance-item .value { font-size: 14px; }
@@ -1116,53 +1078,6 @@
         db.ref('prices').update(prices).catch(e => console.warn(e));
     }
 
-    // ==================== РЕДАКТИРОВАНИЕ ЦЕН ====================
-    function editPrice(assetId, newPrice) {
-        const asset = getAsset(assetId);
-        if (!asset) return;
-        const price = parseFloat(newPrice);
-        if (isNaN(price) || price <= 0) {
-            showToast('❌ Введите корректную цену');
-            return;
-        }
-        asset.price = Math.round(price * 100) / 100;
-        // Пересчитываем изменение
-        const oldPrice = asset._oldPrice || asset.price;
-        const change = ((asset.price - oldPrice) / oldPrice) * 100;
-        asset.change = Math.round(change * 100) / 100;
-        asset._oldPrice = asset.price;
-        
-        renderMarket();
-        updatePriceDisplay();
-        updateChart();
-        updateBalances();
-        renderPortfolio();
-        savePricesToFirebase();
-        showToast(`✅ Цена ${asset.symbol} обновлена: ${formatRub(asset.price)}`);
-    }
-
-    function resetPrices() {
-        if (!confirm('Сбросить все цены к дефолтным?')) return;
-        const defaultPrices = {
-            ton: 240.50, btc: 4520000, eth: 324000, usdt: 92.30,
-            sol: 182.40, ada: 0.68, xrp: 0.62, dot: 8.75, avax: 42.10, matic: 0.83
-        };
-        state.assets.forEach(asset => {
-            if (defaultPrices[asset.id] !== undefined) {
-                asset.price = defaultPrices[asset.id];
-                asset.change = 0;
-                asset._oldPrice = asset.price;
-            }
-        });
-        renderMarket();
-        updatePriceDisplay();
-        updateChart();
-        updateBalances();
-        renderPortfolio();
-        savePricesToFirebase();
-        showToast('🔄 Цены сброшены к дефолтным');
-    }
-
     // ==================== UI ====================
     function updateBalances() {
         rubEl.textContent = formatRub(state.rub);
@@ -1290,7 +1205,7 @@
         ctx.shadowBlur = 0;
     }
 
-    // ==================== РЫНОК С РЕДАКТИРОВАНИЕМ ====================
+    // ==================== РЫНОК ====================
     function renderMarket() {
         marketGrid.innerHTML = '';
         state.assets.forEach(asset => {
@@ -1300,25 +1215,14 @@
             const chClass = ch >= 0 ? 'positive' : 'negative';
             const chSign = ch >= 0 ? '▲' : '▼';
             
-            // Добавляем поле для редактирования цены
-            const priceEdit = isLoggedIn ? `
-                <div class="price-edit">
-                    <input type="number" id="priceInput_${asset.id}" step="0.01" value="${asset.price}" placeholder="Цена">
-                    <button class="edit-btn" data-asset="${asset.id}">✎</button>
-                </div>
-            ` : '';
-            
             card.innerHTML = `
                 <div class="icon">${asset.symbol}</div>
                 <div class="name">${asset.name}</div>
                 <div class="price">${formatRub(asset.price)}</div>
                 <div class="change ${chClass}">${chSign} ${Math.abs(ch).toFixed(2)}%</div>
-                ${priceEdit}
             `;
             
-            card.addEventListener('click', (e) => {
-                // Игнорируем клик по кнопке редактирования
-                if (e.target.classList.contains('edit-btn') || e.target.tagName === 'INPUT') return;
+            card.addEventListener('click', () => {
                 state.selectedAssetId = asset.id;
                 renderMarket();
                 updatePriceDisplay();
@@ -1326,28 +1230,6 @@
             });
             
             marketGrid.appendChild(card);
-        });
-
-        // Обработчики для редактирования цен
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const assetId = btn.dataset.asset;
-                const input = document.getElementById('priceInput_' + assetId);
-                if (input) {
-                    editPrice(assetId, input.value);
-                }
-            });
-        });
-
-        // Enter в поле ввода
-        document.querySelectorAll('.price-edit input').forEach(input => {
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const assetId = input.id.replace('priceInput_', '');
-                    editPrice(assetId, input.value);
-                }
-            });
         });
     }
 
@@ -1712,12 +1594,10 @@
 
         // Автоматическое обновление цен (имитация рынка)
         setInterval(() => {
-            // Обновляем цены с небольшими колебаниями
             state.assets.forEach(asset => {
                 const volatility = (Math.random() * 4 - 2) / 100;
                 let newPrice = asset.price * (1 + volatility);
                 if (newPrice < 0.001) newPrice = 0.001;
-                // Округляем до 2 знаков
                 newPrice = Math.round(newPrice * 100) / 100;
                 
                 const oldPrice = asset.price;
@@ -1732,7 +1612,6 @@
             updateChart();
             updateBalances();
             renderPortfolio();
-            // Сохраняем цены в Firebase
             updatePricesInFirebase();
         }, 5000);
 
