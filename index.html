@@ -10,8 +10,8 @@
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; }
-        .glass { background: rgba(18, 28, 46, 0.55); backdrop-filter: blur(32px) saturate(180%); -webkit-backdrop-filter: blur(32px) saturate(180%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); border-radius: 44px; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; overflow-x: hidden; }
+        .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px) saturate(180%); -webkit-backdrop-filter: blur(32px) saturate(180%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); border-radius: 44px; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .app-container { max-width: 960px; width: 100%; padding: 24px 22px 28px; }
 
         .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,14,23,0.92); backdrop-filter: blur(30px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
@@ -91,10 +91,6 @@
         .transfer-btn { padding: 10px 28px; border: none; border-radius: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 20px rgba(59,130,246,0.2); }
         .transfer-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(59,130,246,0.3); }
         .transfer-btn:active { transform: scale(0.94); }
-        .transfer-success { animation: successPulse 0.6s ease; }
-        @keyframes successPulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); } 50% { box-shadow: 0 0 40px 10px rgba(74,222,128,0.1); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
-        .transfer-fail { animation: failShake 0.4s ease; }
-        @keyframes failShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
         .history-box { margin-top: 12px; padding: 8px 12px 2px; background: rgba(0,0,0,0.15); border-radius: 24px; border: 1px solid rgba(255,255,255,0.03); max-height: 110px; overflow-y: auto; }
         .history-box::-webkit-scrollbar { width: 3px; }
@@ -118,7 +114,7 @@
         .mining-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0a1a22; }
         .mining-btn.active { background: #0f3b2a; color: #7ddfa0; border-color: #1b7a4a; }
 
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-top: 4px; }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 4px; }
         .shop-card { background: rgba(0,0,0,0.2); border-radius: 24px; padding: 12px 8px; border: 1px solid rgba(255,255,255,0.04); text-align: center; transition: 0.15s; }
         .shop-card .item-name { font-weight: 600; font-size: 13px; color: #d6e8ff; }
         .shop-card .item-power { font-size: 11px; color: #8ba0be; }
@@ -153,6 +149,115 @@
         .leaderboard .lb-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .leaderboard .lb-item .name { color: #b7d6f5; }
         .leaderboard .lb-item .total { color: #c8b6ff; font-weight: 600; }
+
+        /* ===== ЭКРАН ПЕРЕВОДА (Т-Банк стиль) ===== */
+        .transfer-success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10,14,23,0.95);
+            backdrop-filter: blur(30px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        .transfer-success-screen.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .transfer-success-screen .success-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+            animation: scaleCheck 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 60px rgba(34,197,94,0.3);
+            margin-bottom: 24px;
+        }
+        @keyframes scaleCheck { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .transfer-success-screen .success-text {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 8px;
+            animation: fadeUp 0.5s ease 0.3s both;
+        }
+        .transfer-success-screen .success-sub {
+            font-size: 16px;
+            color: #8ba0be;
+            animation: fadeUp 0.5s ease 0.5s both;
+        }
+        .transfer-success-screen .success-details {
+            margin-top: 20px;
+            padding: 16px 24px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.04);
+            min-width: 280px;
+            text-align: center;
+            animation: fadeUp 0.5s ease 0.6s both;
+        }
+        .transfer-success-screen .success-details .amount {
+            font-size: 22px;
+            font-weight: 700;
+            color: #d6e8ff;
+        }
+        .transfer-success-screen .success-details .to {
+            font-size: 14px;
+            color: #8ba0be;
+            margin-top: 4px;
+        }
+        .transfer-success-screen .success-btn {
+            margin-top: 30px;
+            padding: 14px 48px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(255,255,255,0.08);
+            color: #d6e8ff;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid rgba(255,255,255,0.06);
+            animation: fadeUp 0.5s ease 0.8s both;
+        }
+        .transfer-success-screen .success-btn:hover { background: rgba(255,255,255,0.15); }
+        .transfer-success-screen .success-btn:active { transform: scale(0.96); }
+
+        /* ===== КОНФЕТТИ ===== */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1999;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 600px) {
             .app-container { padding: 16px; }
@@ -330,6 +435,21 @@
     <div class="footer-note">P2P симулятор • Онлайн • Все данные синхронизируются</div>
 </div>
 
+<!-- ===== ЭКРАН УСПЕШНОГО ПЕРЕВОДА (Т-Банк стиль) ===== -->
+<div class="transfer-success-screen" id="transferSuccessScreen">
+    <div class="success-icon">✓</div>
+    <div class="success-text">Перевод выполнен</div>
+    <div class="success-sub">Средства отправлены получателю</div>
+    <div class="success-details">
+        <div class="amount" id="transferSuccessAmount">0.0000 TON</div>
+        <div class="to" id="transferSuccessTo">→ получатель</div>
+    </div>
+    <button class="success-btn" id="transferSuccessBtn">✕ Закрыть</button>
+</div>
+
+<!-- ===== КОНФЕТТИ ===== -->
+<div class="confetti-container" id="confettiContainer"></div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -390,6 +510,7 @@
         { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83, change: 0 },
     ];
 
+    // ===== ОБНОВЛЕННОЕ ОБОРУДОВАНИЕ =====
     const MINING_GEAR = {
         gpu: [
             { id: 'gtx750ti', name: 'GTX 750 Ti', power: 0.3, price: 3500, icon: '🎮' },
@@ -403,6 +524,8 @@
             { id: 'rtx4060', name: 'RTX 4060', power: 3.2, price: 42000, icon: '🎮' },
             { id: 'rtx4070', name: 'RTX 4070', power: 5.0, price: 78000, icon: '🎮' },
             { id: 'rtx4090', name: 'RTX 4090', power: 9.0, price: 165000, icon: '🎮' },
+            // ✅ НОВАЯ RTX 5090
+            { id: 'rtx5090', name: 'RTX 5090', power: 14.0, price: 320000, icon: '🔥' },
         ],
         cpu: [
             { id: 'i3_10th', name: 'Intel i3-10100', power: 0.15, price: 8000, icon: '💻' },
@@ -415,12 +538,13 @@
             { id: 'threadripper', name: 'Threadripper 3990X', power: 1.5, price: 85000, icon: '💻' },
         ],
         ram: [
-            { id: 'ddr4_8gb', name: 'DDR4 8GB 2666', power: 0.05, price: 2500, icon: '🧠' },
-            { id: 'ddr4_16gb', name: 'DDR4 16GB 3200', power: 0.08, price: 4500, icon: '🧠' },
-            { id: 'ddr4_32gb', name: 'DDR4 32GB 3600', power: 0.12, price: 7500, icon: '🧠' },
-            { id: 'ddr5_16gb', name: 'DDR5 16GB 4800', power: 0.1, price: 6500, icon: '🧠' },
-            { id: 'ddr5_32gb', name: 'DDR5 32GB 5200', power: 0.15, price: 11000, icon: '🧠' },
-            { id: 'ddr5_64gb', name: 'DDR5 64GB 5600', power: 0.25, price: 18000, icon: '🧠' },
+            // ✅ ЦЕНЫ СНИЖЕНЫ В 3 РАЗА, ХЕШРЕЙТ УВЕЛИЧЕН В 3 РАЗА
+            { id: 'ddr4_8gb', name: 'DDR4 8GB 2666', power: 0.15, price: 833, icon: '🧠' },
+            { id: 'ddr4_16gb', name: 'DDR4 16GB 3200', power: 0.24, price: 1500, icon: '🧠' },
+            { id: 'ddr4_32gb', name: 'DDR4 32GB 3600', power: 0.36, price: 2500, icon: '🧠' },
+            { id: 'ddr5_16gb', name: 'DDR5 16GB 4800', power: 0.3, price: 2167, icon: '🧠' },
+            { id: 'ddr5_32gb', name: 'DDR5 32GB 5200', power: 0.45, price: 3667, icon: '🧠' },
+            { id: 'ddr5_64gb', name: 'DDR5 64GB 5600', power: 0.75, price: 6000, icon: '🧠' },
         ]
     };
 
@@ -475,6 +599,13 @@
     const transferBalanceDisplay = document.getElementById('transferBalanceDisplay');
     const transferHistoryList = document.getElementById('transferHistoryList');
 
+    // ЭКРАН УСПЕШНОГО ПЕРЕВОДА
+    const transferSuccessScreen = document.getElementById('transferSuccessScreen');
+    const transferSuccessAmount = document.getElementById('transferSuccessAmount');
+    const transferSuccessTo = document.getElementById('transferSuccessTo');
+    const transferSuccessBtn = document.getElementById('transferSuccessBtn');
+    const confettiContainer = document.getElementById('confettiContainer');
+
     const loginOverlay = document.getElementById('loginOverlay');
     const usernameInput = document.getElementById('usernameInput');
     const passwordInput = document.getElementById('passwordInput');
@@ -518,11 +649,51 @@
         return total;
     }
 
-    // ==================== СОХРАНЕНИЕ (без защиты) ====================
-    function saveToFirebase(forcedTotal) {
+    // ==================== КОНФЕТТИ ====================
+    function launchConfetti() {
+        const container = confettiContainer;
+        container.innerHTML = '';
+        const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd', '#ff9ff3', '#ff6348', '#00d2d3', '#ffd93d', '#6c5ce7'];
+        const shapes = ['■', '●', '▲', '★', '♦'];
+        
+        for (let i = 0; i < 120; i++) {
+            const el = document.createElement('div');
+            el.className = 'confetti';
+            el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+            el.style.left = Math.random() * 100 + '%';
+            el.style.color = colors[Math.floor(Math.random() * colors.length)];
+            el.style.fontSize = (Math.random() * 14 + 8) + 'px';
+            el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            el.style.animationDelay = (Math.random() * 1.5) + 's';
+            el.style.transform = `rotate(${Math.random() * 360}deg)`;
+            container.appendChild(el);
+        }
+        
+        setTimeout(() => { container.innerHTML = ''; }, 4500);
+    }
+
+    // ==================== ПОКАЗ ЭКРАНА ПЕРЕВОДА ====================
+    function showTransferSuccess(amount, symbol, toUsername) {
+        transferSuccessAmount.textContent = `${amount.toFixed(4)} ${symbol}`;
+        transferSuccessTo.textContent = `→ ${toUsername}`;
+        transferSuccessScreen.classList.add('active');
+        launchConfetti();
+    }
+
+    function hideTransferSuccess() {
+        transferSuccessScreen.classList.remove('active');
+    }
+
+    transferSuccessBtn.addEventListener('click', hideTransferSuccess);
+    transferSuccessScreen.addEventListener('click', (e) => {
+        if (e.target === transferSuccessScreen) hideTransferSuccess();
+    });
+
+    // ==================== СОХРАНЕНИЕ (БЕЗ АВТОЗАМЕНЫ) ====================
+    function saveToFirebase() {
         if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
         try {
-            const total = forcedTotal !== undefined ? forcedTotal : calcTotal();
+            const total = calcTotal();
             const data = {
                 username: myUsername,
                 password: myPassword,
@@ -535,20 +706,19 @@
                 tradePoints: state.tradePoints,
                 transferHistory: state.transferHistory || [],
                 history: state.history || [],
+                miningCoin: state.miningCoin,
                 lastActive: Date.now()
             };
             db.ref('users/' + myUserId).set(data).catch(error => console.warn('⚠️ Ошибка:', error.message));
         } catch(e) { console.warn('⚠️ Ошибка:', e.message); }
     }
 
-    // ==================== ЗАГРУЗКА (без перезаписи) ====================
     function loadFromFirebase() {
         if (!firebaseAvailable || !myUserId || !isLoggedIn) return Promise.resolve(false);
         return db.ref('users/' + myUserId).once('value')
             .then(snapshot => {
                 const data = snapshot.val();
                 if (data) {
-                    // Загружаем ВСЁ что есть в Firebase БЕЗ ПЕРЕЗАПИСИ
                     state.rub = data.rub ?? 0;
                     state.balances = data.balances || {};
                     state.gear = data.gear || { gpu: {}, cpu: {}, ram: {} };
@@ -557,8 +727,8 @@
                     state.tradePoints = data.tradePoints || {};
                     state.transferHistory = data.transferHistory || [];
                     state.history = data.history || [];
+                    state.miningCoin = data.miningCoin || 'ton';
                     
-                    // Добавляем недостающие активы
                     DEFAULT_ASSETS.forEach(a => {
                         if (state.balances[a.id] === undefined) {
                             state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
@@ -566,9 +736,6 @@
                         if (!state.chartData[a.id]) state.chartData[a.id] = [];
                         if (!state.tradePoints[a.id]) state.tradePoints[a.id] = [];
                     });
-                    
-                    // total пересчитываем только для отображения, НЕ сохраняем обратно
-                    const total = calcTotal();
                     
                     updateUI();
                     return true;
@@ -592,6 +759,8 @@
         renderHistory();
         renderTransferHistory();
         updateTransferBalance();
+        
+        mineCoinSelect.value = state.miningCoin || 'ton';
     }
 
     // ==================== ЦЕНЫ ====================
@@ -944,7 +1113,7 @@
         showToast(`✅ ${type === 'buy' ? 'Покупка' : 'Продажа'} ${amount.toFixed(1)} ${asset.symbol}`);
     }
 
-    // ==================== ПЕРЕВОДЫ ====================
+    // ==================== ПЕРЕВОДЫ С ЭКРАНОМ УСПЕХА ====================
     function executeTransfer() {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         
@@ -1005,17 +1174,14 @@
                 
                 saveToFirebase();
                 
-                document.getElementById('transferPanel').classList.add('transfer-success');
-                setTimeout(() => {
-                    document.getElementById('transferPanel').classList.remove('transfer-success');
-                }, 600);
+                // ✅ ПОКАЗЫВАЕМ ЭКРАН УСПЕХА С КОНФЕТТИ
+                showTransferSuccess(amount, asset ? asset.symbol : coinId.toUpperCase(), toUsername);
                 
                 updateBalances();
                 renderTransferHistory();
                 renderPortfolio();
                 transferAmountInput.value = '';
                 transferToInput.value = '';
-                showToast(`✅ Перевод ${amount.toFixed(4)} ${asset ? asset.symbol : coinId} → ${toUsername} выполнен!`);
                 
                 const receiveEntry = {
                     type: 'receive',
@@ -1039,8 +1205,6 @@
             })
             .catch(error => {
                 showToast('❌ Ошибка: ' + error.message, false);
-                document.getElementById('transferPanel').classList.add('transfer-fail');
-                setTimeout(() => document.getElementById('transferPanel').classList.remove('transfer-fail'), 400);
             });
     }
 
@@ -1089,7 +1253,11 @@
     function updateMiningUI() {
         const power = calcTotalPower();
         hashrateDisplay.textContent = power.toFixed(2) + ' MH/s';
-        minedDisplay.textContent = state.minedTotal.toFixed(4) + ' TON';
+        
+        const coinId = state.miningCoin || 'ton';
+        const asset = getAsset(coinId);
+        minedDisplay.textContent = state.minedTotal.toFixed(4) + ' ' + (asset ? asset.symbol : coinId.toUpperCase());
+        
         miningStatus.textContent = state.miningActive ? '🟢 Работает' : '⏸ Остановлен';
         miningStatus.style.color = state.miningActive ? '#4ade80' : '#f87171';
         toggleMiningBtn.textContent = state.miningActive ? '⏹ Остановить' : '▶ Запустить';
@@ -1109,8 +1277,9 @@
                 updateMiningUI();
                 return;
             }
+            state.miningCoin = mineCoinSelect.value;
             startMiningLoop();
-            showToast('⛏️ Майнинг запущен');
+            showToast(`⛏️ Майнинг ${state.miningCoin.toUpperCase()} запущен`);
         } else {
             if (miningInterval) {
                 clearInterval(miningInterval);
@@ -1135,9 +1304,13 @@
                 showToast('⛔ Майнинг остановлен: нет оборудования', false);
                 return;
             }
+            
             const reward = power * 0.0002;
             state.minedTotal += reward;
-            state.balances['ton'] = (state.balances['ton'] || 0) + reward;
+            
+            const coinId = state.miningCoin || 'ton';
+            state.balances[coinId] = (state.balances[coinId] || 0) + reward;
+            
             updateBalances();
             updateMiningUI();
             renderPortfolio();
@@ -1202,6 +1375,7 @@
                     tradePoints: {},
                     transferHistory: [],
                     history: [],
+                    miningCoin: 'ton',
                     registered: Date.now()
                 };
                 DEFAULT_ASSETS.forEach(a => {
@@ -1365,10 +1539,11 @@
             updateMiningUI();
         }
 
+        // Увеличенная волатильность цен (±5%)
         setInterval(() => {
             if (isLoggedIn && firebaseAvailable) {
                 state.assets.forEach(asset => {
-                    const volatility = (Math.random() * 4 - 2) / 100;
+                    const volatility = (Math.random() * 10 - 5) / 100; // ±5%
                     let newPrice = asset.price * (1 + volatility);
                     if (newPrice < 0.001) newPrice = 0.001;
                     newPrice = Math.round(newPrice * 100) / 100;
@@ -1518,6 +1693,7 @@
                 state.gear = { gpu: {}, cpu: {}, ram: {} };
                 state.minedTotal = 0;
                 state.miningActive = false;
+                state.miningCoin = 'ton';
                 renderMarket();
                 updateBalances();
                 updatePriceDisplay();
