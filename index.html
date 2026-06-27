@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P-симулятор • Криптотрейдинг</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0b0e14 0%, #131a24 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .card {
+            max-width: 560px;
+            width: 100%;
+            background: rgba(22, 30, 40, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 48px;
+            padding: 28px 24px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(66, 153, 225, 0.1);
+            transition: all 0.2s;
+        }
+
+        /* Хедер с балансами */
+        .balance-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .balance-label {
+            color: #8b9bb5;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .balance-label i {
+            font-style: normal;
+            font-size: 16px;
+        }
+
+        .balance-value {
+            color: white;
+            font-weight: 600;
+            font-size: 20px;
+            letter-spacing: -0.2px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 16px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .balance-value.rub {
+            color: #b7e0ff;
+        }
+        .balance-value.ton {
+            color: #7dd3fc;
+        }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 24px 0 28px;
+        }
+
+        .asset-card {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 28px;
+            padding: 16px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: 0.15s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .asset-card:hover {
+            background: rgba(40, 60, 80, 0.3);
+            border-color: rgba(100, 180, 255, 0.15);
+        }
+
+        .asset-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .asset-name {
+            color: #eaf0f8;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .asset-price {
+            color: #9bb8d9;
+            font-size: 14px;
+            background: rgba(0,0,0,0.2);
+            padding: 2px 14px;
+            border-radius: 40px;
+            margin-top: 6px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        .asset-change {
+            font-size: 13px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .positive {
+            color: #5bde7a;
+        }
+        .negative {
+            color: #f87171;
+        }
+
+        .trade-section {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 40px;
+            padding: 22px 16px 20px;
+            margin-top: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .trade-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 14px;
+        }
+
+        .trade-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 14px 10px;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 16px;
+            background: #1f2b39;
+            color: #b7d6f5;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: 0.15s;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            box-shadow: 0 6px 0 #0e141c;
+        }
+
+        .trade-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #0e141c;
+        }
+
+        .trade-btn.buy {
+            background: #0f3b2a;
+            color: #7ddfa0;
+            border-color: #1b7a4a;
+            box-shadow: 0 6px 0 #082116;
+        }
+
+        .trade-btn.sell {
+            background: #4a1e28;
+            color: #f7a1b0;
+            border-color: #aa3f52;
+            box-shadow: 0 6px 0 #2d0f16;
+        }
+
+        .trade-btn:disabled {
+            opacity: 0.3;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #0e141c;
+            pointer-events: none;
+        }
+
+        .amount-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            background: #0f171f;
+            padding: 8px 16px;
+            border-radius: 60px;
+            border: 1px solid #2a3a4a;
+            margin-bottom: 10px;
+        }
+
+        .amount-control button {
+            background: none;
+            border: none;
+            color: #b7d6f5;
+            font-size: 24px;
+            font-weight: 300;
+            cursor: pointer;
+            padding: 0 8px;
+            transition: 0.1s;
+        }
+
+        .amount-control button:active {
+            color: white;
+            transform: scale(1.2);
+        }
+
+        .amount-control span {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .trade-info {
+            display: flex;
+            justify-content: space-between;
+            color: #8da1bb;
+            font-size: 14px;
+            padding: 0 8px;
+            margin: 12px 0 4px;
+        }
+
+        .trade-info span:last-child {
+            color: #c2d9f2;
+            font-weight: 500;
+        }
+
+        .history-box {
+            margin-top: 24px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 30px;
+            padding: 12px 16px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .history-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .history-box::-webkit-scrollbar-thumb {
+            background: #2a4055;
+            border-radius: 12px;
+        }
+
+        .history-title {
+            color: #6e88a3;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .history-item {
+            color: #b8cfeb;
+            font-size: 14px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item .side-buy {
+            color: #5bde7a;
+        }
+        .history-item .side-sell {
+            color: #f87171;
+        }
+
+        .footer-tip {
+            text-align: center;
+            color: #4a617c;
+            font-size: 12px;
+            margin-top: 18px;
+            letter-spacing: 0.2px;
+        }
+
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #2a3f55;
+            color: #7e9bbd;
+            padding: 6px 18px;
+            border-radius: 60px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.1s;
+            margin-top: 8px;
+        }
+
+        .reset-btn:active {
+            background: #1f2f3f;
+            color: white;
+        }
+
+        .flex-center {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" id="app">
+    <!-- Балансы -->
+    <div class="balance-panel">
+        <div class="balance-row">
+            <span class="balance-label"><i>🇷🇺</i> RUB</span>
+            <span class="balance-value rub" id="rubBalance">0 ₽</span>
+        </div>
+        <div class="balance-row">
+            <span class="balance-label"><i>🔶</i> TONCOIN</span>
+            <span class="balance-value ton" id="tonBalance">1.0000 TON</span>
+        </div>
+    </div>
+
+    <!-- Рынок крипты -->
+    <div class="market-grid" id="marketGrid">
+        <!-- карточки будут динамически -->
+    </div>
+
+    <!-- Торговый блок -->
+    <div class="trade-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px;">
+            <span style="color: #b0cbe5; font-weight: 500;">🧾 Торговать</span>
+            <span style="color: #6f8aa8; font-size: 13px;" id="selectedAssetLabel">TON/USDT</span>
+        </div>
+
+        <div class="amount-control">
+            <button id="decAmount">−</button>
+            <span id="tradeAmount">1.0</span>
+            <button id="incAmount">+</button>
+        </div>
+
+        <div class="trade-row">
+            <button class="trade-btn buy" id="buyBtn">🟢 Купить</button>
+            <button class="trade-btn sell" id="sellBtn">🔴 Продать</button>
+        </div>
+
+        <div class="trade-info">
+            <span>Цена (RUB)</span>
+            <span id="currentPriceDisplay">—</span>
+        </div>
+    </div>
+
+    <!-- История -->
+    <div class="history-box" id="historyBox">
+        <div class="history-title">📋 последние сделки</div>
+        <div id="historyList">
+            <div class="history-item" style="color: #4a617c;">Начните торговать</div>
+        </div>
+    </div>
+
+    <!-- Сброс -->
+    <div class="flex-center">
+        <button class="reset-btn" id="resetBtn">⟳ Перезапуск</button>
+    </div>
+    <div class="footer-tip">P2P-симулятор • офлайн • все данные локально</div>
+</div>
+
+<script>
+    (function() {
+        // ---------- ИГРОВОЕ СОСТОЯНИЕ ----------
+        const state = {
+            rub: 0,                     // старт 0 ₽
+            ton: 1.0,                  // старт 1 TON
+            assets: [
+                { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50, change: 0 },
+                { id: 'btc', name: 'BTC', symbol: '₿', price: 4520000, change: 0 },
+                { id: 'eth', name: 'ETH', symbol: '⟠', price: 324000, change: 0 },
+                { id: 'usdt', name: 'USDT', symbol: '💵', price: 92.30, change: 0 },
+            ],
+            history: [],
+            selectedAssetId: 'ton',      // по умолчанию TON
+            tradeAmount: 1.0,
+        };
+
+        // DOM-ссылки
+        const rubEl = document.getElementById('rubBalance');
+        const tonEl = document.getElementById('tonBalance');
+        const marketGrid = document.getElementById('marketGrid');
+        const selectedAssetLabel = document.getElementById('selectedAssetLabel');
+        const currentPriceDisplay = document.getElementById('currentPriceDisplay');
+        const tradeAmountSpan = document.getElementById('tradeAmount');
+        const historyList = document.getElementById('historyList');
+
+        // ---------- ВСПОМОГАТЕЛЬНЫЕ ----------
+        function formatRub(v) {
+            return v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
+        }
+
+        function formatTon(v) {
+            return v.toFixed(4) + ' TON';
+        }
+
+        // Обновить отображение балансов
+        function updateBalances() {
+            rubEl.textContent = formatRub(state.rub);
+            tonEl.textContent = formatTon(state.ton);
+        }
+
+        // Найти актив по id
+        function getAsset(id) {
+            return state.assets.find(a => a.id === id);
+        }
+
+        // Получить цену выбранного актива
+        function getSelectedPrice() {
+            const asset = getAsset(state.selectedAssetId);
+            return asset ? asset.price : 0;
+        }
+
+        // Обновить цену в UI
+        function updatePriceDisplay() {
+            const price = getSelectedPrice();
+            currentPriceDisplay.textContent = price ? formatRub(price) : '—';
+            const asset = getAsset(state.selectedAssetId);
+            if (asset) {
+                selectedAssetLabel.textContent = asset.symbol + ' ' + asset.name;
+            }
+        }
+
+        // ---------- ГЕНЕРАЦИЯ РЫНКА (карточки) ----------
+        function renderMarket() {
+            marketGrid.innerHTML = '';
+            state.assets.forEach(asset => {
+                const card = document.createElement('div');
+                card.className = 'asset-card';
+                card.dataset.assetId = asset.id;
+                if (asset.id === state.selectedAssetId) {
+                    card.style.border = '1px solid #3b82f6';
+                    card.style.background = 'rgba(59,130,246,0.08)';
+                }
+
+                const changeClass = asset.change >= 0 ? 'positive' : 'negative';
+                const changeSymbol = asset.change >= 0 ? '▲' : '▼';
+
+                card.innerHTML = `
+                    <div class="asset-icon">${asset.symbol}</div>
+                    <div class="asset-name">${asset.name}</div>
+                    <div class="asset-price">${formatRub(asset.price)}</div>
+                    <div class="asset-change ${changeClass}">${changeSymbol} ${Math.abs(asset.change).toFixed(2)}%</div>
+                `;
+                card.addEventListener('click', () => {
+                    state.selectedAssetId = asset.id;
+                    // обновить выделение
+                    document.querySelectorAll('.asset-card').forEach(c => c.style.border = '1px solid rgba(255,255,255,0.04)');
+                    document.querySelectorAll('.asset-card').forEach(c => c.style.background = 'rgba(0,0,0,0.35)');
+                    card.style.border = '1px solid #3b82f6';
+                    card.style.background = 'rgba(59,130,246,0.08)';
+                    updatePriceDisplay();
+                    selectedAssetLabel.textContent = asset.symbol + ' ' + asset.name;
+                });
+                marketGrid.appendChild(card);
+            });
+        }
+
+        // ---------- ИЗМЕНЕНИЕ ЦЕН (волатильность) ----------
+        function fluctuatePrices() {
+            state.assets.forEach(asset => {
+                const volatility = (Math.random() * 4 - 2) / 100; // -2% .. +2%
+                const oldPrice = asset.price;
+                let newPrice = oldPrice * (1 + volatility);
+                // ограничим, чтобы не улететь в 0
+                if (newPrice < 0.01) newPrice = 0.01;
+                asset.price = Math.round(newPrice * 100) / 100;
+                // change (приблизительно)
+                const change = ((asset.price - oldPrice) / oldPrice) * 100;
+                asset.change = Math.round(change * 100) / 100;
+            });
+            // обновить карточки и цену
+            renderMarket();
+            updatePriceDisplay();
+        }
+
+        // ---------- ТОРГОВЛЯ ----------
+        function executeTrade(type) {
+            const amount = state.tradeAmount;
+            if (amount <= 0) return;
+
+            const asset = getAsset(state.selectedAssetId);
+            if (!asset) return;
+
+            const price = asset.price;
+            const totalCost = amount * price;
+
+            if (type === 'buy') {
+                // Покупка: тратим рубли, получаем TON (или другой актив) 
+                // но у нас только TON как основной. В упрощённом варианте покупаем TON за рубли.
+                if (state.rub < totalCost) {
+                    alert('❌ Недостаточно RUB!');
+                    return;
+                }
+                // списываем рубли, добавляем TON
+                state.rub -= totalCost;
+                state.ton += amount;
+                // лог
+                addHistory('buy', asset.symbol, amount, price);
+            } else if (type === 'sell') {
+                // Продажа: продаём TON за рубли
+                if (state.ton < amount) {
+                    alert('❌ Недостаточно TONCOIN!');
+                    return;
+                }
+                state.ton -= amount;
+                state.rub += totalCost;
+                addHistory('sell', asset.symbol, amount, price);
+            }
+
+            // обновить балансы
+            updateBalances();
+            // обновить карточки (цена могла поменяться)
+            renderMarket();
+            updatePriceDisplay();
+        }
+
+        // ---------- ИСТОРИЯ ----------
+        function addHistory(type, symbol, amount, price) {
+            const entry = {
+                type: type,
+                symbol: symbol,
+                amount: amount,
+                price: price,
+                time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+            };
+            state.history.unshift(entry);
+            if (state.history.length > 20) state.history.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            if (state.history.length === 0) {
+                historyList.innerHTML = `<div class="history-item" style="color: #4a617c;">Сделок пока нет</div>`;
+                return;
+            }
+            historyList.innerHTML = '';
+            state.history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                const sideClass = item.type === 'buy' ? 'side-buy' : 'side-sell';
+                const sideText = item.type === 'buy' ? 'Покупка' : 'Продажа';
+                div.innerHTML = `
+                    <span><span class="${sideClass}">${sideText}</span> ${item.symbol} ${item.amount.toFixed(2)}</span>
+                    <span>${formatRub(item.price)} • ${item.time}</span>
+                `;
+                historyList.appendChild(div);
+            });
+        }
+
+        // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+        function initGame() {
+            // Состояние по умолчанию
+            state.rub = 0;
+            state.ton = 1.0;
+            state.history = [];
+            state.selectedAssetId = 'ton';
+            state.tradeAmount = 1.0;
+
+            // Цены по умолчанию (можно оставить как есть)
+            const defaultPrices = {
+                ton: 240.50,
+                btc: 4520000,
+                eth: 324000,
+                usdt: 92.30,
+            };
+            state.assets.forEach(asset => {
+                if (defaultPrices[asset.id] !== undefined) {
+                    asset.price = defaultPrices[asset.id];
+                    asset.change = 0;
+                }
+            });
+
+            // Отрисовка
+            renderMarket();
+            updateBalances();
+            updatePriceDisplay();
+            tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
+            renderHistory();
+
+            // Обновить выделение
+            document.querySelectorAll('.asset-card').forEach(c => {
+                if (c.dataset.assetId === state.selectedAssetId) {
+                    c.style.border = '1px solid #3b82f6';
+                    c.style.background = 'rgba(59,130,246,0.08)';
+                } else {
+                    c.style.border = '1px solid rgba(255,255,255,0.04)';
+                    c.style.background = 'rgba(0,0,0,0.35)';
+                }
+            });
+            selectedAssetLabel.textContent = getAsset('ton').symbol + ' TONCOIN';
+        }
+
+        // ---------- ПОДПИСКИ ----------
+        document.addEventListener('DOMContentLoaded', () => {
+            initGame();
+
+            // Кнопки +/- количество
+            document.getElementById('decAmount').addEventListener('click', () => {
+                let val = state.tradeAmount - 0.5;
+                if (val < 0.1) val = 0.1;
+                state.tradeAmount = Math.round(val * 10) / 10;
+                tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
+            });
+            document.getElementById('incAmount').addEventListener('click', () => {
+                let val = state.tradeAmount + 0.5;
+                if (val > 100) val = 100;
+                state.tradeAmount = Math.round(val * 10) / 10;
+                tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
+            });
+
+            // Кнопки купить/продать
+            document.getElementById('buyBtn').addEventListener('click', () => executeTrade('buy'));
+            document.getElementById('sellBtn').addEventListener('click', () => executeTrade('sell'));
+
+            // Сброс
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (confirm('Сбросить прогресс? Все данные будут удалены.')) {
+                    initGame();
+                }
+            });
+
+            // Колебание цен раз в 6 секунд
+            setInterval(() => {
+                fluctuatePrices();
+                // обновить отображение цены
+                updatePriceDisplay();
+                // обновить балансы (на случай, если что-то изменилось)
+                updateBalances();
+            }, 6000);
+
+            // дополнительное обновление цены при смене актива
+        });
+
+        // Обновим отображение цены при клике на карточку (дублируем)
+        // уже есть в обработчике клика
+    })();
+</script>
+</body>
+</html>
