@@ -10,942 +10,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background: #0a0e17;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-            color: #eef4fa;
-        }
-
-        .glass {
-            background: rgba(18, 28, 46, 0.55);
-            backdrop-filter: blur(32px) saturate(180%);
-            -webkit-backdrop-filter: blur(32px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            border-radius: 44px;
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .app-container {
-            max-width: 960px;
-            width: 100%;
-            padding: 24px 22px 28px;
-        }
-
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(10, 14, 23, 0.92);
-            backdrop-filter: blur(30px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .login-box {
-            max-width: 400px;
-            width: 100%;
-            padding: 40px 32px;
-            text-align: center;
-        }
-
-        .login-box h1 {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-
-        .login-box p {
-            color: #8ba0be;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        .login-box input {
-            width: 100%;
-            padding: 14px 20px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-size: 16px;
-            outline: none;
-            transition: 0.2s;
-            margin-bottom: 10px;
-        }
-
-        .login-box input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
-        }
-
-        .login-box .login-btn {
-            width: 100%;
-            margin-top: 6px;
-            padding: 14px;
-            border: none;
-            border-radius: 40px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .login-box .login-btn:hover { transform: scale(1.02); }
-        .login-box .login-btn:active { transform: scale(0.96); }
-
-        .login-box .register-link {
-            color: #8ba0be;
-            font-size: 13px;
-            margin-top: 12px;
-            cursor: pointer;
-            display: inline-block;
-            transition: 0.2s;
-        }
-
-        .login-box .register-link:hover { color: #b7d6f5; }
-
-        .online-status {
-            font-size: 12px;
-            margin-top: 10px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 6px;
-            border-radius: 60px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 10px 6px;
-            border: none;
-            border-radius: 40px;
-            background: transparent;
-            color: #8ba0be;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 0.3px;
-            min-width: 70px;
-        }
-
-        .tab-btn.active {
-            background: rgba(59, 130, 246, 0.2);
-            color: white;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.08);
-        }
-
-        .tab-btn:active { transform: scale(0.96); }
-
-        .tab-content {
-            display: none;
-            animation: fadeSlide 0.3s ease;
-        }
-
-        .tab-content.active { display: block; }
-
-        @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .balance-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .balance-item {
-            background: rgba(0, 0, 0, 0.25);
-            padding: 8px 14px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            flex: 1 1 90px;
-            min-width: 70px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .balance-item .label {
-            color: #8ba0be;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .balance-item .value {
-            font-weight: 700;
-            font-size: 16px;
-            padding: 0 6px;
-            border-radius: 30px;
-        }
-
-        .value.rub { color: #7bc9ff; }
-        .value.ton { color: #6ee7b7; }
-        .value.total { color: #c8b6ff; }
-
-        .user-badge {
-            background: rgba(59, 130, 246, 0.15);
-            padding: 6px 16px;
-            border-radius: 40px;
-            font-size: 13px;
-            color: #b7d6f5;
-            border: 1px solid rgba(59, 130, 246, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .user-badge .online-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4ade80;
-            display: inline-block;
-            animation: pulse 2s infinite;
-        }
-
-        .admin-badge {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .chart-wrapper {
-            padding: 14px 12px 8px;
-            margin: 6px 0 14px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 4px 8px 4px;
-        }
-
-        .chart-header .pair {
-            font-weight: 600;
-            font-size: 16px;
-            color: #d6e8ff;
-        }
-
-        .chart-header .price-badge {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 4px 16px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 16px;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-
-        #priceChart {
-            width: 100%;
-            height: 130px;
-            display: block;
-            border-radius: 16px;
-            background: transparent;
-        }
-
-        .market-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
-            gap: 6px;
-            margin: 12px 0 16px;
-        }
-
-        .asset-card {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
-            padding: 8px 4px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            cursor: pointer;
-            transition: 0.15s;
-            text-align: center;
-        }
-
-        .asset-card.active {
-            border: 2px solid #3b82f6;
-            background: rgba(59, 130, 246, 0.1);
-            box-shadow: 0 0 25px rgba(59, 130, 246, 0.08);
-        }
-
-        .asset-card:active { transform: scale(0.94); }
-        .asset-card .icon { font-size: 20px; }
-        .asset-card .name { font-weight: 600; font-size: 12px; color: #dce8f5; }
-        .asset-card .price { font-size: 11px; color: #a8c0dd; background: rgba(0,0,0,0.2); padding: 0 8px; border-radius: 30px; display: inline-block; }
-        .asset-card .change { font-size: 11px; font-weight: 500; }
-        .positive { color: #4ade80; }
-        .negative { color: #f87171; }
-
-        .trade-panel {
-            padding: 14px 14px 12px;
-            margin: 4px 0 12px;
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .trade-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .trade-top .selected-label {
-            font-weight: 500;
-            color: #b6cef0;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 4px 16px;
-            border-radius: 40px;
-            font-size: 14px;
-        }
-
-        .amount-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 2px 8px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .amount-control button {
-            background: none;
-            border: none;
-            color: #b7d6f5;
-            font-size: 24px;
-            font-weight: 300;
-            cursor: pointer;
-            width: 28px;
-            transition: 0.1s;
-        }
-        .amount-control button:active { transform: scale(1.3); color: white; }
-        .amount-control span {
-            font-size: 20px;
-            font-weight: 700;
-            min-width: 44px;
-            text-align: center;
-            color: white;
-        }
-
-        .trade-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 12px 0 4px;
-        }
-
-        .trade-btn {
-            flex: 1;
-            padding: 12px 8px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 15px;
-            transition: 0.1s;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #0b121a;
-        }
-
-        .trade-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0b121a; }
-        .trade-btn.buy { background: #0f3b2a; color: #7ddfa0; border: 1px solid #1b7a4a; }
-        .trade-btn.sell { background: #4a1e28; color: #f7a1b0; border: 1px solid #aa3f52; }
-
-        .trade-info {
-            display: flex;
-            justify-content: space-between;
-            color: #8ba0be;
-            font-size: 12px;
-            padding: 0 4px;
-            margin-top: 6px;
-        }
-        .trade-info span:last-child { color: #d6e8ff; font-weight: 500; }
-
-        .history-box {
-            margin-top: 12px;
-            padding: 8px 12px 2px;
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            max-height: 110px;
-            overflow-y: auto;
-        }
-        .history-box::-webkit-scrollbar { width: 3px; }
-        .history-box::-webkit-scrollbar-thumb { background: #2a4055; border-radius: 10px; }
-
-        .history-title {
-            color: #6e88a3;
-            font-size: 10px;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-            font-size: 12px;
-            color: #b8cfeb;
-        }
-        .history-item:last-child { border-bottom: none; }
-        .history-item .side-buy { color: #4ade80; }
-        .history-item .side-sell { color: #f87171; }
-
-        .mining-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .mining-stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 12px 14px;
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .mining-stats .stat {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-        }
-
-        .mining-stats .stat .val {
-            font-weight: 700;
-            color: #b7e0ff;
-        }
-
-        .mining-stats .stat .val.green { color: #6ee7b7; }
-
-        .mining-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .mining-controls select {
-            background: rgba(0, 0, 0, 0.3);
-            color: #d6e8ff;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 8px 14px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            outline: none;
-        }
-
-        .mining-controls select option { background: #0b121a; color: white; }
-
-        .mining-btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.15s;
-            background: #1a3a4a;
-            color: #8fd0e8;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 4px 0 #0a1a22;
-        }
-
-        .mining-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0a1a22; }
-        .mining-btn.active { background: #0f3b2a; color: #7ddfa0; border-color: #1b7a4a; }
-
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 8px;
-            margin-top: 4px;
-        }
-
-        .shop-card {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 24px;
-            padding: 12px 8px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            text-align: center;
-            transition: 0.15s;
-        }
-
-        .shop-card .item-name {
-            font-weight: 600;
-            font-size: 13px;
-            color: #d6e8ff;
-        }
-
-        .shop-card .item-power {
-            font-size: 11px;
-            color: #8ba0be;
-        }
-
-        .shop-card .item-price {
-            font-size: 12px;
-            color: #b7e0ff;
-            font-weight: 600;
-            margin: 4px 0;
-        }
-
-        .shop-card .item-count {
-            font-size: 11px;
-            color: #8ba0be;
-        }
-
-        .shop-card .buy-btn {
-            margin-top: 6px;
-            padding: 6px 16px;
-            border: none;
-            border-radius: 30px;
-            background: #1a3a4a;
-            color: #8fd0e8;
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.1s;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .shop-card .buy-btn:active { transform: scale(0.94); background: #2a5a6a; }
-
-        .shop-tabs {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-
-        .shop-tab {
-            padding: 6px 16px;
-            border: none;
-            border-radius: 30px;
-            background: rgba(0, 0, 0, 0.2);
-            color: #8ba0be;
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.15s;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .shop-tab.active {
-            background: rgba(59, 130, 246, 0.2);
-            color: white;
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-
-        .shop-tab:active { transform: scale(0.94); }
-
-        .reset-area {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 14px;
-            flex-wrap: wrap;
-        }
-
-        .reset-btn, .save-btn, .logout-btn {
-            background: transparent;
-            border: 1px solid #2f4862;
-            color: #8baecf;
-            padding: 5px 20px;
-            border-radius: 40px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-        .reset-btn:active, .save-btn:active, .logout-btn:active { background: #1f3142; color: white; }
-        .logout-btn { border-color: #6b2f3a; color: #f7a1b0; }
-        .logout-btn:hover { background: rgba(107, 47, 58, 0.2); }
-
-        .footer-note {
-            text-align: center;
-            color: #3f5b78;
-            font-size: 10px;
-            margin-top: 10px;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(16, 28, 46, 0.9);
-            backdrop-filter: blur(20px);
-            color: #d6e8ff;
-            padding: 10px 28px;
-            border-radius: 40px;
-            font-size: 14px;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.25s;
-            pointer-events: none;
-        }
-        .toast.show { opacity: 1; }
-
-        .leaderboard {
-            margin-top: 12px;
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 24px;
-            padding: 12px 14px;
-            border: 1px solid rgba(255,255,255,0.04);
-            max-height: 350px;
-            overflow-y: auto;
-        }
-
-        .leaderboard .lb-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-        }
-
-        .leaderboard .lb-item .name {
-            color: #b7d6f5;
-        }
-
-        .leaderboard .lb-item .total {
-            color: #c8b6ff;
-            font-weight: 600;
-        }
-
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 6px;
-            margin: 10px 0;
-        }
-
-        .portfolio-item {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 16px;
-            padding: 8px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.03);
-        }
-
-        .portfolio-item .p-icon { font-size: 18px; }
-        .portfolio-item .p-name { font-size: 11px; color: #8ba0be; }
-        .portfolio-item .p-balance { font-size: 13px; font-weight: 600; color: #b7e0ff; }
-
-        /* ===== АДМИН ПАНЕЛЬ ===== */
-        .admin-panel {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 28px;
-            padding: 16px;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            margin-top: 12px;
-        }
-
-        .admin-panel .admin-title {
-            color: #f87171;
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .admin-panel .admin-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            background: rgba(0,0,0,0.2);
-            padding: 10px 14px;
-            border-radius: 20px;
-            margin-bottom: 8px;
-        }
-
-        .admin-panel select, .admin-panel input {
-            background: rgba(0, 0, 0, 0.3);
-            color: #d6e8ff;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 13px;
-            outline: none;
-            flex: 1;
-            min-width: 100px;
-        }
-
-        .admin-panel select option { background: #0b121a; color: white; }
-
-        .admin-panel .admin-btn {
-            padding: 6px 18px;
-            border: none;
-            border-radius: 30px;
-            background: #ef4444;
-            color: white;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.15s;
-        }
-
-        .admin-panel .admin-btn:hover { opacity: 0.8; }
-        .admin-panel .admin-btn:active { transform: scale(0.94); }
-        .admin-panel .admin-btn.green { background: #22c55e; }
-
-        .admin-panel .admin-user-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 8px;
-        }
-
-        .admin-panel .admin-user-list .user-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            font-size: 13px;
-            color: #b7d6f5;
-        }
-
-        @media (max-width: 600px) {
-            .app-container { padding: 16px; }
-            .balance-item .value { font-size: 14px; }
-            .market-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
-            .shop-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-            .tab-btn { font-size: 11px; padding: 8px 4px; min-width: 50px; }
-        }
+        /* ... все стили как в предыдущей версии ... */
     </style>
 </head>
 <body>
-
-<!-- Вход -->
-<div class="login-overlay" id="loginOverlay">
-    <div class="login-box glass">
-        <h1>🚀 Крипто-трейдер</h1>
-        <p>Введите данные для входа</p>
-        <input type="text" id="usernameInput" placeholder="Имя пользователя..." maxlength="20" autofocus>
-        <input type="password" id="passwordInput" placeholder="Пароль..." maxlength="30">
-        <button class="login-btn" id="loginBtn">🔑 Войти</button>
-        <div style="margin-top:10px;">
-            <span class="register-link" id="registerLink">📝 Зарегистрироваться</span>
-        </div>
-        <div class="online-status" id="onlineStatus">🔄 Подключение...</div>
-    </div>
-</div>
-
-<div class="app-container glass" id="appContainer" style="display:none;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-        <div class="user-badge">
-            <span class="online-dot"></span>
-            <span id="userNameDisplay">Игрок</span>
-            <span class="admin-badge" id="adminBadge" style="display:none;">👑 АДМИН</span>
-        </div>
-        <div style="display:flex; gap:12px; font-size:12px; color:#6e88a3;">
-            <span>👥 <span id="onlineCount">0</span></span>
-        </div>
-    </div>
-
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="trade">📊 Трейдинг</button>
-        <button class="tab-btn" data-tab="mining">⛏️ Майнинг</button>
-        <button class="tab-btn" data-tab="portfolio">💼 Портфель</button>
-        <button class="tab-btn" data-tab="leaderboard">🏆 Рейтинг</button>
-        <button class="tab-btn" data-tab="admin" id="adminTabBtn" style="display:none;">👑 Админ</button>
-    </div>
-
-    <!-- TAB TRADE -->
-    <div id="tab-trade" class="tab-content active">
-        <div class="balance-panel">
-            <div class="balance-item"><span class="label">🇷🇺 RUB</span><span class="value rub" id="rubBalance">0 ₽</span></div>
-            <div class="balance-item"><span class="label">🔶 TON</span><span class="value ton" id="tonBalance">1.0000 TON</span></div>
-            <div class="balance-item"><span class="label">📊 итого</span><span class="value total" id="totalValue">0 ₽</span></div>
-        </div>
-
-        <div class="chart-wrapper">
-            <div class="chart-header">
-                <span class="pair" id="chartPair">TON / RUB</span>
-                <span class="price-badge" id="chartPrice">240.50 ₽</span>
-            </div>
-            <canvas id="priceChart" width="700" height="130"></canvas>
-        </div>
-
-        <div class="market-grid" id="marketGrid"></div>
-
-        <div class="trade-panel">
-            <div class="trade-top">
-                <span class="selected-label" id="selectedLabel">🔶 TONCOIN</span>
-                <div class="amount-control">
-                    <button id="decAmount">−</button>
-                    <span id="tradeAmount">1.0</span>
-                    <button id="incAmount">+</button>
-                </div>
-            </div>
-            <div class="trade-buttons">
-                <button class="trade-btn buy" id="buyBtn">🟢 Купить</button>
-                <button class="trade-btn sell" id="sellBtn">🔴 Продать</button>
-            </div>
-            <div class="trade-info">
-                <span>Цена (RUB)</span>
-                <span id="currentPriceDisplay">—</span>
-            </div>
-        </div>
-
-        <div class="history-box">
-            <div class="history-title">📋 последние сделки</div>
-            <div id="historyList"><div class="history-item" style="color:#4a617c;">Начните торговать</div></div>
-        </div>
-    </div>
-
-    <!-- TAB MINING -->
-    <div id="tab-mining" class="tab-content">
-        <div class="mining-panel">
-            <div class="mining-stats">
-                <div class="stat">⛏️ Хешрейт: <span class="val green" id="hashrateDisplay">0.00 MH/s</span></div>
-                <div class="stat">💰 Добыто: <span class="val" id="minedDisplay">0.0000 TON</span></div>
-                <div class="stat">⚡ Активно: <span class="val" id="miningStatus">Выключен</span></div>
-            </div>
-
-            <div class="mining-controls">
-                <select id="mineCoinSelect">
-                    <option value="ton">TONCOIN</option>
-                    <option value="btc">BTC</option>
-                    <option value="eth">ETH</option>
-                    <option value="sol">SOL</option>
-                    <option value="xrp">XRP</option>
-                </select>
-                <button class="mining-btn" id="toggleMiningBtn">▶ Запустить майнинг</button>
-            </div>
-
-            <div style="margin-top: 6px; font-size: 13px; color: #8ba0be;">🛒 Магазин оборудования</div>
-            
-            <div class="shop-tabs">
-                <button class="shop-tab active" data-shop="gpu">🎮 Видеокарты</button>
-                <button class="shop-tab" data-shop="cpu">💻 Процессоры</button>
-                <button class="shop-tab" data-shop="ram">🧠 Оперативная память</button>
-            </div>
-            
-            <div class="shop-grid" id="shopGrid"></div>
-        </div>
-    </div>
-
-    <!-- TAB PORTFOLIO -->
-    <div id="tab-portfolio" class="tab-content">
-        <div style="margin-bottom:12px;">
-            <div class="history-title">💰 Все ваши активы</div>
-            <div class="portfolio-grid" id="portfolioGrid"></div>
-        </div>
-        <div style="background:rgba(0,0,0,0.15); border-radius:20px; padding:12px; border:1px solid rgba(255,255,255,0.03);">
-            <div class="history-title">📊 Итого: <span id="portfolioTotal" style="color:#c8b6ff; font-weight:700;">0 ₽</span></div>
-        </div>
-    </div>
-
-    <!-- TAB LEADERBOARD -->
-    <div id="tab-leaderboard" class="tab-content">
-        <div class="leaderboard" id="leaderboardList">
-            <div style="color:#4a617c; text-align:center; padding:20px;">Загрузка рейтинга...</div>
-        </div>
-    </div>
-
-    <!-- TAB ADMIN -->
-    <div id="tab-admin" class="tab-content">
-        <div class="admin-panel" id="adminPanel">
-            <div class="admin-title">👑 Админ-панель</div>
-            
-            <div style="margin-bottom:12px;">
-                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; background:rgba(0,0,0,0.15); padding:10px 14px; border-radius:20px;">
-                    <select id="adminUserSelect" style="flex:2; min-width:150px;">
-                        <option value="">-- Выберите пользователя --</option>
-                    </select>
-                    <select id="adminCoinSelect" style="flex:1; min-width:100px;">
-                        <option value="rub">RUB</option>
-                        <option value="ton">TONCOIN</option>
-                        <option value="btc">BTC</option>
-                        <option value="eth">ETH</option>
-                        <option value="usdt">USDT</option>
-                        <option value="sol">SOL</option>
-                        <option value="ada">ADA</option>
-                        <option value="xrp">XRP</option>
-                        <option value="dot">DOT</option>
-                        <option value="avax">AVAX</option>
-                        <option value="matic">MATIC</option>
-                    </select>
-                    <input type="number" id="adminAmountInput" placeholder="Количество" step="0.0001" style="flex:1; min-width:80px;">
-                    <button class="admin-btn green" id="adminAddCoinBtn">➕ Добавить</button>
-                    <button class="admin-btn" id="adminSetCoinBtn">✏️ Установить</button>
-                </div>
-            </div>
-            
-            <div style="font-size:12px; color:#6e88a3; margin-bottom:6px;">👥 Список пользователей:</div>
-            <div class="admin-user-list" id="adminUserList">
-                <div style="color:#4a617c; text-align:center; padding:10px;">Загрузка...</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="reset-area">
-        <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
-        <button class="reset-btn" id="resetBtn">⟳ Сброс</button>
-        <button class="save-btn" id="saveBtn">💾 Сохранить</button>
-    </div>
-    <div class="footer-note">P2P симулятор • Онлайн • Все данные синхронизируются</div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<script>
+    <!-- ... весь HTML как в предыдущей версии ... -->
+    <script>
     // ============================================================
     // 🔥 ВАША КОНФИГУРАЦИЯ FIREBASE
     // ============================================================
@@ -1071,50 +141,6 @@
         state.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
     });
 
-    // DOM
-    const rubEl = document.getElementById('rubBalance');
-    const tonEl = document.getElementById('tonBalance');
-    const totalValueEl = document.getElementById('totalValue');
-    const marketGrid = document.getElementById('marketGrid');
-    const selectedLabel = document.getElementById('selectedLabel');
-    const currentPriceDisplay = document.getElementById('currentPriceDisplay');
-    const tradeAmountSpan = document.getElementById('tradeAmount');
-    const historyList = document.getElementById('historyList');
-    const chartCanvas = document.getElementById('priceChart');
-    const ctx = chartCanvas.getContext('2d');
-    const chartPair = document.getElementById('chartPair');
-    const chartPrice = document.getElementById('chartPrice');
-    const toastEl = document.getElementById('toast');
-
-    const hashrateDisplay = document.getElementById('hashrateDisplay');
-    const minedDisplay = document.getElementById('minedDisplay');
-    const miningStatus = document.getElementById('miningStatus');
-    const shopGrid = document.getElementById('shopGrid');
-    const toggleMiningBtn = document.getElementById('toggleMiningBtn');
-    const mineCoinSelect = document.getElementById('mineCoinSelect');
-
-    const loginOverlay = document.getElementById('loginOverlay');
-    const usernameInput = document.getElementById('usernameInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const loginBtn = document.getElementById('loginBtn');
-    const registerLink = document.getElementById('registerLink');
-    const onlineStatus = document.getElementById('onlineStatus');
-    const userNameDisplay = document.getElementById('userNameDisplay');
-    const onlineCount = document.getElementById('onlineCount');
-    const leaderboardList = document.getElementById('leaderboardList');
-    const portfolioGrid = document.getElementById('portfolioGrid');
-    const portfolioTotal = document.getElementById('portfolioTotal');
-
-    // Admin DOM
-    const adminTabBtn = document.getElementById('adminTabBtn');
-    const adminBadge = document.getElementById('adminBadge');
-    const adminUserSelect = document.getElementById('adminUserSelect');
-    const adminCoinSelect = document.getElementById('adminCoinSelect');
-    const adminAmountInput = document.getElementById('adminAmountInput');
-    const adminAddCoinBtn = document.getElementById('adminAddCoinBtn');
-    const adminSetCoinBtn = document.getElementById('adminSetCoinBtn');
-    const adminUserList = document.getElementById('adminUserList');
-
     // ==================== ВСПОМОГАТЕЛЬНЫЕ ====================
     function formatRub(v) {
         if (v >= 1000) return v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
@@ -1148,59 +174,11 @@
         return total;
     }
 
-    // ==================== COOKIE СЕССИЯ ====================
-    function saveSession() {
-        if (!isLoggedIn) return;
-        const session = {
-            username: myUsername,
-            userId: myUserId,
-            password: myPassword,
-            isAdmin: isAdmin,
-            timestamp: Date.now()
-        };
-        setCookie('cryptoSession', session, 365);
-    }
-
-    function loadSession() {
-        const session = getCookie('cryptoSession');
-        if (session && session.username && session.userId) {
-            myUsername = session.username;
-            myUserId = session.userId;
-            myPassword = session.password || '';
-            isAdmin = session.isAdmin || false;
-            isLoggedIn = true;
-            return true;
-        }
-        return false;
-    }
-
-    function clearSession() {
-        isLoggedIn = false;
-        isAdmin = false;
-        const session = {
-            username: myUsername,
-            userId: myUserId,
-            password: myPassword,
-            isAdmin: false,
-            loggedOut: true,
-            timestamp: Date.now()
-        };
-        setCookie('cryptoSession', session, 365);
-    }
-
-    function isSessionActive() {
-        const session = getCookie('cryptoSession');
-        if (session && session.username && session.userId && !session.loggedOut) {
-            return true;
-        }
-        return false;
-    }
-
-    // ==================== FIREBASE ФУНКЦИИ ====================
-    function saveToFirebase() {
+    // ==================== СОХРАНЕНИЕ В FIREBASE С ПЕРЕСЧЁТОМ TOTAL ====================
+    function saveToFirebase(forcedTotal) {
         if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
         try {
-            const total = calcTotal();
+            const total = forcedTotal !== undefined ? forcedTotal : calcTotal();
             const data = {
                 username: myUsername,
                 password: myPassword,
@@ -1213,7 +191,7 @@
                 lastActive: Date.now()
             };
             db.ref('users/' + myUserId).set(data)
-                .then(() => console.log('✅ Данные сохранены'))
+                .then(() => console.log('✅ Данные сохранены, total:', formatRub(total)))
                 .catch(error => console.warn('⚠️ Ошибка:', error.message));
         } catch(e) { console.warn('⚠️ Ошибка:', e.message); }
     }
@@ -1237,6 +215,12 @@
                         }
                     });
                     
+                    // ✅ ПЕРЕСЧИТЫВАЕМ total из актуальных балансов
+                    const total = calcTotal();
+                    if (data.total !== total) {
+                        db.ref('users/' + myUserId + '/total').set(total);
+                    }
+                    
                     updateUI();
                     return true;
                 }
@@ -1258,14 +242,13 @@
         updateChart();
         renderHistory();
         
-        // Обновляем админ интерфейс
         if (isAdmin) {
-            adminTabBtn.style.display = 'block';
-            adminBadge.style.display = 'inline-block';
+            document.getElementById('adminTabBtn').style.display = 'block';
+            document.getElementById('adminBadge').style.display = 'inline-block';
             loadAdminUsers();
         } else {
-            adminTabBtn.style.display = 'none';
-            adminBadge.style.display = 'none';
+            document.getElementById('adminTabBtn').style.display = 'none';
+            document.getElementById('adminBadge').style.display = 'none';
         }
     }
 
@@ -1298,14 +281,11 @@
                     updateChart();
                     updateBalances();
                     renderPortfolio();
-                    console.log('✅ Цены загружены из Firebase');
                 } else {
                     savePricesToFirebase();
                 }
             })
-            .catch(error => {
-                console.warn('⚠️ Ошибка загрузки цен:', error.message);
-            });
+            .catch(error => console.warn('⚠️ Ошибка загрузки цен:', error.message));
     }
 
     let pricesListener = null;
@@ -1344,12 +324,11 @@
             .then(snapshot => {
                 const data = snapshot.val();
                 if (!data) {
-                    adminUserList.innerHTML = '<div style="color:#4a617c; text-align:center; padding:10px;">Нет пользователей</div>';
-                    adminUserSelect.innerHTML = '<option value="">-- Нет пользователей --</option>';
+                    document.getElementById('adminUserList').innerHTML = '<div style="color:#4a617c; text-align:center; padding:10px;">Нет пользователей</div>';
+                    document.getElementById('adminUserSelect').innerHTML = '<option value="">-- Нет пользователей --</option>';
                     return;
                 }
                 
-                // Список пользователей
                 let html = '';
                 let options = '<option value="">-- Выберите пользователя --</option>';
                 const entries = Object.entries(data);
@@ -1359,18 +338,16 @@
                         options += `<option value="${id}">${user.username}</option>`;
                     }
                 });
-                adminUserList.innerHTML = html || '<div style="color:#4a617c; text-align:center; padding:10px;">Нет пользователей</div>';
-                adminUserSelect.innerHTML = options;
+                document.getElementById('adminUserList').innerHTML = html || '<div style="color:#4a617c; text-align:center; padding:10px;">Нет пользователей</div>';
+                document.getElementById('adminUserSelect').innerHTML = options;
             })
-            .catch(error => {
-                console.warn('⚠️ Ошибка загрузки пользователей:', error.message);
-            });
+            .catch(error => console.warn('⚠️ Ошибка загрузки пользователей:', error.message));
     }
 
     function adminAddCoin() {
-        const userId = adminUserSelect.value;
-        const coinId = adminCoinSelect.value;
-        const amount = parseFloat(adminAmountInput.value);
+        const userId = document.getElementById('adminUserSelect').value;
+        const coinId = document.getElementById('adminCoinSelect').value;
+        const amount = parseFloat(document.getElementById('adminAmountInput').value);
         
         if (!userId) { showToast('❌ Выберите пользователя!'); return; }
         if (isNaN(amount) || amount <= 0) { showToast('❌ Введите корректное количество!'); return; }
@@ -1383,12 +360,10 @@
                 const username = userData.username || 'Пользователь';
                 
                 if (coinId === 'rub') {
-                    // Добавляем RUB
                     const newRub = (userData.rub || 0) + amount;
                     db.ref('users/' + userId + '/rub').set(newRub);
                     showToast(`✅ Добавлено ${formatRub(amount)} ${username}`);
                 } else {
-                    // Добавляем криптовалюту
                     const balances = userData.balances || {};
                     balances[coinId] = (balances[coinId] || 0) + amount;
                     db.ref('users/' + userId + '/balances').set(balances);
@@ -1396,18 +371,15 @@
                     showToast(`✅ Добавлено ${formatCoin(amount)} ${asset ? asset.symbol : coinId} ${username}`);
                 }
                 
-                // Обновляем список пользователей
                 setTimeout(loadAdminUsers, 500);
             })
-            .catch(error => {
-                showToast('❌ Ошибка: ' + error.message);
-            });
+            .catch(error => showToast('❌ Ошибка: ' + error.message));
     }
 
     function adminSetCoin() {
-        const userId = adminUserSelect.value;
-        const coinId = adminCoinSelect.value;
-        const amount = parseFloat(adminAmountInput.value);
+        const userId = document.getElementById('adminUserSelect').value;
+        const coinId = document.getElementById('adminCoinSelect').value;
+        const amount = parseFloat(document.getElementById('adminAmountInput').value);
         
         if (!userId) { showToast('❌ Выберите пользователя!'); return; }
         if (isNaN(amount) || amount < 0) { showToast('❌ Введите корректное количество!'); return; }
@@ -1432,31 +404,30 @@
                 
                 setTimeout(loadAdminUsers, 500);
             })
-            .catch(error => {
-                showToast('❌ Ошибка: ' + error.message);
-            });
+            .catch(error => showToast('❌ Ошибка: ' + error.message));
     }
 
     // ==================== UI ====================
     function updateBalances() {
-        rubEl.textContent = formatRub(state.rub);
+        document.getElementById('rubBalance').textContent = formatRub(state.rub);
         const tonBalance = state.balances['ton'] || 0;
-        tonEl.textContent = formatCoin(tonBalance) + ' TON';
-        totalValueEl.textContent = formatRub(calcTotal());
+        document.getElementById('tonBalance').textContent = formatCoin(tonBalance) + ' TON';
+        document.getElementById('totalValue').textContent = formatRub(calcTotal());
     }
 
     function updatePriceDisplay() {
         const asset = getSelectedAsset();
         if (asset) {
-            currentPriceDisplay.textContent = formatRub(asset.price);
-            selectedLabel.textContent = asset.symbol + ' ' + asset.name;
-            chartPair.textContent = asset.symbol + ' / RUB';
-            chartPrice.textContent = formatRub(asset.price);
+            document.getElementById('currentPriceDisplay').textContent = formatRub(asset.price);
+            document.getElementById('selectedLabel').textContent = asset.symbol + ' ' + asset.name;
+            document.getElementById('chartPair').textContent = asset.symbol + ' / RUB';
+            document.getElementById('chartPrice').textContent = formatRub(asset.price);
         }
     }
 
     function renderPortfolio() {
-        portfolioGrid.innerHTML = '';
+        const grid = document.getElementById('portfolioGrid');
+        grid.innerHTML = '';
         let total = state.rub;
         state.assets.forEach(asset => {
             const balance = state.balances[asset.id] || 0;
@@ -1470,12 +441,15 @@
                 <div class="p-balance">${formatCoin(balance)}</div>
                 <div style="font-size:11px;color:#8ba0be;">${formatRub(value)}</div>
             `;
-            portfolioGrid.appendChild(div);
+            grid.appendChild(div);
         });
-        portfolioTotal.textContent = formatRub(total);
+        document.getElementById('portfolioTotal').textContent = formatRub(total);
     }
 
     // ==================== ГРАФИК ====================
+    const chartCanvas = document.getElementById('priceChart');
+    const ctx = chartCanvas.getContext('2d');
+
     function updateChart() {
         const asset = getSelectedAsset();
         if (!asset) return;
@@ -1566,7 +540,8 @@
 
     // ==================== РЫНОК ====================
     function renderMarket() {
-        marketGrid.innerHTML = '';
+        const grid = document.getElementById('marketGrid');
+        grid.innerHTML = '';
         state.assets.forEach(asset => {
             const card = document.createElement('div');
             card.className = 'asset-card' + (asset.id === state.selectedAssetId ? ' active' : '');
@@ -1588,7 +563,7 @@
                 updateChart();
             });
             
-            marketGrid.appendChild(card);
+            grid.appendChild(card);
         });
     }
 
@@ -1604,18 +579,19 @@
     }
 
     function renderHistory() {
+        const list = document.getElementById('historyList');
         if (state.history.length === 0) {
-            historyList.innerHTML = `<div class="history-item" style="color:#4a617c;">Сделок пока нет</div>`;
+            list.innerHTML = `<div class="history-item" style="color:#4a617c;">Сделок пока нет</div>`;
             return;
         }
-        historyList.innerHTML = '';
+        list.innerHTML = '';
         state.history.forEach(item => {
             const div = document.createElement('div');
             div.className = 'history-item';
             const side = item.type === 'buy' ? 'side-buy' : 'side-sell';
             const txt = item.type === 'buy' ? 'Покупка' : 'Продажа';
             div.innerHTML = `<span><span class="${side}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
-            historyList.appendChild(div);
+            list.appendChild(div);
         });
     }
 
@@ -1648,19 +624,25 @@
         }
         if (state.tradePoints.length > 30) state.tradePoints.shift();
         
+        // Обновляем UI
         updateBalances();
         renderMarket();
         updatePriceDisplay();
         updateChart();
         renderPortfolio();
-        saveToFirebase();
+        
+        // ✅ ПЕРЕСЧИТЫВАЕМ И СОХРАНЯЕМ total
+        const total = calcTotal();
+        saveToFirebase(total);
+        
         showToast(`✅ ${type === 'buy' ? 'Покупка' : 'Продажа'} ${amount.toFixed(1)} ${asset.symbol}`);
     }
 
     // ==================== МАЙНИНГ ====================
     function renderShop() {
         const items = MINING_GEAR[currentShopTab] || [];
-        shopGrid.innerHTML = '';
+        const grid = document.getElementById('shopGrid');
+        grid.innerHTML = '';
         
         items.forEach(item => {
             const count = state.gear[currentShopTab]?.[item.id] || 0;
@@ -1674,7 +656,7 @@
                 <div class="item-count">🖥️ ${count} шт.</div>
                 <button class="buy-btn" data-type="${currentShopTab}" data-id="${item.id}">Купить</button>
             `;
-            shopGrid.appendChild(card);
+            grid.appendChild(card);
         });
 
         document.querySelectorAll('.buy-btn').forEach(btn => {
@@ -1694,7 +676,8 @@
                 updateBalances();
                 updateMiningUI();
                 renderShop();
-                saveToFirebase();
+                const total = calcTotal();
+                saveToFirebase(total);
                 showToast('✅ Куплен ' + item.name);
                 playBeep('buy');
             });
@@ -1703,12 +686,14 @@
 
     function updateMiningUI() {
         const power = calcTotalPower();
-        hashrateDisplay.textContent = power.toFixed(2) + ' MH/s';
-        minedDisplay.textContent = state.minedTotal.toFixed(4) + ' TON';
-        miningStatus.textContent = state.miningActive ? '🟢 Работает' : '⏸ Остановлен';
-        miningStatus.style.color = state.miningActive ? '#4ade80' : '#f87171';
-        toggleMiningBtn.textContent = state.miningActive ? '⏹ Остановить' : '▶ Запустить';
-        toggleMiningBtn.classList.toggle('active', state.miningActive);
+        document.getElementById('hashrateDisplay').textContent = power.toFixed(2) + ' MH/s';
+        document.getElementById('minedDisplay').textContent = state.minedTotal.toFixed(4) + ' TON';
+        const status = document.getElementById('miningStatus');
+        status.textContent = state.miningActive ? '🟢 Работает' : '⏸ Остановлен';
+        status.style.color = state.miningActive ? '#4ade80' : '#f87171';
+        const btn = document.getElementById('toggleMiningBtn');
+        btn.textContent = state.miningActive ? '⏹ Остановить' : '▶ Запустить';
+        btn.classList.toggle('active', state.miningActive);
     }
 
     let miningInterval = null;
@@ -1734,7 +719,8 @@
             showToast('⏸ Майнинг остановлен');
         }
         updateMiningUI();
-        saveToFirebase();
+        const total = calcTotal();
+        saveToFirebase(total);
     }
 
     function startMiningLoop() {
@@ -1756,7 +742,8 @@
             updateBalances();
             updateMiningUI();
             renderPortfolio();
-            saveToFirebase();
+            const total = calcTotal();
+            saveToFirebase(total);
         }, 5000);
     }
 
@@ -1782,16 +769,17 @@
     // ==================== TOAST ====================
     let toastTimeout = null;
     function showToast(msg) {
-        toastEl.textContent = msg;
-        toastEl.classList.add('show');
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
         clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2500);
+        toastTimeout = setTimeout(() => el.classList.remove('show'), 2500);
     }
 
     // ==================== АВТОРИЗАЦИЯ ====================
     function registerUser() {
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value.trim();
+        const username = document.getElementById('usernameInput').value.trim();
+        const password = document.getElementById('passwordInput').value.trim();
         if (!username || !password) {
             showToast('❌ Введите имя и пароль!');
             return;
@@ -1836,18 +824,14 @@
                         setTimeout(() => savePricesToFirebase(), 1000);
                         enterGame();
                     })
-                    .catch(e => {
-                        showToast('❌ Ошибка регистрации: ' + e.message);
-                    });
+                    .catch(e => showToast('❌ Ошибка регистрации: ' + e.message));
             })
-            .catch(e => {
-                showToast('❌ Ошибка: ' + e.message);
-            });
+            .catch(e => showToast('❌ Ошибка: ' + e.message));
     }
 
     function loginUser() {
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value.trim();
+        const username = document.getElementById('usernameInput').value.trim();
+        const password = document.getElementById('passwordInput').value.trim();
         if (!username || !password) {
             showToast('❌ Введите имя и пароль!');
             return;
@@ -1886,9 +870,7 @@
                     showToast('❌ Ошибка входа');
                 }
             })
-            .catch(e => {
-                showToast('❌ Ошибка: ' + e.message);
-            });
+            .catch(e => showToast('❌ Ошибка: ' + e.message));
     }
 
     function logout() {
@@ -1897,23 +879,73 @@
             miningInterval = null;
             state.miningActive = false;
         }
-        saveToFirebase();
+        const total = calcTotal();
+        saveToFirebase(total);
         clearSession();
         isLoggedIn = false;
         isAdmin = false;
-        loginOverlay.style.display = 'flex';
+        document.getElementById('loginOverlay').style.display = 'flex';
         document.getElementById('appContainer').style.display = 'none';
         showToast('👋 Вы вышли из аккаунта');
     }
 
+    // ==================== СЕССИЯ ====================
+    function saveSession() {
+        if (!isLoggedIn) return;
+        const session = {
+            username: myUsername,
+            userId: myUserId,
+            password: myPassword,
+            isAdmin: isAdmin,
+            timestamp: Date.now()
+        };
+        setCookie('cryptoSession', session, 365);
+    }
+
+    function loadSession() {
+        const session = getCookie('cryptoSession');
+        if (session && session.username && session.userId) {
+            myUsername = session.username;
+            myUserId = session.userId;
+            myPassword = session.password || '';
+            isAdmin = session.isAdmin || false;
+            isLoggedIn = true;
+            return true;
+        }
+        return false;
+    }
+
+    function clearSession() {
+        isLoggedIn = false;
+        isAdmin = false;
+        const session = {
+            username: myUsername,
+            userId: myUserId,
+            password: myPassword,
+            isAdmin: false,
+            loggedOut: true,
+            timestamp: Date.now()
+        };
+        setCookie('cryptoSession', session, 365);
+    }
+
+    function isSessionActive() {
+        const session = getCookie('cryptoSession');
+        if (session && session.username && session.userId && !session.loggedOut) {
+            return true;
+        }
+        return false;
+    }
+
+    // ==================== ВХОД В ИГРУ ====================
     function enterGame() {
-        userNameDisplay.textContent = myUsername;
-        loginOverlay.style.display = 'none';
+        document.getElementById('userNameDisplay').textContent = myUsername;
+        document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
 
         if (isAdmin) {
-            adminTabBtn.style.display = 'block';
-            adminBadge.style.display = 'inline-block';
+            document.getElementById('adminTabBtn').style.display = 'block';
+            document.getElementById('adminBadge').style.display = 'inline-block';
         }
 
         if (firebaseAvailable) {
@@ -1927,28 +959,31 @@
             
             db.ref('.info/connected').on('value', snap => {
                 if (snap.val() === true) {
-                    onlineStatus.textContent = '🟢 Онлайн';
-                    onlineStatus.style.color = '#4ade80';
-                    if (isLoggedIn) saveToFirebase();
+                    document.getElementById('onlineStatus').textContent = '🟢 Онлайн';
+                    document.getElementById('onlineStatus').style.color = '#4ade80';
+                    if (isLoggedIn) {
+                        const total = calcTotal();
+                        saveToFirebase(total);
+                    }
                 }
             });
         } else {
-            onlineStatus.textContent = '📡 Офлайн режим';
-            onlineStatus.style.color = '#fbbf24';
+            document.getElementById('onlineStatus').textContent = '📡 Офлайн режим';
+            document.getElementById('onlineStatus').style.color = '#fbbf24';
             initGame();
         }
     }
 
     function loadLeaderboard() {
         if (!firebaseAvailable) {
-            leaderboardList.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Офлайн режим</div>';
+            document.getElementById('leaderboardList').innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Офлайн режим</div>';
             return;
         }
         
         db.ref('users').orderByChild('total').limitToLast(20).on('value', snapshot => {
             const data = snapshot.val();
             if (!data) {
-                leaderboardList.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
+                document.getElementById('leaderboardList').innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
                 return;
             }
             const entries = Object.entries(data).filter(([id, u]) => u.username && u.total !== undefined);
@@ -1959,8 +994,8 @@
                 const adminTag = u.admin ? ' 👑' : '';
                 html += `<div class="lb-item"><span class="name">${medal} ${u.username}${adminTag}</span><span class="total">${formatRub(u.total || 0)}</span></div>`;
             });
-            leaderboardList.innerHTML = html;
-            onlineCount.textContent = entries.length;
+            document.getElementById('leaderboardList').innerHTML = html;
+            document.getElementById('onlineCount').textContent = entries.length;
         });
     }
 
@@ -1969,7 +1004,7 @@
         renderMarket();
         updateBalances();
         updatePriceDisplay();
-        tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
+        document.getElementById('tradeAmount').textContent = state.tradeAmount.toFixed(1);
         renderHistory();
         updateChart();
         renderShop();
@@ -2012,32 +1047,14 @@
         }, 5000);
 
         setInterval(() => { 
-            if (isLoggedIn) saveToFirebase(); 
+            if (isLoggedIn) {
+                const total = calcTotal();
+                saveToFirebase(total);
+            }
         }, 15000);
     }
 
     // ==================== СОБЫТИЯ ====================
-    loginBtn.addEventListener('click', () => {
-        if (registerLink.textContent.includes('Зарегистрироваться')) {
-            registerUser();
-        } else {
-            loginUser();
-        }
-    });
-
-    registerLink.addEventListener('click', () => {
-        if (registerLink.textContent.includes('Зарегистрироваться')) {
-            registerLink.textContent = '🔑 Уже есть аккаунт? Войти';
-            loginBtn.textContent = '📝 Зарегистрироваться';
-        } else {
-            registerLink.textContent = '📝 Зарегистрироваться';
-            loginBtn.textContent = '🔑 Войти';
-        }
-    });
-
-    usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
-    passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
-
     document.addEventListener('DOMContentLoaded', () => {
         if (loadSession() && isSessionActive() && firebaseAvailable) {
             db.ref('users/' + myUserId).once('value')
@@ -2045,17 +1062,17 @@
                     if (snapshot.exists()) {
                         const data = snapshot.val();
                         isAdmin = data.admin || false;
-                        userNameDisplay.textContent = myUsername;
+                        document.getElementById('userNameDisplay').textContent = myUsername;
                         isLoggedIn = true;
-                        loginOverlay.style.display = 'none';
+                        document.getElementById('loginOverlay').style.display = 'none';
                         document.getElementById('appContainer').style.display = 'block';
                         loadFromFirebase().then(() => {
                             loadPricesFromFirebase();
                             syncPrices();
                             loadLeaderboard();
                             if (isAdmin) {
-                                adminTabBtn.style.display = 'block';
-                                adminBadge.style.display = 'inline-block';
+                                document.getElementById('adminTabBtn').style.display = 'block';
+                                document.getElementById('adminBadge').style.display = 'inline-block';
                                 loadAdminUsers();
                             }
                             initGame();
@@ -2067,17 +1084,45 @@
                 })
                 .catch(() => {});
         } else if (loadSession() && isSessionActive()) {
-            userNameDisplay.textContent = myUsername;
+            document.getElementById('userNameDisplay').textContent = myUsername;
             isLoggedIn = true;
-            loginOverlay.style.display = 'none';
+            document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
             if (isAdmin) {
-                adminTabBtn.style.display = 'block';
-                adminBadge.style.display = 'inline-block';
+                document.getElementById('adminTabBtn').style.display = 'block';
+                document.getElementById('adminBadge').style.display = 'inline-block';
             }
             loadPricesFromFirebase();
             initGame();
         }
+
+        // Login/Register
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            if (document.getElementById('registerLink').textContent.includes('Зарегистрироваться')) {
+                registerUser();
+            } else {
+                loginUser();
+            }
+        });
+
+        document.getElementById('registerLink').addEventListener('click', () => {
+            const link = document.getElementById('registerLink');
+            const btn = document.getElementById('loginBtn');
+            if (link.textContent.includes('Зарегистрироваться')) {
+                link.textContent = '🔑 Уже есть аккаунт? Войти';
+                btn.textContent = '📝 Зарегистрироваться';
+            } else {
+                link.textContent = '📝 Зарегистрироваться';
+                btn.textContent = '🔑 Войти';
+            }
+        });
+
+        document.getElementById('usernameInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+        document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
 
         // Tabs
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2102,27 +1147,31 @@
             });
         });
 
+        // Trade controls
         document.getElementById('decAmount').addEventListener('click', () => {
             let v = state.tradeAmount - 0.5;
             if (v < 0.1) v = 0.1;
             state.tradeAmount = Math.round(v * 10) / 10;
-            tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
+            document.getElementById('tradeAmount').textContent = state.tradeAmount.toFixed(1);
         });
         document.getElementById('incAmount').addEventListener('click', () => {
             let v = state.tradeAmount + 0.5;
             if (v > 100) v = 100;
             state.tradeAmount = Math.round(v * 10) / 10;
-            tradeAmountSpan.textContent = state.tradeAmount.toFixed(1);
+            document.getElementById('tradeAmount').textContent = state.tradeAmount.toFixed(1);
         });
         document.getElementById('buyBtn').addEventListener('click', () => executeTrade('buy'));
         document.getElementById('sellBtn').addEventListener('click', () => executeTrade('sell'));
 
-        toggleMiningBtn.addEventListener('click', toggleMining);
-        mineCoinSelect.addEventListener('change', () => {
-            state.miningCoin = mineCoinSelect.value;
-            saveToFirebase();
+        // Mining
+        document.getElementById('toggleMiningBtn').addEventListener('click', toggleMining);
+        document.getElementById('mineCoinSelect').addEventListener('change', () => {
+            state.miningCoin = document.getElementById('mineCoinSelect').value;
+            const total = calcTotal();
+            saveToFirebase(total);
         });
 
+        // Reset
         document.getElementById('resetBtn').addEventListener('click', () => {
             if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
             if (confirm('Сбросить прогресс?')) {
@@ -2143,38 +1192,38 @@
                 renderMarket();
                 updateBalances();
                 updatePriceDisplay();
-                tradeAmountSpan.textContent = '1.0';
+                document.getElementById('tradeAmount').textContent = '1.0';
                 renderHistory();
                 updateChart();
                 renderShop();
                 updateMiningUI();
                 renderPortfolio();
-                saveToFirebase();
+                const total = calcTotal();
+                saveToFirebase(total);
                 showToast('🔄 Сброшено');
             }
         });
 
+        // Save
         document.getElementById('saveBtn').addEventListener('click', () => {
             if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!'); return; }
-            saveToFirebase();
+            const total = calcTotal();
+            saveToFirebase(total);
             savePricesToFirebase();
             showToast('✅ Сохранено в Firebase');
         });
 
+        // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
             if (confirm('Выйти из аккаунта?')) {
                 logout();
             }
         });
 
-        // Admin события
-        adminAddCoinBtn.addEventListener('click', adminAddCoin);
-        adminSetCoinBtn.addEventListener('click', adminSetCoin);
-        
-        adminUserSelect.addEventListener('change', () => {
-            // Можно загрузить данные пользователя для отображения
-        });
+        // Admin
+        document.getElementById('adminAddCoinBtn').addEventListener('click', adminAddCoin);
+        document.getElementById('adminSetCoinBtn').addEventListener('click', adminSetCoin);
     });
-</script>
+    </script>
 </body>
 </html>
