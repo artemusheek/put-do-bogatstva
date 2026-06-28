@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
-        /* Все стили как в предыдущей версии + добавляем новые */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; overflow-x: hidden; }
         .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); border: 1px solid rgba(255,255,255,0.08); border-radius: 44px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
@@ -36,7 +35,6 @@
         .tab-btn.admin-tab { border-color: #f59e0b; color: #f59e0b; }
         .tab-btn.admin-tab.active { background: rgba(245,158,11,0.2); color: #fbbf24; }
 
-        /* АДМИН-ПАНЕЛЬ */
         .admin-panel { padding: 16px 14px; background: rgba(0,0,0,0.2); border-radius: 32px; border: 1px solid rgba(255,255,255,0.05); margin: 12px 0; }
         .admin-panel .admin-title { color: #f59e0b; font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .admin-code-input { background: rgba(0,0,0,0.3); color: #d6e8ff; border: 1px solid rgba(255,255,255,0.06); padding: 10px 16px; border-radius: 40px; font-size: 14px; outline: none; width: 200px; text-align: center; letter-spacing: 4px; }
@@ -352,7 +350,7 @@
         <button class="tab-btn admin-tab" data-tab="admin" id="adminTabBtn" style="display:none;">⚙️ Админ</button>
     </div>
 
-    <!-- ===== ВСЕ ВКЛАДКИ (сокращены для экономии места) ===== -->
+    <!-- ===== ВСЕ ВКЛАДКИ ===== -->
     <!-- TAB TRADE -->
     <div id="tab-trade" class="tab-content active">
         <div class="balance-panel">
@@ -555,7 +553,6 @@
 
     <!-- ===== TAB ADMIN ===== -->
     <div id="tab-admin" class="tab-content">
-        <!-- Ввод кода для активации админки -->
         <div class="admin-panel" style="border-color: #f59e0b;">
             <div class="admin-title"><span>🔐</span> Активация админ-панели</div>
             <div class="admin-row">
@@ -566,7 +563,6 @@
             </div>
         </div>
         
-        <!-- Полная админ-панель (появляется после активации) -->
         <div id="adminFullPanel" style="display:none;">
             <div class="admin-panel">
                 <div class="admin-title"><span>⚙️</span> Управление ценами</div>
@@ -611,7 +607,6 @@
         </div>
     </div>
 
-    <!-- Кнопки внизу -->
     <div class="reset-area">
         <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
         <button class="reset-btn" id="resetBtn">⟳ Сброс</button>
@@ -655,9 +650,6 @@ const firebaseConfig = {
 // ============================================================
 // 🛠️ ВСЕ НАСТРОЙКИ ИГРЫ
 // ============================================================
-
-// АДМИН-КОД (хранится в Firebase по пути secret/admin)
-// Чтобы установить код: db.ref('secret/admin').set('мой_секретный_код_123')
 
 const ASSET_LIST = [
     { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50 },
@@ -776,6 +768,10 @@ const LOTTERY_SEGMENTS = [
 let firebaseAvailable = false;
 let db = null;
 let adminActivated = false;
+let audioCtx = null;
+let toastTimeout = null;
+let miningInterval = null;
+let priceInterval = null;
 
 try {
     if (typeof firebase !== 'undefined' && firebase.initializeApp) {
@@ -1095,8 +1091,6 @@ function saveToFirebase() {
 }
 
 // ==================== АДМИН-ФУНКЦИИ ====================
-
-// Проверка админ-кода
 function checkAdminCode() {
     const codeInput = document.getElementById('adminCodeInput').value.trim();
     if (!codeInput) {
@@ -1118,13 +1112,12 @@ function checkAdminCode() {
         .then(snapshot => {
             const secretCode = snapshot.val();
             if (!secretCode) {
-                document.getElementById('adminStatus').textContent = '❌ Код не установлен в Firebase';
+                document.getElementById('adminStatus').textContent = '❌ Код не установлен в Firebase. Используйте: db.ref("secret/admin").set("ваш_код")';
                 document.getElementById('adminStatus').style.color = '#f87171';
                 return;
             }
             
             if (codeInput === secretCode) {
-                // Код верный - активируем админку
                 document.getElementById('adminStatus').textContent = '✅ ДОСТУП РАЗРЕШЁН!';
                 document.getElementById('adminStatus').style.color = '#4ade80';
                 activateAdminMode();
@@ -1148,7 +1141,6 @@ function activateAdminMode() {
     document.getElementById('adminActivateBtn').disabled = true;
     document.getElementById('adminActivateBtn').style.opacity = '0.5';
     
-    // Обновляем данные в Firebase (ставим admin: true)
     if (firebaseAvailable && db && myUserId) {
         db.ref('users/' + myUserId + '/admin').set(true);
         isAdmin = true;
@@ -1156,7 +1148,6 @@ function activateAdminMode() {
         document.getElementById('adminBadge').style.display = 'inline';
     }
     
-    // Загружаем пользователей для админ-панели
     loadAdminUsers();
     loadAdminPrices();
     updateAdminStats();
@@ -1274,7 +1265,6 @@ function adminAddCoin() {
         db.ref('users/' + userId + '/balances/' + coinId).transaction(current => (current || 0) + amount);
     }
     
-    // Обновляем total
     db.ref('users/' + userId + '/total').transaction(current => (current || 0) + amount);
     
     showToast(`✅ Добавлено ${amount} ${coinId.toUpperCase()} игроку`);
@@ -1294,22 +1284,18 @@ function adminFullHouse() {
     const gearData = {};
     const count = 999999;
     
-    // Добавляем все видеокарты
     const gpuData = {};
     MINING_GEAR.gpu.forEach(item => { gpuData[item.id] = count; });
     gearData.gpu = gpuData;
     
-    // Добавляем все процессоры
     const cpuData = {};
     MINING_GEAR.cpu.forEach(item => { cpuData[item.id] = count; });
     gearData.cpu = cpuData;
     
-    // Добавляем всю оперативную память
     const ramData = {};
     MINING_GEAR.ram.forEach(item => { ramData[item.id] = count; });
     gearData.ram = ramData;
     
-    // Сохраняем в Firebase
     db.ref('users/' + userId + '/gear').set(gearData)
         .then(() => {
             showToast('🔥 FULL HOUSE активирован для игрока!');
@@ -1429,8 +1415,6 @@ function loadPricesFromFirebase() {
         .catch(error => console.error('❌ Ошибка загрузки цен:', error.message));
 }
 
-let priceInterval = null;
-
 function startPriceFluctuation() {
     if (priceInterval) clearInterval(priceInterval);
     priceInterval = setInterval(() => {
@@ -1483,11 +1467,7 @@ function startPriceFluctuation() {
     }, 7000);
 }
 
-// ============================================================
-// ВСЕ ФУНКЦИИ UI (сокращены)
-// ============================================================
-
-// --- ТОРГОВЛЯ ---
+// ==================== ТОРГОВЛЯ ====================
 function getSelectedAsset() { return getAsset(selectedAssetId); }
 
 function executeTrade(type) {
@@ -1571,7 +1551,451 @@ function renderHistory() {
     }
 }
 
-// --- UI ---
+// ==================== БИЗНЕС ====================
+function renderBusiness() {
+    const grid = document.getElementById('businessGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (const business of BUSINESS_TYPES) {
+        const data = playerData.businesses?.[business.id] || { level: 0 };
+        const count = data.level || 0;
+        const income = business.baseIncome * (count || 1) * 1.1;
+        const price = Math.round(business.basePrice * (1 + count * 0.5));
+        const electricity = business.electricity * (count || 1) * 1.1;
+        const card = document.createElement('div');
+        card.className = 'business-card';
+        card.innerHTML = `
+            <div class="b-icon">${business.icon}</div>
+            <div class="b-name">${business.name}</div>
+            <div class="b-level">Уровень: ${count}</div>
+            <div class="b-income">💰 ${formatRub(income)}/час</div>
+            <div class="b-price">${formatRub(price)}</div>
+            <div class="b-electricity">⚡ ${formatRub(electricity)}/час</div>
+            <button class="b-btn buy" data-id="${business.id}">🏗️ Купить</button>
+            ${count > 0 ? `<button class="b-btn upgrade" data-id="${business.id}">⬆️ Улучшить</button>` : ''}
+        `;
+        grid.appendChild(card);
+    }
+    document.querySelectorAll('.b-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+            const id = this.dataset.id;
+            const business = BUSINESS_TYPES.find(b => b.id === id);
+            if (!business) return;
+            const data = playerData.businesses?.[id] || { level: 0 };
+            const count = data.level || 0;
+            const price = Math.round(business.basePrice * (1 + count * 0.5));
+            const isBuy = this.classList.contains('buy');
+            if (playerData.rub < price) { showToast('❌ Недостаточно RUB!', false); return; }
+            playerData.rub -= price;
+            if (!playerData.businesses) playerData.businesses = {};
+            if (!playerData.businesses[id]) playerData.businesses[id] = { level: 0 };
+            playerData.businesses[id].level = (playerData.businesses[id].level || 0) + 1;
+            const action = isBuy ? 'Покупка' : 'Улучшение';
+            const name = business.name;
+            playerData.businessHistory.unshift({ type: action, name: name, price: price, time: new Date().toLocaleTimeString() });
+            if (playerData.businessHistory.length > 30) playerData.businessHistory.pop();
+            showSuccess(isBuy ? '🏢 Бизнес куплен!' : '⬆️ Улучшение!', 
+                       `${name} ${isBuy ? 'приобретён' : 'улучшен до ' + playerData.businesses[id].level + ' уровня'}`,
+                       formatRub(price));
+            updateUI(); saveAllToLocalStorage(); saveToFirebase(); playBeep('buy'); renderBusinessHistory();
+        });
+    });
+    updateBusinessStats();
+}
+
+function updateBusinessStats() {
+    const incomeEl = document.getElementById('businessIncomePerHour');
+    const countEl = document.getElementById('businessTotalCount');
+    const electricityEl = document.getElementById('electricityCost');
+    if (incomeEl) incomeEl.textContent = formatRub(calcBusinessIncome());
+    if (countEl) {
+        let count = 0;
+        for (const [id, data] of Object.entries(playerData.businesses || {})) { count += data.level || 0; }
+        countEl.textContent = count;
+    }
+    if (electricityEl) electricityEl.textContent = formatRub(calcElectricityCost());
+}
+
+function renderBusinessHistory() {
+    const list = document.getElementById('businessHistoryList');
+    if (!list) return;
+    if (!playerData.businessHistory || playerData.businessHistory.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Начните строить империю!</div>';
+        return;
+    }
+    list.innerHTML = '';
+    for (const item of playerData.businessHistory.slice(0, 15)) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const isBill = item.type.includes('Электричество');
+        div.innerHTML = `<span><span class="${isBill ? 'side-bill' : 'side-business'}">${isBill ? '⚡' : '🏢'}</span> ${item.type} ${item.name} ${item.price ? 'за ' + formatRub(item.price) : ''}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
+}
+
+function payElectricity() {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    const cost = calcElectricityCost();
+    if (cost === 0) { showToast('⚡ Нет бизнесов — нет счетов!', false); return; }
+    if (playerData.rub < cost) { showToast('❌ Недостаточно RUB для оплаты электричества!', false); return; }
+    playerData.rub -= cost;
+    playerData.electricityPaid = Date.now();
+    playerData.businessHistory.unshift({ type: '💰 Оплата электричества', name: '⚡', price: cost, time: new Date().toLocaleTimeString() });
+    if (playerData.businessHistory.length > 30) playerData.businessHistory.pop();
+    showSuccess('⚡ Счёт оплачен!', `Электричество за бизнесы`, formatRub(cost));
+    updateUI(); saveAllToLocalStorage(); saveToFirebase(); playBeep('buy'); renderBusinessHistory();
+}
+
+function applyBusinessIncome() {
+    if (!isLoggedIn) return;
+    const now = Date.now();
+    const elapsed = now - (playerData.electricityPaid || now);
+    if (elapsed > 15 * 60 * 1000) {
+        const cost = calcElectricityCost();
+        if (cost > 0) {
+            playerData.businessHistory.unshift({ type: '⚠️ ПРОСРОЧЕН СЧЁТ', name: '⚡ Электричество', price: cost, time: new Date().toLocaleTimeString() });
+            if (playerData.businessHistory.length > 30) playerData.businessHistory.pop();
+        }
+    }
+    const income = calcBusinessIncome();
+    if (income > 0) {
+        const reward = income / 3600 * 10;
+        playerData.rub += reward;
+        updateUI(); saveAllToLocalStorage();
+    }
+}
+
+// ==================== РЫБАЛКА ====================
+function goFishing() {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    if (!fishingData.activeBait || (fishingData.baits[fishingData.activeBait] || 0) <= 0) {
+        showToast('⚠️ Нет активной наживки!', false); return;
+    }
+    const splash = document.getElementById('fishingSplash');
+    if (splash) { splash.classList.remove('active'); void splash.offsetWidth; splash.classList.add('active'); setTimeout(() => splash.classList.remove('active'), 800); }
+    let bonus = 1.0;
+    let baitId = null;
+    if (fishingData.activeBait && fishingData.baits[fishingData.activeBait] > 0) {
+        const bait = BAIT_TYPES.find(b => b.id === fishingData.activeBait);
+        if (bait) { bonus = bait.bonus; baitId = fishingData.activeBait; fishingData.baits[fishingData.activeBait] = (fishingData.baits[fishingData.activeBait] || 0) - 1; if (fishingData.baits[fishingData.activeBait] <= 0) fishingData.activeBait = null; }
+    }
+    const allRewards = [...FISHING_REWARDS, ...FISHING_TROPHIES];
+    let totalWeight = 0;
+    const weightedRewards = allRewards.map(r => {
+        const isTrophy = FISHING_TROPHIES.some(t => t.id === r.id && t.name === r.name);
+        let weight = r.weight;
+        if (isTrophy) weight = r.weight * bonus;
+        totalWeight += weight;
+        return { ...r, weight: weight };
+    });
+    let random = Math.random() * totalWeight;
+    let selected = weightedRewards[0];
+    for (const reward of weightedRewards) { random -= reward.weight; if (random <= 0) { selected = reward; break; } }
+    const amount = (selected.min + Math.random() * (selected.max - selected.min)) * bonus;
+    const roundedAmount = Math.round(amount * 100000) / 100000;
+    if (selected.id === 'usdt') { playerData.balances['usdt'] = (playerData.balances['usdt'] || 0) + roundedAmount; } 
+    else { playerData.balances[selected.id] = (playerData.balances[selected.id] || 0) + roundedAmount; }
+    fishingData.count = (fishingData.count || 0) + 1;
+    if (roundedAmount > (fishingData.bestCatch || 0)) fishingData.bestCatch = roundedAmount;
+    const catchEntry = { symbol: selected.symbol, name: selected.name, amount: roundedAmount, bait: baitId ? BAIT_TYPES.find(b => b.id === baitId)?.name || 'Наживка' : 'Без наживки', time: new Date().toLocaleTimeString() };
+    fishingData.history.unshift(catchEntry); if (fishingData.history.length > 30) fishingData.history.pop();
+    const isTrophy = FISHING_TROPHIES.some(t => t.id === selected.id && t.name === selected.name);
+    const result = document.getElementById('fishingResult');
+    if (result) { result.innerHTML = `<div class="result-caught"><span class="coin-symbol">${selected.symbol}</span><span class="coin-amount">+${roundedAmount.toFixed(6)} ${selected.name}</span>${isTrophy ? ' 🏆 ТРОФЕЙ!' : ''}</div>`; }
+    addHistory('fish', selected.symbol, roundedAmount, 1, `🐟 ${selected.name}`);
+    saveFishing(); saveAllToLocalStorage(); saveToFirebase(); updateUI();
+    if (isTrophy) { launchConfetti(); showSuccess('🏆 ТРОФЕЙ!', `${selected.symbol} ${roundedAmount.toFixed(6)} ${selected.name}`, formatRub(roundedAmount * (getAsset(selected.id)?.price || 1))); }
+    else showToast(`🎣 Вы поймали ${selected.symbol} ${roundedAmount.toFixed(6)} ${selected.name}`);
+}
+
+function updateFishingUI() {
+    document.getElementById('fishingTotalCount').textContent = fishingData.count || 0;
+    document.getElementById('fishingBestCatch').textContent = fishingData.bestCatch ? fishingData.bestCatch.toFixed(6) : '—';
+    if (fishingData.activeBait && fishingData.baits[fishingData.activeBait] > 0) {
+        const bait = BAIT_TYPES.find(b => b.id === fishingData.activeBait);
+        document.getElementById('activeBaitDisplay').textContent = `${bait?.icon || ''} ${bait?.name || fishingData.activeBait} (${fishingData.baits[fishingData.activeBait]} шт.)`;
+    } else {
+        document.getElementById('activeBaitDisplay').textContent = 'Нет'; fishingData.activeBait = null;
+    }
+    renderFishingHistory();
+}
+
+function renderFishingHistory() {
+    const list = document.getElementById('fishingHistoryList');
+    if (!list) return;
+    if (!fishingData.history || fishingData.history.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Рыбалка ждёт вас!</div>';
+        return;
+    }
+    list.innerHTML = '';
+    for (const item of fishingData.history.slice(0, 15)) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `<span><span class="side-fish">🎣</span> ${item.symbol} +${item.amount.toFixed(6)} ${item.name} ${item.bait ? `(${item.bait})` : ''}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
+}
+
+function renderBaitShop() {
+    const shop = document.getElementById('baitShop');
+    if (!shop) return;
+    shop.innerHTML = '';
+    for (const bait of BAIT_TYPES) {
+        const count = fishingData.baits[bait.id] || 0;
+        const isActive = fishingData.activeBait === bait.id;
+        const card = document.createElement('div');
+        card.className = 'bait-card' + (isActive ? ' active' : '');
+        card.innerHTML = `
+            <div class="bait-icon">${bait.icon}</div>
+            <div class="bait-name">${bait.name}</div>
+            <div class="bait-desc">×${bait.bonus.toFixed(1)} к улову</div>
+            <div class="bait-price">${formatRub(bait.price)}</div>
+            <div class="bait-count">🔄 ${count} шт.</div>
+            ${isActive ? '<div class="bait-selected">✅ АКТИВНА</div>' : ''}
+            <button class="buy-bait-btn" data-bait="${bait.id}" data-action="buy">Купить</button>
+            ${count > 0 ? `<button class="buy-bait-btn" data-bait="${bait.id}" data-action="use" style="background:#2a5a3a;border-color:#4ade80;">🎣 Использовать</button>` : ''}
+        `;
+        shop.appendChild(card);
+    }
+    document.querySelectorAll('.buy-bait-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+            const baitId = this.dataset.bait;
+            const action = this.dataset.action;
+            const bait = BAIT_TYPES.find(b => b.id === baitId);
+            if (!bait) return;
+            if (action === 'buy') {
+                if (playerData.rub < bait.price) { showToast(`❌ Недостаточно RUB!`, false); return; }
+                playerData.rub -= bait.price;
+                fishingData.baits[baitId] = (fishingData.baits[baitId] || 0) + 1;
+                saveFishing(); saveAllToLocalStorage(); saveToFirebase();
+                showSuccess('🛒 Покупка', `${bait.name} приобретена`, formatRub(bait.price));
+                showToast(`✅ Куплена ${bait.name}`);
+            } else if (action === 'use') {
+                if ((fishingData.baits[baitId] || 0) <= 0) { showToast('❌ У вас нет этой наживки!', false); return; }
+                fishingData.activeBait = baitId; saveFishing();
+                showToast(`🎣 Выбрана наживка: ${bait.name} (×${bait.bonus.toFixed(1)})`);
+            }
+            updateUI(); playBeep('buy');
+        });
+    });
+}
+
+// ==================== ЛОТЕРЕЯ ====================
+function drawWheel(rotation = 0) {
+    const canvas = document.getElementById('wheelCanvas');
+    if (!canvas) return;
+    const w = canvas.width, h = canvas.height;
+    const c = canvas.getContext('2d');
+    const cx = w/2, cy = h/2, radius = Math.min(w, h)/2 - 10;
+    const segments = LOTTERY_SEGMENTS.length;
+    const angleStep = (2 * Math.PI) / segments;
+    c.clearRect(0, 0, w, h);
+    for (let i = 0; i < segments; i++) {
+        const startAngle = i * angleStep + rotation;
+        const endAngle = startAngle + angleStep;
+        c.beginPath(); c.moveTo(cx, cy); c.arc(cx, cy, radius, startAngle, endAngle); c.closePath();
+        c.fillStyle = LOTTERY_SEGMENTS[i].color; c.fill();
+        c.strokeStyle = 'rgba(255,255,255,0.1)'; c.lineWidth = 1; c.stroke();
+        const textAngle = startAngle + angleStep/2;
+        c.fillStyle = '#fff'; c.font = '14px Inter'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText(LOTTERY_SEGMENTS[i].label, cx + Math.cos(textAngle)*radius*0.65, cy + Math.sin(textAngle)*radius*0.65);
+    }
+    c.beginPath(); c.arc(cx, cy, radius, 0, 2 * Math.PI);
+    c.strokeStyle = 'rgba(255,215,0,0.3)'; c.lineWidth = 3; c.stroke();
+    c.beginPath(); c.moveTo(cx - 12, 12); c.lineTo(cx, 0); c.lineTo(cx + 12, 12); c.closePath();
+    c.fillStyle = '#fbbf24'; c.fill();
+}
+
+function spinLottery() {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    const bet = parseInt(document.getElementById('lotteryBetInput')?.value || 0);
+    if (isNaN(bet) || bet < 1) { showToast('❌ Минимальная ставка 1 ₽', false); return; }
+    if (bet > playerData.rub) { showToast(`❌ Недостаточно RUB!`, false); return; }
+    const randomIndex = Math.floor(Math.random() * LOTTERY_SEGMENTS.length);
+    const multiplier = LOTTERY_SEGMENTS[randomIndex].multiplier;
+    const win = bet * multiplier;
+    const isWin = multiplier > 0;
+    const spins = 5 + Math.random() * 3;
+    const finalAngle = spins * 2 * Math.PI + (randomIndex / LOTTERY_SEGMENTS.length) * 2 * Math.PI;
+    const duration = 2000;
+    const startTime = Date.now();
+    function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        drawWheel(finalAngle * eased);
+        if (progress < 1) requestAnimationFrame(animate);
+        else {
+            playerData.rub -= bet;
+            if (isWin) {
+                playerData.rub += win; launchConfetti();
+                document.getElementById('lotteryResult').innerHTML = `<span class="result-win">🎉 ВЫИГРЫШ! ×${multiplier}</span><span class="result-amount">+${formatRub(win)}</span>`;
+                showSuccess('🎉 ВЫИГРЫШ!', `×${multiplier}`, formatRub(win));
+            } else {
+                document.getElementById('lotteryResult').innerHTML = `<span class="result-lose">😔 Проигрыш</span><span style="color:#4a617c;">-${formatRub(bet)}</span>`;
+                showToast(`😔 Проигрыш ${formatRub(bet)}`, false);
+            }
+            lotteryData.plays = (lotteryData.plays || 0) + 1;
+            lotteryData.history.unshift({ bet, win, multiplier, isWin, time: new Date().toLocaleTimeString() });
+            if (lotteryData.history.length > 30) lotteryData.history.pop();
+            addHistory('lottery', isWin ? '🎰 ВЫИГРЫШ' : '🎰 ПРОИГРЫШ', isWin ? win : bet, 1, isWin ? `×${multiplier}` : '');
+            saveLottery(); saveAllToLocalStorage(); saveToFirebase(); updateUI();
+            document.getElementById('lotteryTotalPlays').textContent = lotteryData.plays;
+            renderLotteryHistory();
+        }
+    }
+    animate();
+}
+
+function renderLotteryHistory() {
+    const list = document.getElementById('lotteryHistoryList');
+    if (!list) return;
+    if (!lotteryData.history || lotteryData.history.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Сыграйте в лотерею!</div>';
+        return;
+    }
+    list.innerHTML = '';
+    for (const item of lotteryData.history.slice(0, 15)) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const result = item.isWin ? `✅ +${formatRub(item.win)}` : `❌ -${formatRub(item.bet)}`;
+        div.innerHTML = `<span><span class="side-lottery">🎰</span> ${item.isWin ? 'Выигрыш' : 'Проигрыш'} ${result}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
+}
+
+// ==================== МАЙНИНГ ====================
+function renderShop() {
+    const grid = document.getElementById('shopGrid');
+    if (!grid) return;
+    const items = MINING_GEAR[currentShopTab] || [];
+    grid.innerHTML = '';
+    for (const item of items) {
+        const count = playerData.gear[currentShopTab]?.[item.id] || 0;
+        const card = document.createElement('div');
+        card.className = 'shop-card';
+        card.innerHTML = `<div style="font-size:24px;">${item.icon}</div><div class="item-name">${item.name}</div><div class="item-power">⚡ ${item.power} MH/s</div><div class="item-price">${formatRub(item.price)}</div><div class="item-count">🖥️ ${count} шт.</div><button class="buy-btn" data-type="${currentShopTab}" data-id="${item.id}">Купить</button>`;
+        grid.appendChild(card);
+    }
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+            const type = this.dataset.type, id = this.dataset.id;
+            const item = MINING_GEAR[type].find(g => g.id === id);
+            if (!item) return;
+            if (playerData.rub < item.price) { showToast('❌ Недостаточно RUB!', false); return; }
+            playerData.rub -= item.price;
+            if (!playerData.gear[type]) playerData.gear[type] = {};
+            playerData.gear[type][id] = (playerData.gear[type][id] || 0) + 1;
+            showSuccess('🛒 Покупка', `${item.name} приобретён`, formatRub(item.price));
+            updateUI(); saveAllToLocalStorage(); saveToFirebase(); playBeep('buy');
+        });
+    });
+}
+
+function updateMiningUI() {
+    const power = calcTotalPower();
+    document.getElementById('hashrateDisplay').textContent = power.toFixed(2) + ' MH/s';
+    const coinId = playerData.miningCoin || 'ton';
+    const asset = getAsset(coinId);
+    document.getElementById('minedDisplay').textContent = playerData.minedTotal.toFixed(4) + ' ' + (asset ? asset.symbol : coinId.toUpperCase());
+    const status = document.getElementById('miningStatus');
+    status.textContent = playerData.miningActive ? '🟢 Работает' : '⏸ Остановлен';
+    status.style.color = playerData.miningActive ? '#4ade80' : '#f87171';
+    const btn = document.getElementById('toggleMiningBtn');
+    btn.textContent = playerData.miningActive ? '⏹ Остановить' : '▶ Запустить';
+    btn.classList.toggle('active', playerData.miningActive);
+}
+
+function toggleMining() {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    playerData.miningActive = !playerData.miningActive;
+    if (playerData.miningActive) {
+        if (calcTotalPower() === 0) { showToast('⚠️ Нет оборудования!', false); playerData.miningActive = false; updateMiningUI(); return; }
+        playerData.miningCoin = document.getElementById('mineCoinSelect').value;
+        if (miningInterval) clearInterval(miningInterval);
+        miningInterval = setInterval(() => {
+            if (!playerData.miningActive || !isLoggedIn) return;
+            const power = calcTotalPower();
+            if (power === 0) { playerData.miningActive = false; updateMiningUI(); clearInterval(miningInterval); miningInterval = null; showToast('⛔ Майнинг остановлен', false); return; }
+            const reward = power * 0.0002;
+            playerData.minedTotal += reward;
+            const coinId = playerData.miningCoin || 'ton';
+            playerData.balances[coinId] = (playerData.balances[coinId] || 0) + reward;
+            updateUI(); saveAllToLocalStorage(); saveToFirebase();
+        }, 5000);
+        showToast(`⛏️ Майнинг ${playerData.miningCoin.toUpperCase()} запущен`);
+    } else {
+        if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
+        showToast('⏸ Майнинг остановлен');
+    }
+    updateMiningUI(); saveAllToLocalStorage(); saveToFirebase();
+}
+
+// ==================== ПЕРЕВОДЫ ====================
+function executeTransfer() {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    const coinId = document.getElementById('transferCoinSelect').value;
+    const amount = parseFloat(document.getElementById('transferAmountInput').value);
+    const toUsername = document.getElementById('transferToInput').value.trim();
+    if (!toUsername) { showToast('❌ Укажите получателя!', false); return; }
+    if (toUsername === myUsername) { showToast('❌ Нельзя перевести самому себе!', false); return; }
+    if (isNaN(amount) || amount <= 0) { showToast('❌ Введите сумму!', false); return; }
+    let balance = 0, symbol = '', price = 1;
+    if (coinId === 'rub') { balance = playerData.rub; symbol = 'RUB'; }
+    else { const asset = getAsset(coinId); if (!asset) { showToast('❌ Неизвестная монета!', false); return; } balance = playerData.balances[coinId] || 0; symbol = asset.symbol; price = asset.price; }
+    if (balance < amount) { showToast(`❌ Недостаточно ${symbol}!`, false); return; }
+    
+    db.ref('users').orderByChild('username').equalTo(toUsername).once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (!data) { showToast(`❌ Пользователь ${toUsername} не найден!`, false); return; }
+            const toUserId = Object.keys(data)[0];
+            if (toUserId === myUserId) { showToast('❌ Нельзя перевести самому себе!', false); return; }
+            
+            if (coinId === 'rub') {
+                playerData.rub -= amount;
+                db.ref('users/' + toUserId + '/rub').transaction(current => (current || 0) + amount);
+            } else {
+                playerData.balances[coinId] = (playerData.balances[coinId] || 0) - amount;
+                db.ref('users/' + toUserId + '/balances/' + coinId).transaction(current => (current || 0) + amount);
+            }
+            
+            playerData.transferHistory.unshift({ from: myUsername, to: toUsername, symbol: symbol, amount: Math.round(amount * 1000) / 1000, time: new Date().toLocaleTimeString() });
+            if (playerData.transferHistory.length > 30) playerData.transferHistory.pop();
+            addHistory('transfer', symbol, amount, price, '→ ' + toUsername);
+            saveAllToLocalStorage(); saveToFirebase();
+            showSuccess('💸 Перевод', `${amount.toFixed(4)} ${symbol} → ${toUsername}`, formatRub(amount));
+            updateUI();
+            document.getElementById('transferAmountInput').value = '';
+            document.getElementById('transferToInput').value = '';
+            playBeep('buy');
+            renderTransferHistory();
+        })
+        .catch(error => {
+            showToast('❌ Ошибка: ' + error.message, false);
+        });
+}
+
+function renderTransferHistory() {
+    const list = document.getElementById('transferHistoryList');
+    if (!list) return;
+    if (!playerData.transferHistory || playerData.transferHistory.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Переводов пока нет</div>';
+        return;
+    }
+    list.innerHTML = '';
+    for (const item of playerData.transferHistory.slice(0, 15)) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `<span><span class="side-transfer">💸</span> ${item.from} → ${item.to} ${item.amount.toFixed(3)} ${item.symbol}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
+}
+
+// ==================== UI ====================
 function updateUI() {
     document.getElementById('rubBalance').textContent = formatRub(playerData.rub || 0);
     const tonBalance = playerData.balances['ton'] || 0;
@@ -1726,13 +2150,94 @@ function updateChart() {
     ctx.fillText(lastPrice.toFixed(2), lx + 10, ly - 4);
 }
 
-// --- ОСТАЛЬНЫЕ ФУНКЦИИ (сокращены) ---
-// Бизнес, рыбалка, лотерея, майнинг, переводы - аналогичны предыдущей версии
+// ==================== LEADERBOARD ====================
+function loadLeaderboard() {
+    const list = document.getElementById('leaderboardList');
+    if (!list) return;
+    if (!firebaseAvailable || !db) {
+        list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">❌ Firebase недоступен</div>';
+        return;
+    }
+    
+    list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">⏳ Загрузка...</div>';
+    
+    db.ref('users').once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (!data) {
+                list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">😕 Нет игроков</div>';
+                return;
+            }
+            
+            const entries = Object.entries(data)
+                .filter(([id, user]) => user && user.username && user.username.length > 0)
+                .map(([id, user]) => {
+                    let total = user.rub || 0;
+                    if (user.balances) {
+                        for (const [assetId, amount] of Object.entries(user.balances)) {
+                            const asset = ASSET_LIST.find(a => a.id === assetId);
+                            if (asset && amount > 0) {
+                                total += amount * asset.price;
+                            }
+                        }
+                    }
+                    return {
+                        id: id,
+                        username: user.username || 'Аноним',
+                        total: total,
+                        rub: user.rub || 0,
+                        balances: user.balances || {}
+                    };
+                });
+            
+            if (entries.length === 0) {
+                list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">😕 Нет активных игроков</div>';
+                return;
+            }
+            
+            entries.sort((a, b) => b.total - a.total);
+            
+            let html = '<div class="history-title">🏆 Топ по деньгам</div>';
+            
+            entries.slice(0, 20).forEach((p, i) => {
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+                const isMe = p.id === myUserId;
+                const highlight = isMe ? ' me' : '';
+                
+                let details = [];
+                if (p.rub > 0) details.push(`🇷🇺 ${formatRub(p.rub)}`);
+                for (const [assetId, amount] of Object.entries(p.balances)) {
+                    if (amount > 0) {
+                        const asset = ASSET_LIST.find(a => a.id === assetId);
+                        if (asset) {
+                            details.push(`${asset.symbol} ${amount.toFixed(2)}`);
+                        }
+                    }
+                }
+                const detailsText = details.join(' · ');
+                
+                html += `
+                    <div class="lb-item${highlight}">
+                        <span class="name">
+                            ${medal ? `<span class="medal">${medal}</span>` : `<span class="rank">${i+1}.</span>`}
+                            ${p.username} ${isMe ? '👈' : ''}
+                            <span class="details">${detailsText}</span>
+                        </span>
+                        <span class="total">${formatRub(p.total)}</span>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+            document.getElementById('onlineCount').textContent = entries.length;
+        })
+        .catch(error => {
+            console.error('❌ Ошибка загрузки рейтинга:', error);
+            list.innerHTML = `<div style="color:#f87171; text-align:center; padding:20px;">❌ Ошибка: ${error.message}</div>`;
+        });
+}
 
-// ============================================================
-// ВХОД / РЕГИСТРАЦИЯ
-// ============================================================
-
+// ==================== ВХОД / РЕГИСТРАЦИЯ ====================
 function registerUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value.trim();
@@ -1815,7 +2320,6 @@ function enterGame() {
     if (isAdmin) {
         document.getElementById('adminBadge').style.display = 'inline';
         document.getElementById('adminTabBtn').style.display = 'block';
-        // Если админ уже активирован, показываем панель
         if (adminActivated) {
             document.getElementById('adminFullPanel').style.display = 'block';
         }
@@ -1838,100 +2342,16 @@ function enterGame() {
     setTimeout(loadLeaderboard, 1000);
 }
 
-// ============================================================
-// ИНИЦИАЛИЗАЦИЯ
-// ============================================================
-
-// Пропущенные функции (будут добавлены в финальной версии)
-
-// ============================================================
-// ЗАПУСК
-// ============================================================
-
-console.log('🚀 КРИПТО-МАГНАТ ЗАПУЩЕН!');
-console.log('🐸 МЕМ-МОНЕТА PEPE ELON MOON ГОТОВА!');
-
-// Добавляем обработчики админ-кнопок
-document.getElementById('adminActivateBtn')?.addEventListener('click', checkAdminCode);
-document.getElementById('adminCodeInput')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') checkAdminCode();
-});
-document.getElementById('adminSavePricesBtn')?.addEventListener('click', saveAdminPrices);
-document.getElementById('adminAddCoinBtn')?.addEventListener('click', adminAddCoin);
-document.getElementById('adminFullHouseBtn')?.addEventListener('click', adminFullHouse);
-
-// Остальной код инициализации
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('loginBtn').addEventListener('click', () => {
-        if (document.getElementById('loginBtn').textContent.includes('Зарегистрироваться')) registerUser();
-        else loginUser();
-    });
-    document.getElementById('registerLink').addEventListener('click', function() {
-        const btn = document.getElementById('loginBtn');
-        if (this.textContent.includes('Зарегистрироваться')) {
-            this.textContent = '🔑 Уже есть аккаунт? Войти';
-            btn.textContent = '📝 Зарегистрироваться';
-        } else {
-            this.textContent = '📝 Зарегистрироваться';
-            btn.textContent = '🔑 Войти';
-        }
-    });
-    document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
-    document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
-    
-    if (loadSession() && isLoggedIn) {
-        document.getElementById('userNameDisplay').textContent = myUsername;
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        
-        loadAllFromLocalStorage();
-        
-        isAdmin = playerData.admin || false;
-        if (isAdmin) {
-            document.getElementById('adminBadge').style.display = 'inline';
-            document.getElementById('adminTabBtn').style.display = 'block';
-        }
-        
-        loadPricesFromFirebase(); 
-        // initGame вызывается внутри enterGame
-        // Временно вызываем здесь для совместимости
-        setTimeout(() => {
-            initGame();
-            const total = calcTotal();
-            playerData.total = total;
-            if (firebaseAvailable && db) {
-                db.ref('users/' + myUserId + '/total').set(total);
-            }
-            setTimeout(loadLeaderboard, 1000);
-        }, 500);
-    }
-});
-
-// Базовые функции для initGame
-function renderBusiness() {}
-function renderBusinessHistory() {}
-function payElectricity() {}
-function applyBusinessIncome() {}
-function goFishing() {}
-function updateFishingUI() {}
-function renderFishingHistory() {}
-function renderBaitShop() {}
-function drawWheel() {}
-function spinLottery() {}
-function renderLotteryHistory() {}
-function renderShop() {}
-function updateMiningUI() {}
-function toggleMining() {}
-function renderTransferHistory() {}
-function loadLeaderboard() {}
-
-let miningInterval = null;
-
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
 function initGame() {
     document.getElementById('fishingPool')?.addEventListener('click', goFishing);
     document.getElementById('lotteryBtn')?.addEventListener('click', spinLottery);
     document.getElementById('toggleMiningBtn')?.addEventListener('click', toggleMining);
     document.getElementById('payElectricityBtn')?.addEventListener('click', payElectricity);
+    document.getElementById('savePricesBtn')?.addEventListener('click', saveAdminPrices);
+    document.getElementById('resetPricesBtn')?.addEventListener('click', function() {
+        if (confirm('Сбросить цены?')) resetPrices();
+    });
     
     document.getElementById('decAmount')?.addEventListener('click', () => {
         let v = tradeAmount - 0.5; if (v < 0.1) v = 0.1;
@@ -2019,10 +2439,47 @@ function initGame() {
     updateUI(); drawWheel(); loadLeaderboard();
 }
 
-// ============================================================
-// ТОСТ И ЗВУК
-// ============================================================
+function resetPrices() {
+    if (!firebaseAvailable || !db) {
+        showToast('❌ Firebase недоступен!', false);
+        return;
+    }
+    if (!confirm('Сбросить все цены к начальным значениям?')) return;
+    
+    const initialPrices = {};
+    ASSET_LIST.forEach(a => { 
+        let basePrice;
+        if (a.id === 'ton') basePrice = 240.50;
+        else if (a.id === 'btc') basePrice = 4520000;
+        else if (a.id === 'eth') basePrice = 324000;
+        else if (a.id === 'usdt') basePrice = 92.30;
+        else if (a.id === 'sol') basePrice = 182.40;
+        else if (a.id === 'ada') basePrice = 0.68;
+        else if (a.id === 'xrp') basePrice = 0.62;
+        else if (a.id === 'dot') basePrice = 8.75;
+        else if (a.id === 'avax') basePrice = 42.10;
+        else if (a.id === 'matic') basePrice = 0.83;
+        else if (a.id === 'meme') basePrice = 3000000000000000000000;
+        initialPrices[a.id] = basePrice;
+        a.price = basePrice;
+        a.change = 0;
+    });
+    
+    db.ref('prices').set(initialPrices)
+        .then(() => {
+            renderMarket();
+            updateChart();
+            updatePriceDisplay();
+            if (adminActivated) loadAdminPrices();
+            updateUI();
+            showToast('✅ Цены сброшены!');
+        })
+        .catch(error => {
+            showToast('❌ Ошибка: ' + error.message, false);
+        });
+}
 
+// ==================== TOAST И ЗВУК ====================
 function showToast(msg, isSuccess = true) {
     const el = document.getElementById('toast');
     if (!el) return;
@@ -2075,8 +2532,6 @@ function launchConfetti() {
     setTimeout(() => { container.innerHTML = ''; }, 4000);
 }
 
-let toastTimeout = null;
-
 function playBeep(type) {
     try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2091,7 +2546,63 @@ function playBeep(type) {
         osc.stop(audioCtx.currentTime + 0.08);
     } catch(e) {}
 }
-let audioCtx = null;
+
+// ==================== ЗАПУСК ====================
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        if (document.getElementById('loginBtn').textContent.includes('Зарегистрироваться')) registerUser();
+        else loginUser();
+    });
+    document.getElementById('registerLink').addEventListener('click', function() {
+        const btn = document.getElementById('loginBtn');
+        if (this.textContent.includes('Зарегистрироваться')) {
+            this.textContent = '🔑 Уже есть аккаунт? Войти';
+            btn.textContent = '📝 Зарегистрироваться';
+        } else {
+            this.textContent = '📝 Зарегистрироваться';
+            btn.textContent = '🔑 Войти';
+        }
+    });
+    document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
+    document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
+    
+    // Кнопки админки
+    document.getElementById('adminActivateBtn')?.addEventListener('click', checkAdminCode);
+    document.getElementById('adminCodeInput')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') checkAdminCode();
+    });
+    document.getElementById('adminSavePricesBtn')?.addEventListener('click', saveAdminPrices);
+    document.getElementById('adminAddCoinBtn')?.addEventListener('click', adminAddCoin);
+    document.getElementById('adminFullHouseBtn')?.addEventListener('click', adminFullHouse);
+    
+    if (loadSession() && isLoggedIn) {
+        document.getElementById('userNameDisplay').textContent = myUsername;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        
+        loadAllFromLocalStorage();
+        
+        isAdmin = playerData.admin || false;
+        if (isAdmin) {
+            document.getElementById('adminBadge').style.display = 'inline';
+            document.getElementById('adminTabBtn').style.display = 'block';
+        }
+        
+        loadPricesFromFirebase(); 
+        setTimeout(() => {
+            initGame();
+            const total = calcTotal();
+            playerData.total = total;
+            if (firebaseAvailable && db) {
+                db.ref('users/' + myUserId + '/total').set(total);
+            }
+            setTimeout(loadLeaderboard, 1000);
+        }, 500);
+    }
+});
+
+console.log('🚀 КРИПТО-МАГНАТ ЗАПУЩЕН!');
+console.log('🐸 МЕМ-МОНЕТА PEPE ELON MOON ГОТОВА!');
 </script>
 </body>
 </html>
