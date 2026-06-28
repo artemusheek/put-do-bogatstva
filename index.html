@@ -65,7 +65,7 @@
         .positive { color: #4ade80; }
         .negative { color: #f87171; }
         .asset-card.meme-coin { border-color: #fbbf24; background: rgba(251,191,36,0.1); }
-        .asset-card.meme-coin .name { color: #fbbf24; }
+        .asset-card.meme-coin .name { color: #fbbf24; font-weight: 700; }
         .asset-card.meme-coin .icon { font-size: 24px; }
 
         .trade-panel { padding: 14px 14px 12px; margin: 4px 0 12px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); }
@@ -221,7 +221,7 @@
         .leaderboard { margin-top: 12px; background: rgba(0,0,0,0.15); border-radius: 24px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.04); max-height: 400px; overflow-y: auto; }
         .leaderboard .lb-item { display: flex; justify-content: space-between; padding: 8px 4px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; }
         .leaderboard .lb-item:last-child { border-bottom: none; }
-        .leaderboard .lb-item .name { color: #b7d6f5; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .leaderboard .lb-item .name { color: #b7d6f5; display: flex; align-items: center; gap: 8px; }
         .leaderboard .lb-item .total { color: #c8b6ff; font-weight: 700; }
         .leaderboard .lb-item .medal { font-size: 18px; }
         .leaderboard .lb-item .rank { color: #4a617c; font-size: 12px; min-width: 24px; }
@@ -614,7 +614,6 @@ const ASSET_LIST = [
         symbol: '🐸', 
         price: 3000000000000000000000,
         isMeme: true,
-        memePhase: 'start',
         memeCounter: 0,
         minPrice: 1000000000000,
         maxPrice: 3000000000000000000000000000000000
@@ -803,6 +802,7 @@ function savePlayerData() {
             admin: playerData.admin
         };
         localStorage.setItem(getPlayerKey(), JSON.stringify(data));
+        console.log('✅ Данные игрока сохранены в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения в localStorage:', e);
     }
@@ -838,6 +838,7 @@ function loadPlayerData() {
 function saveChart() {
     try {
         localStorage.setItem(getChartKey(), JSON.stringify({ chartData, tradePoints }));
+        console.log('✅ График сохранен в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения графика:', e);
     }
@@ -855,6 +856,7 @@ function loadChart() {
             if (!chartData[a.id]) chartData[a.id] = [];
             if (!tradePoints[a.id]) tradePoints[a.id] = [];
         }
+        console.log('✅ График загружен из localStorage');
     } catch(e) {
         console.error('❌ Ошибка загрузки графика:', e);
         for (const a of ASSET_LIST) {
@@ -867,6 +869,7 @@ function loadChart() {
 function saveFishing() {
     try {
         localStorage.setItem(getFishingKey(), JSON.stringify(fishingData));
+        console.log('✅ Данные рыбалки сохранены в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения рыбалки:', e);
     }
@@ -882,6 +885,7 @@ function loadFishing() {
             fishingData.bestCatch = d.bestCatch || 0;
             fishingData.baits = d.baits || {};
             fishingData.activeBait = d.activeBait || null;
+            console.log('✅ Данные рыбалки загружены из localStorage');
         }
     } catch(e) {
         console.error('❌ Ошибка загрузки рыбалки:', e);
@@ -891,6 +895,7 @@ function loadFishing() {
 function saveLottery() {
     try {
         localStorage.setItem(getLotteryKey(), JSON.stringify(lotteryData));
+        console.log('✅ Данные лотереи сохранены в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения лотереи:', e);
     }
@@ -903,6 +908,7 @@ function loadLottery() {
             const d = JSON.parse(raw);
             lotteryData.history = d.history || [];
             lotteryData.plays = d.plays || 0;
+            console.log('✅ Данные лотереи загружены из localStorage');
         }
     } catch(e) {
         console.error('❌ Ошибка загрузки лотереи:', e);
@@ -923,7 +929,7 @@ function loadAllFromLocalStorage() {
     loadLottery();
 }
 
-// ==================== FIREBASE ====================
+// ==================== FIREBASE (только для авторизации и цен) ====================
 function loadFromFirebase() {
     if (!firebaseAvailable || !db || !myUserId || !isLoggedIn) return Promise.resolve(false);
     return db.ref('users/' + myUserId).once('value')
@@ -1032,7 +1038,7 @@ function startPriceFluctuation() {
         let priceChanged = false;
         
         for (const asset of ASSET_LIST) {
-            if (asset.id === 'meme') continue;
+            if (asset.id === 'meme') continue; // Мем-монета управляется отдельно
             
             const volatility = (Math.random() * 4 - 2) / 100;
             let newPrice = asset.price * (1 + volatility);
@@ -1067,6 +1073,16 @@ function startPriceFluctuation() {
                     db.ref('prices/' + asset.id).set(newPrice)
                         .catch(err => console.error('❌ Ошибка сохранения цены:', err));
                 }
+                
+                if (asset.id === 'ton' || asset.id === 'btc' || asset.id === 'eth') {
+                    priceHistory.unshift({
+                        asset: asset.symbol,
+                        price: newPrice,
+                        change: asset.change,
+                        time: new Date().toLocaleTimeString()
+                    });
+                    if (priceHistory.length > 20) priceHistory.pop();
+                }
             }
         }
         
@@ -1075,6 +1091,7 @@ function startPriceFluctuation() {
             updateChart();
             updatePriceDisplay();
             renderPriceEdits();
+            renderPriceHistory();
             updateUI();
         }
         
@@ -1091,7 +1108,7 @@ function renderPriceEdits() {
         div.innerHTML = `
             <span class="pe-label">${asset.symbol} ${asset.name}</span>
             <input type="number" class="pe-input" id="price_${asset.id}" value="${asset.price}" step="0.01" min="0.001">
-            <span class="pe-current">Текущая: ${asset.price} ₽</span>
+            <span class="pe-current">Текущая: ${formatRub(asset.price)}</span>
         `;
         grid.appendChild(div);
     }
@@ -1188,148 +1205,22 @@ function resetPrices() {
         });
 }
 
-// ==================== ТОРГОВЛЯ ====================
-function getSelectedAsset() { return getAsset(selectedAssetId); }
-
-function executeTrade(type) {
-    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-    const asset = getSelectedAsset();
-    if (!asset) return;
-    const price = asset.price;
-    let amount = tradeAmount;
-    if (type === 'buy-max') {
-        amount = getMaxBuyAmount();
-        if (amount <= 0) { showToast('❌ Недостаточно RUB!', false); return; }
-        tradeAmount = amount;
-        tradeAmountSpan.textContent = amount.toFixed(1);
-    }
-    if (type === 'sell-all') {
-        amount = playerData.balances[asset.id] || 0;
-        if (amount <= 0) { showToast('❌ У вас нет ' + asset.symbol + '!', false); return; }
-        tradeAmount = amount;
-        tradeAmountSpan.textContent = amount.toFixed(1);
-    }
-    if (amount <= 0) return;
-    const totalCost = amount * price;
-    const currentBalance = playerData.balances[asset.id] || 0;
-
-    if (type === 'buy' || type === 'buy-max') {
-        if (playerData.rub < totalCost) { showToast('❌ Недостаточно RUB!', false); return; }
-        playerData.rub -= totalCost;
-        playerData.balances[asset.id] = (playerData.balances[asset.id] || 0) + amount;
-        playBeep('buy');
-        const historyType = type === 'buy-max' ? 'buy-max' : 'buy';
-        addHistory(historyType, asset.symbol, amount, price, type === 'buy-max' ? '(макс)' : '');
-        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
-        const idx = (chartData[asset.id] || []).length - 1;
-        tradePoints[asset.id].push({ price: price, type: 'buy', index: idx > 0 ? idx : 0 });
-        saveChart(); saveAllToLocalStorage(); saveToFirebase();
-        showSuccess('🟢 Покупка', `${amount.toFixed(4)} ${asset.symbol}`, `${totalCost} ₽`);
-    } else {
-        if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!', false); return; }
-        playerData.balances[asset.id] = currentBalance - amount;
-        playerData.rub += totalCost;
-        playBeep('sell');
-        const historyType = type === 'sell-all' ? 'sell-all' : 'sell';
-        addHistory(historyType, asset.symbol, amount, price, type === 'sell-all' ? '(всё)' : '');
-        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
-        const idx = (chartData[asset.id] || []).length - 1;
-        tradePoints[asset.id].push({ price: price, type: 'sell', index: idx > 0 ? idx : 0 });
-        saveChart(); saveAllToLocalStorage(); saveToFirebase();
-        showSuccess('🔴 Продажа', `${amount.toFixed(4)} ${asset.symbol}`, `${totalCost} ₽`);
-    }
-    if (tradePoints[asset.id] && tradePoints[asset.id].length > 30) tradePoints[asset.id].shift();
-    updateUI(); saveAllToLocalStorage(); saveToFirebase();
-}
-
-function addHistory(type, symbol, amount, price, extra = '') {
-    playerData.history.unshift({ type, symbol, amount: Math.round(amount * 1000) / 1000, price: Math.round(price * 100) / 100, time: new Date().toLocaleTimeString(), extra: extra });
-    if (playerData.history.length > 30) playerData.history.pop();
-    renderHistory();
-}
-
-function renderHistory() {
-    if (!playerData.history || playerData.history.length === 0) {
-        historyList.innerHTML = '<div class="history-item" style="color:#4a617c;">Операций пока нет</div>';
+function renderPriceHistory() {
+    const list = document.getElementById('priceHistoryList');
+    if (!list) return;
+    if (!priceHistory || priceHistory.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">История изменений цен</div>';
         return;
     }
-    historyList.innerHTML = '';
-    for (const item of playerData.history) {
+    list.innerHTML = '';
+    for (const item of priceHistory.slice(0, 15)) {
         const div = document.createElement('div');
         div.className = 'history-item';
-        let sideClass = 'side-buy', txt = 'Покупка';
-        if (item.type === 'sell') { sideClass = 'side-sell'; txt = 'Продажа'; }
-        else if (item.type === 'sell-all') { sideClass = 'side-sell'; txt = '📉 Продажа всё'; }
-        else if (item.type === 'buy-max') { sideClass = 'side-buy'; txt = '📈 Покупка макс'; }
-        else if (item.type === 'transfer') { sideClass = 'side-transfer'; txt = '📤 Перевод'; }
-        else if (item.type === 'receive') { sideClass = 'side-transfer'; txt = '📥 Получено'; }
-        else if (item.type === 'fish') { sideClass = 'side-fish'; txt = '🎣 Рыбалка'; }
-        else if (item.type === 'lottery') { sideClass = 'side-lottery'; txt = '🎰 Лотерея'; }
-        div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${item.price} ₽ • ${item.time}</span>`;
-        historyList.appendChild(div);
+        const changeClass = item.change >= 0 ? 'positive' : 'negative';
+        const changeSign = item.change >= 0 ? '▲' : '▼';
+        div.innerHTML = `<span>${item.asset} → ${formatRub(item.price)}</span><span class="${changeClass}">${changeSign} ${Math.abs(item.change).toFixed(2)}%</span>`;
+        list.appendChild(div);
     }
-}
-
-function getMaxBuyAmount() {
-    const asset = getSelectedAsset();
-    if (!asset) return 0;
-    return Math.floor((playerData.rub / asset.price) * 10000) / 10000;
-}
-
-// ==================== ОСТАЛЬНЫЕ ФУНКЦИИ ====================
-function formatRub(v) {
-    if (v === undefined || v === null || isNaN(v)) return '0 ₽';
-    return v.toFixed(2) + ' ₽';
-}
-
-function formatCoin(v) {
-    if (v === undefined || v === null || isNaN(v)) return '0.0000';
-    return v.toFixed(4);
-}
-
-function getAsset(id) { return ASSET_LIST.find(a => a.id === id); }
-
-function calcTotal() {
-    let total = playerData.rub || 0;
-    for (const asset of ASSET_LIST) {
-        total += (playerData.balances[asset.id] || 0) * asset.price;
-    }
-    return total;
-}
-
-function calcBusinessIncome() {
-    let total = 0;
-    for (const [id, data] of Object.entries(playerData.businesses || {})) {
-        const business = BUSINESS_TYPES.find(b => b.id === id);
-        if (business) {
-            const level = data.level || 1;
-            total += business.baseIncome * level * 1.1;
-        }
-    }
-    return total;
-}
-
-function calcElectricityCost() {
-    let total = 0;
-    for (const [id, data] of Object.entries(playerData.businesses || {})) {
-        const business = BUSINESS_TYPES.find(b => b.id === id);
-        if (business) {
-            const level = data.level || 1;
-            total += business.electricity * level * 1.1;
-        }
-    }
-    return total;
-}
-
-function calcTotalPower() {
-    let total = 0;
-    ['gpu', 'cpu', 'ram'].forEach(type => {
-        for (const [id, count] of Object.entries(playerData.gear[type] || {})) {
-            const item = MINING_GEAR[type].find(g => g.id === id);
-            if (item) total += item.power * count;
-        }
-    });
-    return total;
 }
 
 // ==================== TOAST & SUCCESS ====================
@@ -1502,7 +1393,89 @@ function applyBusinessIncome() {
     }
 }
 
-// ==================== РЫБАЛКА ====================
+// ==================== ТОРГОВЛЯ ====================
+function getSelectedAsset() { return getAsset(selectedAssetId); }
+
+function executeTrade(type) {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    const asset = getSelectedAsset();
+    if (!asset) return;
+    const price = asset.price;
+    let amount = tradeAmount;
+    if (type === 'buy-max') {
+        amount = getMaxBuyAmount();
+        if (amount <= 0) { showToast('❌ Недостаточно RUB!', false); return; }
+        tradeAmount = amount;
+        tradeAmountSpan.textContent = amount.toFixed(1);
+    }
+    if (type === 'sell-all') {
+        amount = playerData.balances[asset.id] || 0;
+        if (amount <= 0) { showToast('❌ У вас нет ' + asset.symbol + '!', false); return; }
+        tradeAmount = amount;
+        tradeAmountSpan.textContent = amount.toFixed(1);
+    }
+    if (amount <= 0) return;
+    const totalCost = amount * price;
+    const currentBalance = playerData.balances[asset.id] || 0;
+
+    if (type === 'buy' || type === 'buy-max') {
+        if (playerData.rub < totalCost) { showToast('❌ Недостаточно RUB!', false); return; }
+        playerData.rub -= totalCost;
+        playerData.balances[asset.id] = (playerData.balances[asset.id] || 0) + amount;
+        playBeep('buy');
+        const historyType = type === 'buy-max' ? 'buy-max' : 'buy';
+        addHistory(historyType, asset.symbol, amount, price, type === 'buy-max' ? '(макс)' : '');
+        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
+        const idx = (chartData[asset.id] || []).length - 1;
+        tradePoints[asset.id].push({ price: price, type: 'buy', index: idx > 0 ? idx : 0 });
+        saveChart(); saveAllToLocalStorage(); saveToFirebase();
+        showSuccess('🟢 Покупка', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
+    } else {
+        if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!', false); return; }
+        playerData.balances[asset.id] = currentBalance - amount;
+        playerData.rub += totalCost;
+        playBeep('sell');
+        const historyType = type === 'sell-all' ? 'sell-all' : 'sell';
+        addHistory(historyType, asset.symbol, amount, price, type === 'sell-all' ? '(всё)' : '');
+        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
+        const idx = (chartData[asset.id] || []).length - 1;
+        tradePoints[asset.id].push({ price: price, type: 'sell', index: idx > 0 ? idx : 0 });
+        saveChart(); saveAllToLocalStorage(); saveToFirebase();
+        showSuccess('🔴 Продажа', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
+    }
+    if (tradePoints[asset.id] && tradePoints[asset.id].length > 30) tradePoints[asset.id].shift();
+    updateUI(); saveAllToLocalStorage(); saveToFirebase();
+}
+
+function addHistory(type, symbol, amount, price, extra = '') {
+    playerData.history.unshift({ type, symbol, amount: Math.round(amount * 1000) / 1000, price: Math.round(price * 100) / 100, time: new Date().toLocaleTimeString(), extra: extra });
+    if (playerData.history.length > 30) playerData.history.pop();
+    renderHistory();
+}
+
+function renderHistory() {
+    if (!playerData.history || playerData.history.length === 0) {
+        historyList.innerHTML = '<div class="history-item" style="color:#4a617c;">Операций пока нет</div>';
+        return;
+    }
+    historyList.innerHTML = '';
+    for (const item of playerData.history) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        let sideClass = 'side-buy', txt = 'Покупка';
+        if (item.type === 'sell') { sideClass = 'side-sell'; txt = 'Продажа'; }
+        else if (item.type === 'sell-all') { sideClass = 'side-sell'; txt = '📉 Продажа всё'; }
+        else if (item.type === 'buy-max') { sideClass = 'side-buy'; txt = '📈 Покупка макс'; }
+        else if (item.type === 'transfer') { sideClass = 'side-transfer'; txt = '📤 Перевод'; }
+        else if (item.type === 'receive') { sideClass = 'side-transfer'; txt = '📥 Получено'; }
+        else if (item.type === 'fish') { sideClass = 'side-fish'; txt = '🎣 Рыбалка'; }
+        else if (item.type === 'lottery') { sideClass = 'side-lottery'; txt = '🎰 Лотерея'; }
+        div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
+        historyList.appendChild(div);
+    }
+}
+
+// ==================== РЫБАЛКА (сохраняется в localStorage) ====================
 function goFishing() {
     if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
     if (!fishingData.activeBait || (fishingData.baits[fishingData.activeBait] || 0) <= 0) {
@@ -1618,7 +1591,7 @@ function renderBaitShop() {
     });
 }
 
-// ==================== ЛОТЕРЕЯ ====================
+// ==================== ЛОТЕРЕЯ (сохраняется в localStorage) ====================
 function drawWheel(rotation = 0) {
     const canvas = document.getElementById('wheelCanvas');
     if (!canvas) return;
@@ -2204,7 +2177,7 @@ function initGame() {
             document.getElementById('tab-' + this.dataset.tab).classList.add('active');
             if (this.dataset.tab === 'leaderboard') loadLeaderboard();
             if (this.dataset.tab === 'trade') setTimeout(updateChart, 100);
-            if (this.dataset.tab === 'admin') { renderPriceEdits(); }
+            if (this.dataset.tab === 'admin') { renderPriceEdits(); renderPriceHistory(); }
         });
     });
     
@@ -2248,6 +2221,7 @@ function initGame() {
         }
     }, 30000);
     
+    // Запускаем обновление мем-монеты каждые 10 секунд
     setInterval(updateMemeCoinPrice, 10000);
     
     startPriceFluctuation();
