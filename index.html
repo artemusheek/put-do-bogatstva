@@ -14,6 +14,7 @@
         .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px) saturate(180%); -webkit-backdrop-filter: blur(32px) saturate(180%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); border-radius: 44px; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .app-container { max-width: 960px; width: 100%; padding: 24px 22px 28px; }
 
+        /* ... все стили как в предыдущей версии, без изменений ... */
         .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,14,23,0.92); backdrop-filter: blur(30px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .login-box { max-width: 400px; width: 100%; padding: 40px 32px; text-align: center; }
         .login-box h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
@@ -110,7 +111,6 @@
         .history-item .side-fish { color: #fbbf24; }
         .history-item .side-lottery { color: #a78bfa; }
 
-        /* ===== МАЙНИНГ ===== */
         .mining-panel { display: flex; flex-direction: column; gap: 14px; }
         .mining-stats { display: flex; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.15); padding: 12px 14px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.04); justify-content: space-between; align-items: center; }
         .mining-stats .stat { display: flex; align-items: center; gap: 6px; font-size: 13px; }
@@ -136,7 +136,6 @@
         .shop-tab.active { background: rgba(59,130,246,0.2); color: white; border-color: rgba(59,130,246,0.3); }
         .shop-tab:active { transform: scale(0.94); }
 
-        /* ===== РЫБАЛКА ===== */
         .fishing-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; text-align: center; }
         .fishing-panel .fishing-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
@@ -181,7 +180,6 @@
         .fishing-stats span { background: rgba(0,0,0,0.15); padding: 4px 14px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.03); }
         .fishing-stats .stat-value { color: #b7e0ff; font-weight: 600; }
 
-        /* ===== ЛОТЕРЕЯ ===== */
         .lottery-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; text-align: center; }
         .lottery-panel .lottery-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
@@ -631,7 +629,6 @@ const BAIT_TYPES = [
     { id: 'golden_bait', name: 'Золотая наживка', icon: '✨', price: 5000, bonus: 8.0, desc: '⭐ Легендарная наживка!' },
 ];
 
-// Монеты для рыбалки
 const FISHING_REWARDS = [
     { id: 'ton', symbol: '🔶', name: 'TONCOIN', min: 0.0001, max: 0.01, weight: 25 },
     { id: 'btc', symbol: '₿', name: 'BTC', min: 0.0000001, max: 0.000001, weight: 5 },
@@ -645,7 +642,6 @@ const FISHING_REWARDS = [
     { id: 'usdt', symbol: '💵', name: 'USDT', min: 0.01, max: 1, weight: 20 },
 ];
 
-// Трофеи
 const FISHING_TROPHIES = [
     { id: 'btc', symbol: '🐋', name: 'КИТ BTC', min: 0.00001, max: 0.00005, weight: 0.5 },
     { id: 'eth', symbol: '🐉', name: 'ДРАКОН ETH', min: 0.001, max: 0.005, weight: 0.5 },
@@ -672,13 +668,15 @@ let playerData = {
     activeBait: null,
     lotteryHistory: [],
     lotteryPlays: 0,
-    chartData: {},
-    tradePoints: {},
     gear: { gpu: {}, cpu: {}, ram: {} },
     miningActive: false,
     minedTotal: 0,
     miningCoin: 'ton',
 };
+
+// ✅ ГРАФИКИ И ТОЧКИ — ТОЛЬКО В LOCALSTORAGE
+let chartData = {};
+let tradePoints = {};
 
 let selectedAssetId = 'ton';
 let tradeAmount = 1.0;
@@ -686,11 +684,49 @@ let tradeAmount = 1.0;
 // Инициализация балансов
 ASSET_LIST.forEach(a => {
     if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-    if (!playerData.chartData[a.id]) playerData.chartData[a.id] = [];
-    if (!playerData.tradePoints[a.id]) playerData.tradePoints[a.id] = [];
+    if (!chartData[a.id]) chartData[a.id] = [];
+    if (!tradePoints[a.id]) tradePoints[a.id] = [];
 });
 
+// ==================== LOCALSTORAGE ДЛЯ ГРАФИКОВ ====================
+function saveChartToLocalStorage() {
+    try {
+        const data = {
+            chartData: chartData,
+            tradePoints: tradePoints,
+            userId: myUserId
+        };
+        localStorage.setItem('cryptoChartData_' + myUserId, JSON.stringify(data));
+    } catch(e) { console.warn('⚠️ Ошибка сохранения графика в localStorage:', e); }
+}
+
+function loadChartFromLocalStorage() {
+    try {
+        const raw = localStorage.getItem('cryptoChartData_' + myUserId);
+        if (raw) {
+            const data = JSON.parse(raw);
+            if (data.chartData) {
+                chartData = data.chartData;
+                // Проверяем, что все активы есть
+                ASSET_LIST.forEach(a => {
+                    if (!chartData[a.id]) chartData[a.id] = [];
+                    if (!tradePoints[a.id]) tradePoints[a.id] = [];
+                });
+            }
+            if (data.tradePoints) {
+                tradePoints = data.tradePoints;
+                ASSET_LIST.forEach(a => {
+                    if (!tradePoints[a.id]) tradePoints[a.id] = [];
+                });
+            }
+            return true;
+        }
+    } catch(e) { console.warn('⚠️ Ошибка загрузки графика из localStorage:', e); }
+    return false;
+}
+
 // ==================== DOM ====================
+// ... (все DOM элементы как в предыдущей версии)
 const rubEl = document.getElementById('rubBalance');
 const tonEl = document.getElementById('tonBalance');
 const totalValueEl = document.getElementById('totalValue');
@@ -713,7 +749,6 @@ const transferBtn = document.getElementById('transferBtn');
 const transferBalanceDisplay = document.getElementById('transferBalanceDisplay');
 const transferHistoryList = document.getElementById('transferHistoryList');
 
-// Fishing DOM
 const fishingPool = document.getElementById('fishingPool');
 const fishingSplash = document.getElementById('fishingSplash');
 const fishingResult = document.getElementById('fishingResult');
@@ -723,7 +758,6 @@ const fishingHistoryList = document.getElementById('fishingHistoryList');
 const baitShop = document.getElementById('baitShop');
 const activeBaitDisplay = document.getElementById('activeBaitDisplay');
 
-// Lottery DOM
 const lotteryBtn = document.getElementById('lotteryBtn');
 const lotteryBetInput = document.getElementById('lotteryBetInput');
 const lotteryResult = document.getElementById('lotteryResult');
@@ -732,7 +766,6 @@ const lotteryHistoryList = document.getElementById('lotteryHistoryList');
 const wheelCanvas = document.getElementById('wheelCanvas');
 const wheelCtx = wheelCanvas.getContext('2d');
 
-// Mining DOM
 const hashrateDisplay = document.getElementById('hashrateDisplay');
 const minedDisplay = document.getElementById('minedDisplay');
 const miningStatus = document.getElementById('miningStatus');
@@ -834,7 +867,6 @@ function launchConfetti() {
 
 // ==================== FIREBASE ====================
 
-// 📥 ЗАГРУЗКА
 function loadFromFirebase() {
     if (!firebaseAvailable || !myUserId || !isLoggedIn) return Promise.resolve(false);
     return db.ref('users/' + myUserId).once('value')
@@ -853,8 +885,6 @@ function loadFromFirebase() {
                 playerData.activeBait = data.activeBait || null;
                 playerData.lotteryHistory = data.lotteryHistory || [];
                 playerData.lotteryPlays = data.lotteryPlays || 0;
-                playerData.chartData = data.chartData || {};
-                playerData.tradePoints = data.tradePoints || {};
                 playerData.gear = data.gear || { gpu: {}, cpu: {}, ram: {} };
                 playerData.miningActive = data.miningActive || false;
                 playerData.minedTotal = data.minedTotal || 0;
@@ -862,9 +892,10 @@ function loadFromFirebase() {
                 
                 ASSET_LIST.forEach(a => {
                     if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-                    if (!playerData.chartData[a.id]) playerData.chartData[a.id] = [];
-                    if (!playerData.tradePoints[a.id]) playerData.tradePoints[a.id] = [];
                 });
+                
+                // ✅ ЗАГРУЖАЕМ ГРАФИКИ ИЗ LOCALSTORAGE
+                loadChartFromLocalStorage();
                 
                 updateUI();
                 return true;
@@ -877,7 +908,7 @@ function loadFromFirebase() {
         });
 }
 
-// 📤 СОХРАНЕНИЕ — update() БЕЗ ПЕРЕЗАПИСИ
+// 📤 СОХРАНЕНИЕ В FIREBASE — БЕЗ ГРАФИКОВ
 function saveToFirebase() {
     if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
     try {
@@ -895,8 +926,6 @@ function saveToFirebase() {
             activeBait: playerData.activeBait || null,
             lotteryHistory: playerData.lotteryHistory || [],
             lotteryPlays: playerData.lotteryPlays || 0,
-            chartData: playerData.chartData || {},
-            tradePoints: playerData.tradePoints || {},
             gear: playerData.gear || { gpu: {}, cpu: {}, ram: {} },
             miningActive: playerData.miningActive || false,
             minedTotal: playerData.minedTotal || 0,
@@ -1003,12 +1032,12 @@ function renderMarket() {
     });
 }
 
-// ==================== ГРАФИК ====================
+// ==================== ГРАФИК (из localStorage) ====================
 function updateChart() {
     const asset = getSelectedAsset();
     if (!asset) return;
-    if (!playerData.chartData[asset.id]) playerData.chartData[asset.id] = [];
-    const data = playerData.chartData[asset.id];
+    if (!chartData[asset.id]) chartData[asset.id] = [];
+    const data = chartData[asset.id];
     
     const w = chartCanvas.parentElement.clientWidth || 700;
     const h = chartCanvas.parentElement.clientHeight || 160;
@@ -1081,7 +1110,7 @@ function updateChart() {
     ctx.fillStyle = grad;
     ctx.fill();
 
-    const points = (playerData.tradePoints[asset.id] || []).filter(p => p.index < data.length);
+    const points = (tradePoints[asset.id] || []).filter(p => p.index < data.length);
     points.forEach(p => {
         const idx = p.index;
         const x = pad.left + (idx / (data.length - 1)) * graphW;
@@ -1213,8 +1242,10 @@ function executeTrade(type) {
         playBeep('buy');
         const historyType = type === 'buy-max' ? 'buy-max' : 'buy';
         addHistory(historyType, asset.symbol, amount, price, type === 'buy-max' ? '(макс)' : '');
-        if (!playerData.tradePoints[asset.id]) playerData.tradePoints[asset.id] = [];
-        playerData.tradePoints[asset.id].push({ price: price, type: 'buy', index: (playerData.chartData[asset.id] || []).length - 1 });
+        // ✅ Сохраняем в localStorage
+        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
+        tradePoints[asset.id].push({ price: price, type: 'buy', index: (chartData[asset.id] || []).length - 1 });
+        saveChartToLocalStorage();
     } else {
         if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!', false); return; }
         playerData.balances[asset.id] = currentBalance - amount;
@@ -1222,10 +1253,11 @@ function executeTrade(type) {
         playBeep('sell');
         const historyType = type === 'sell-all' ? 'sell-all' : 'sell';
         addHistory(historyType, asset.symbol, amount, price, type === 'sell-all' ? '(всё)' : '');
-        if (!playerData.tradePoints[asset.id]) playerData.tradePoints[asset.id] = [];
-        playerData.tradePoints[asset.id].push({ price: price, type: 'sell', index: (playerData.chartData[asset.id] || []).length - 1 });
+        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
+        tradePoints[asset.id].push({ price: price, type: 'sell', index: (chartData[asset.id] || []).length - 1 });
+        saveChartToLocalStorage();
     }
-    if (playerData.tradePoints[asset.id] && playerData.tradePoints[asset.id].length > 30) playerData.tradePoints[asset.id].shift();
+    if (tradePoints[asset.id] && tradePoints[asset.id].length > 30) tradePoints[asset.id].shift();
     updateUI();
     saveToFirebase();
     const actionText = type === 'buy' ? 'Покупка' : type === 'buy-max' ? 'Покупка (макс)' : type === 'sell-all' ? 'Продажа (всё)' : 'Продажа';
@@ -1878,8 +1910,6 @@ function registerUser() {
                 rub: 0,
                 balances: {},
                 total: 0,
-                chartData: {},
-                tradePoints: {},
                 transferHistory: [],
                 history: [],
                 fishingHistory: [],
@@ -1897,8 +1927,6 @@ function registerUser() {
             };
             ASSET_LIST.forEach(a => {
                 userData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-                userData.chartData[a.id] = [];
-                userData.tradePoints[a.id] = [];
             });
             
             db.ref('users/' + myUserId).set(userData)
@@ -2254,8 +2282,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('Сбросить прогресс?')) {
             playerData.rub = 0;
             playerData.balances = {};
-            playerData.chartData = {};
-            playerData.tradePoints = {};
             playerData.transferHistory = [];
             playerData.fishingHistory = [];
             playerData.fishingCount = 0;
@@ -2270,12 +2296,17 @@ document.addEventListener('DOMContentLoaded', () => {
             playerData.miningCoin = 'ton';
             ASSET_LIST.forEach(a => {
                 playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-                playerData.chartData[a.id] = [];
-                playerData.tradePoints[a.id] = [];
             });
             playerData.history = [];
+            chartData = {};
+            tradePoints = {};
+            ASSET_LIST.forEach(a => {
+                chartData[a.id] = [];
+                tradePoints[a.id] = [];
+            });
             selectedAssetId = 'ton';
             tradeAmount = 1.0;
+            saveChartToLocalStorage();
             renderMarket();
             updateBalances();
             updatePriceDisplay();
@@ -2300,6 +2331,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         saveToFirebase();
         savePricesToFirebase();
+        saveChartToLocalStorage();
         showToast('✅ Сохранено в Firebase');
     });
 
