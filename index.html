@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=no">
-    <title>Крипто-магнат</title>
+    <title>Крипто-магнат • Бизнес + Квитанции</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; }
+        body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; overflow-x: hidden; }
         .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); border: 1px solid rgba(255,255,255,0.08); border-radius: 44px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
         .app-container { max-width: 960px; width: 100%; padding: 24px 22px 28px; }
         
@@ -80,6 +79,26 @@
         .trade-info { display: flex; justify-content: space-between; color: #8ba0be; font-size: 12px; padding: 0 4px; margin-top: 8px; flex-wrap: wrap; gap: 4px; }
         .trade-info .total-price { color: #c8b6ff; font-weight: 700; font-size: 14px; }
 
+        /* ===== БИЗНЕС ===== */
+        .business-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
+        .business-panel .business-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .business-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+        .business-card { background: rgba(0,0,0,0.2); border-radius: 24px; padding: 14px 12px; border: 1px solid rgba(255,255,255,0.04); text-align: center; transition: 0.15s; }
+        .business-card .b-icon { font-size: 32px; }
+        .business-card .b-name { font-weight: 600; font-size: 15px; color: #d6e8ff; margin: 4px 0; }
+        .business-card .b-level { font-size: 12px; color: #8ba0be; }
+        .business-card .b-income { font-size: 14px; color: #4ade80; font-weight: 600; }
+        .business-card .b-price { font-size: 13px; color: #fbbf24; font-weight: 600; margin: 4px 0; }
+        .business-card .b-electricity { font-size: 12px; color: #f87171; font-weight: 500; }
+        .business-card .b-btn { margin-top: 6px; padding: 8px 20px; border: none; border-radius: 30px; background: #1a3a4a; color: #8fd0e8; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.1s; border: 1px solid rgba(255,255,255,0.04); }
+        .business-card .b-btn:active { transform: scale(0.94); background: #2a5a6a; }
+        .business-card .b-btn.buy { background: #0f3b2a; color: #7ddfa0; border-color: #1b7a4a; }
+        .business-card .b-btn.upgrade { background: #4a1e28; color: #f7a1b0; border-color: #aa3f52; }
+        .business-card .b-btn.pay { background: #1a2a3a; color: #fbbf24; border-color: #f59e0b; }
+        .business-stat { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 20px; margin-top: 8px; }
+        .business-stat span { font-size: 13px; color: #8ba0be; }
+        .business-stat .stat-value { color: #fbbf24; font-weight: 700; }
+
         .transfer-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
         .transfer-panel .transfer-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .transfer-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -100,23 +119,7 @@
         .history-item .side-sell { color: #f87171; }
         .history-item .side-transfer { color: #60a5fa; }
         .history-item .side-business { color: #f97316; }
-
-        .business-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
-        .business-panel .business-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .business-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-        .business-card { background: rgba(0,0,0,0.2); border-radius: 24px; padding: 14px 12px; border: 1px solid rgba(255,255,255,0.04); text-align: center; transition: 0.15s; }
-        .business-card .b-icon { font-size: 32px; }
-        .business-card .b-name { font-weight: 600; font-size: 15px; color: #d6e8ff; margin: 4px 0; }
-        .business-card .b-level { font-size: 12px; color: #8ba0be; }
-        .business-card .b-income { font-size: 14px; color: #4ade80; font-weight: 600; }
-        .business-card .b-price { font-size: 13px; color: #fbbf24; font-weight: 600; margin: 4px 0; }
-        .business-card .b-btn { margin-top: 6px; padding: 8px 20px; border: none; border-radius: 30px; background: #1a3a4a; color: #8fd0e8; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.1s; border: 1px solid rgba(255,255,255,0.04); }
-        .business-card .b-btn:active { transform: scale(0.94); background: #2a5a6a; }
-        .business-card .b-btn.buy { background: #0f3b2a; color: #7ddfa0; border-color: #1b7a4a; }
-        .business-card .b-btn.upgrade { background: #4a1e28; color: #f7a1b0; border-color: #aa3f52; }
-        .business-stat { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 20px; margin-top: 8px; }
-        .business-stat span { font-size: 13px; color: #8ba0be; }
-        .business-stat .stat-value { color: #fbbf24; font-weight: 700; }
+        .history-item .side-bill { color: #fbbf24; }
 
         .mining-panel { display: flex; flex-direction: column; gap: 14px; }
         .mining-stats { display: flex; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.15); padding: 12px 14px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.04); justify-content: space-between; align-items: center; }
@@ -224,6 +227,7 @@
         .toast.success { border-color: rgba(74,222,128,0.3); }
         .toast.error { border-color: rgba(248,113,113,0.3); }
 
+        /* ===== ЭКРАН УСПЕХА ===== */
         .transfer-success-screen {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(10,14,23,0.95); backdrop-filter: blur(30px);
@@ -358,6 +362,7 @@
             <div class="business-stat">
                 <span>💰 Доход в час: <span class="stat-value" id="businessIncomePerHour">0 ₽</span></span>
                 <span>🏢 Всего бизнесов: <span class="stat-value" id="businessTotalCount">0</span></span>
+                <span>⚡ Электричество: <span class="stat-value" id="electricityCost">0 ₽/час</span></span>
             </div>
             <div class="business-grid" id="businessGrid"></div>
         </div>
@@ -529,7 +534,7 @@
 
 <script>
 // ============================================================
-// ✅ ПРОВЕРКА FIREBASE
+// 🔥 КОНФИГУРАЦИЯ FIREBASE
 // ============================================================
 const firebaseConfig = {
     apiKey: "AIzaSyADDsFRF3Dwewv8MqcbQrRMZESK3CoG5AU",
@@ -544,23 +549,19 @@ const firebaseConfig = {
 let firebaseAvailable = false;
 let db = null;
 
-// ✅ ПРОВЕРЯЕМ, ЧТО FIREBASE ЗАГРУЖЕН
 if (typeof firebase !== 'undefined' && firebase.initializeApp) {
     try {
         const app = firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         firebaseAvailable = true;
-        console.log('✅ Firebase подключен успешно');
         document.getElementById('onlineStatus').textContent = '🟢 Онлайн';
         document.getElementById('onlineStatus').style.color = '#4ade80';
     } catch(e) {
-        console.warn('⚠️ Ошибка Firebase:', e.message);
-        document.getElementById('onlineStatus').textContent = '⚠️ Ошибка подключения';
+        document.getElementById('onlineStatus').textContent = '⚠️ Ошибка';
         document.getElementById('onlineStatus').style.color = '#f87171';
     }
 } else {
-    console.warn('⚠️ Firebase SDK не загружен');
-    document.getElementById('onlineStatus').textContent = '📡 Офлайн режим';
+    document.getElementById('onlineStatus').textContent = '📡 Офлайн';
     document.getElementById('onlineStatus').style.color = '#fbbf24';
 }
 
@@ -592,15 +593,16 @@ const ASSET_LIST = [
     { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83 },
 ];
 
+// ===== БИЗНЕСЫ С БОЛЬШИМИ ЦЕНАМИ =====
 const BUSINESS_TYPES = [
-    { id: 'cafe', name: 'Кафе', icon: '☕', basePrice: 1000, baseIncome: 50 },
-    { id: 'hotel', name: 'Отель', icon: '🏨', basePrice: 5000, baseIncome: 200 },
-    { id: 'restaurant', name: 'Ресторан', icon: '🍽️', basePrice: 10000, baseIncome: 400 },
-    { id: 'shop', name: 'Магазин', icon: '🛍️', basePrice: 20000, baseIncome: 700 },
-    { id: 'office', name: 'Бизнес-центр', icon: '🏢', basePrice: 50000, baseIncome: 1500 },
-    { id: 'factory', name: 'Завод', icon: '🏭', basePrice: 100000, baseIncome: 3000 },
-    { id: 'mall', name: 'Торговый центр', icon: '🏬', basePrice: 200000, baseIncome: 5000 },
-    { id: 'skyscraper', name: 'Небоскрёб', icon: '🏗️', basePrice: 500000, baseIncome: 12000 },
+    { id: 'cafe', name: 'Кафе', icon: '☕', basePrice: 5000, baseIncome: 150, electricity: 50 },
+    { id: 'hotel', name: 'Отель', icon: '🏨', basePrice: 25000, baseIncome: 600, electricity: 200 },
+    { id: 'restaurant', name: 'Ресторан', icon: '🍽️', basePrice: 50000, baseIncome: 1200, electricity: 400 },
+    { id: 'shop', name: 'Магазин', icon: '🛍️', basePrice: 100000, baseIncome: 2000, electricity: 700 },
+    { id: 'office', name: 'Бизнес-центр', icon: '🏢', basePrice: 250000, baseIncome: 4500, electricity: 1500 },
+    { id: 'factory', name: 'Завод', icon: '🏭', basePrice: 500000, baseIncome: 9000, electricity: 3000 },
+    { id: 'mall', name: 'Торговый центр', icon: '🏬', basePrice: 1000000, baseIncome: 15000, electricity: 5000 },
+    { id: 'skyscraper', name: 'Небоскрёб', icon: '🏗️', basePrice: 2500000, baseIncome: 36000, electricity: 12000 },
 ];
 
 const MINING_GEAR = {
@@ -703,6 +705,7 @@ let playerData = {
     miningCoin: 'ton',
     businesses: {},
     businessHistory: [],
+    electricityPaid: Date.now(),
 };
 
 let chartData = {};
@@ -755,6 +758,18 @@ function calcBusinessIncome() {
     return total;
 }
 
+function calcElectricityCost() {
+    let total = 0;
+    for (const [id, data] of Object.entries(playerData.businesses || {})) {
+        const business = BUSINESS_TYPES.find(b => b.id === id);
+        if (business) {
+            const level = data.level || 1;
+            total += business.electricity * level * 1.1;
+        }
+    }
+    return total;
+}
+
 function calcTotalPower() {
     let total = 0;
     ['gpu', 'cpu', 'ram'].forEach(type => {
@@ -795,6 +810,7 @@ function saveToLocalStorage() {
             miningCoin: playerData.miningCoin,
             businesses: playerData.businesses,
             businessHistory: playerData.businessHistory,
+            electricityPaid: playerData.electricityPaid,
             chartData: chartData,
             tradePoints: tradePoints,
         };
@@ -824,6 +840,7 @@ function loadFromLocalStorage() {
             playerData.miningCoin = data.miningCoin || 'ton';
             playerData.businesses = data.businesses || {};
             playerData.businessHistory = data.businessHistory || [];
+            playerData.electricityPaid = data.electricityPaid || Date.now();
             chartData = data.chartData || {};
             tradePoints = data.tradePoints || {};
             
@@ -909,6 +926,28 @@ function playBeep(type) {
     } catch(e) {}
 }
 
+// ==================== КВИТАНЦИИ ====================
+function payElectricity() {
+    const cost = calcElectricityCost();
+    if (cost === 0) {
+        showToast('⚡ Нет бизнесов — нет счетов!', false);
+        return;
+    }
+    if (playerData.rub < cost) {
+        showToast('❌ Недостаточно RUB для оплаты электричества!', false);
+        return;
+    }
+    
+    playerData.rub -= cost;
+    playerData.electricityPaid = Date.now();
+    
+    addBusinessHistory('💰 Оплата электричества', '⚡', cost);
+    showSuccess('⚡ Счёт оплачен!', `Электричество за бизнесы`, formatRub(cost));
+    updateUI();
+    saveToLocalStorage();
+    playBeep('buy');
+}
+
 // ==================== БИЗНЕС ====================
 function renderBusiness() {
     const grid = document.getElementById('businessGrid');
@@ -920,6 +959,7 @@ function renderBusiness() {
         const count = data.level || 0;
         const income = business.baseIncome * (count || 1) * 1.1;
         const price = Math.round(business.basePrice * (1 + count * 0.5));
+        const electricity = business.electricity * (count || 1) * 1.1;
         
         const card = document.createElement('div');
         card.className = 'business-card';
@@ -929,6 +969,7 @@ function renderBusiness() {
             <div class="b-level">Уровень: ${count}</div>
             <div class="b-income">💰 ${formatRub(income)}/час</div>
             <div class="b-price">${formatRub(price)}</div>
+            <div class="b-electricity">⚡ ${formatRub(electricity)}/час</div>
             <button class="b-btn buy" data-id="${business.id}">🏗️ Купить</button>
             ${count > 0 ? `<button class="b-btn upgrade" data-id="${business.id}">⬆️ Улучшить</button>` : ''}
         `;
@@ -978,6 +1019,7 @@ function renderBusiness() {
 function updateBusinessStats() {
     const incomeEl = document.getElementById('businessIncomePerHour');
     const countEl = document.getElementById('businessTotalCount');
+    const electricityEl = document.getElementById('electricityCost');
     if (incomeEl) incomeEl.textContent = formatRub(calcBusinessIncome());
     if (countEl) {
         let count = 0;
@@ -986,6 +1028,7 @@ function updateBusinessStats() {
         }
         countEl.textContent = count;
     }
+    if (electricityEl) electricityEl.textContent = formatRub(calcElectricityCost());
 }
 
 function renderBusinessHistory() {
@@ -999,13 +1042,32 @@ function renderBusinessHistory() {
     for (const item of playerData.businessHistory.slice(0, 15)) {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.innerHTML = `<span><span class="side-business">🏢</span> ${item.type} ${item.name} за ${formatRub(item.price)}</span><span>${item.time}</span>`;
+        const isBill = item.type.includes('Электричество');
+        div.innerHTML = `<span><span class="${isBill ? 'side-bill' : 'side-business'}">${isBill ? '⚡' : '🏢'}</span> ${item.type} ${item.name} ${item.price ? 'за ' + formatRub(item.price) : ''}</span><span>${item.time}</span>`;
         list.appendChild(div);
     }
 }
 
+function addBusinessHistory(type, name, price = 0) {
+    playerData.businessHistory.unshift({ type, name, price, time: new Date().toLocaleTimeString() });
+    if (playerData.businessHistory.length > 30) playerData.businessHistory.pop();
+    renderBusinessHistory();
+}
+
 function applyBusinessIncome() {
     if (!isLoggedIn) return;
+    
+    // Проверяем оплату электричества (каждые 15 минут)
+    const now = Date.now();
+    const elapsed = now - (playerData.electricityPaid || now);
+    if (elapsed > 15 * 60 * 1000) {
+        const cost = calcElectricityCost();
+        if (cost > 0) {
+            addBusinessHistory('⚠️ ПРОСРОЧЕН СЧЁТ', '⚡ Электричество', cost);
+            showToast('⚡ ВНИМАНИЕ! Просрочен счёт за электричество!', false);
+        }
+    }
+    
     const income = calcBusinessIncome();
     if (income > 0) {
         const reward = income / 3600 * 10;
@@ -1677,9 +1739,7 @@ function registerUser() {
     myPassword = password;
     myUserId = 'user_' + username.replace(/\s/g, '_').toLowerCase();
     
-    // ✅ ПРОВЕРЯЕМ, ЧТО FIREBASE ДОСТУПЕН
     if (!firebaseAvailable || !db) {
-        showToast('❌ Firebase недоступен! Работаем в офлайн-режиме', false);
         isLoggedIn = true;
         saveSession();
         enterGame();
@@ -1696,15 +1756,9 @@ function registerUser() {
             }
             db.ref('users/' + myUserId).set({ username: myUsername, password: myPassword, registered: Date.now() })
                 .then(() => { showToast('✅ Регистрация успешна!'); isLoggedIn = true; saveSession(); enterGame(); })
-                .catch(e => showToast('❌ Ошибка: ' + e.message, false));
+                .catch(e => { showToast('❌ Ошибка: ' + e.message, false); isLoggedIn = true; saveSession(); enterGame(); });
         })
-        .catch(e => {
-            // Если ошибка Firebase — работаем офлайн
-            showToast('📡 Офлайн-режим, данные сохранятся локально', false);
-            isLoggedIn = true;
-            saveSession();
-            enterGame();
-        });
+        .catch(() => { isLoggedIn = true; saveSession(); enterGame(); });
 }
 
 function loginUser() {
@@ -1714,9 +1768,7 @@ function loginUser() {
     
     const userId = 'user_' + username.replace(/\s/g, '_').toLowerCase();
     
-    // ✅ ПРОВЕРЯЕМ, ЧТО FIREBASE ДОСТУПЕН
     if (!firebaseAvailable || !db) {
-        // Офлайн-режим — пропускаем проверку
         myUsername = username;
         myUserId = userId;
         myPassword = password;
@@ -1736,9 +1788,7 @@ function loginUser() {
             saveSession();
             enterGame();
         })
-        .catch(e => {
-            // Если ошибка Firebase — работаем офлайн
-            showToast('📡 Офлайн-режим', false);
+        .catch(() => {
             myUsername = username;
             myUserId = userId;
             myPassword = password;
@@ -1789,10 +1839,19 @@ function enterGame() {
 
 // ==================== ИНИЦИАЛИЗАЦИЯ ====================
 function initGame() {
-    // События
     document.getElementById('fishingPool')?.addEventListener('click', goFishing);
     document.getElementById('lotteryBtn')?.addEventListener('click', spinLottery);
     document.getElementById('toggleMiningBtn')?.addEventListener('click', toggleMining);
+    
+    // Кнопка оплаты электричества
+    const payBtn = document.createElement('button');
+    payBtn.className = 'mining-btn';
+    payBtn.textContent = '⚡ Оплатить электричество';
+    payBtn.style.marginTop = '10px';
+    payBtn.style.background = '#f59e0b';
+    payBtn.style.color = '#0a0e17';
+    payBtn.addEventListener('click', payElectricity);
+    document.querySelector('.business-panel')?.appendChild(payBtn);
     
     document.getElementById('decAmount')?.addEventListener('click', () => {
         let v = tradeAmount - 0.5;
@@ -1853,6 +1912,7 @@ function initGame() {
             playerData.minedTotal = 0;
             playerData.businesses = {};
             playerData.businessHistory = [];
+            playerData.electricityPaid = Date.now();
             chartData = {};
             tradePoints = {};
             for (const a of ASSET_LIST) {
@@ -1876,7 +1936,7 @@ function initGame() {
         if (confirm('Выйти из аккаунта?')) logout();
     });
     
-    // Доход от бизнеса
+    // Доход от бизнеса каждые 10 секунд
     setInterval(() => { if (isLoggedIn) applyBusinessIncome(); }, 10000);
     
     // Обновление цен
