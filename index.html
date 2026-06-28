@@ -556,11 +556,14 @@ if (typeof firebase !== 'undefined' && firebase.initializeApp) {
         firebaseAvailable = true;
         document.getElementById('onlineStatus').textContent = '🟢 Онлайн';
         document.getElementById('onlineStatus').style.color = '#4ade80';
+        console.log('✅ Firebase подключен');
     } catch(e) {
+        console.error('❌ Ошибка Firebase:', e);
         document.getElementById('onlineStatus').textContent = '❌ Ошибка';
         document.getElementById('onlineStatus').style.color = '#f87171';
     }
 } else {
+    console.error('❌ Firebase SDK не загружен');
     document.getElementById('onlineStatus').textContent = '❌ Firebase не загружен';
     document.getElementById('onlineStatus').style.color = '#f87171';
 }
@@ -686,6 +689,7 @@ let myUsername = '', myUserId = '', myPassword = '';
 let isLoggedIn = false;
 let currentShopTab = 'gpu';
 
+// ✅ ДАННЫЕ ИГРОКА — ЗАГРУЖАЮТСЯ ИЗ FIREBASE
 let playerData = {
     rub: 0,
     balances: {},
@@ -700,11 +704,11 @@ let playerData = {
     electricityPaid: Date.now(),
 };
 
-// ✅ ТОЛЬКО ДЛЯ ГРАФИКОВ — localStorage
+// ✅ ГРАФИКИ — localStorage
 let chartData = {};
 let tradePoints = {};
 
-// ✅ ТОЛЬКО ДЛЯ РЫБАЛКИ — localStorage
+// ✅ РЫБАЛКА — localStorage
 let fishingData = {
     history: [],
     count: 0,
@@ -713,7 +717,7 @@ let fishingData = {
     activeBait: null,
 };
 
-// ✅ ТОЛЬКО ДЛЯ ЛОТЕРЕИ — localStorage
+// ✅ ЛОТЕРЕЯ — localStorage
 let lotteryData = {
     history: [],
     plays: 0,
@@ -796,92 +800,61 @@ function getMaxBuyAmount() {
     return Math.floor((playerData.rub / asset.price) * 10000) / 10000;
 }
 
-// ==================== LOCALSTORAGE ДЛЯ ГРАФИКОВ ====================
-function getChartStorageKey() { return 'cryptoChart_' + myUserId; }
+// ==================== LOCALSTORAGE ====================
+function getChartKey() { return 'cryptoChart_' + myUserId; }
+function getFishingKey() { return 'cryptoFishing_' + myUserId; }
+function getLotteryKey() { return 'cryptoLottery_' + myUserId; }
 
-function saveChartToLocalStorage() {
-    try {
-        const data = { chartData: chartData, tradePoints: tradePoints };
-        localStorage.setItem(getChartStorageKey(), JSON.stringify(data));
-    } catch(e) { console.warn('⚠️ Ошибка сохранения графика:', e); }
+function saveChart() {
+    try { localStorage.setItem(getChartKey(), JSON.stringify({ chartData, tradePoints })); } catch(e) {}
 }
-
-function loadChartFromLocalStorage() {
+function loadChart() {
     try {
-        const raw = localStorage.getItem(getChartStorageKey());
+        const raw = localStorage.getItem(getChartKey());
         if (raw) {
-            const data = JSON.parse(raw);
-            chartData = data.chartData || {};
-            tradePoints = data.tradePoints || {};
+            const d = JSON.parse(raw);
+            chartData = d.chartData || {};
+            tradePoints = d.tradePoints || {};
             for (const a of ASSET_LIST) {
                 if (!chartData[a.id]) chartData[a.id] = [];
                 if (!tradePoints[a.id]) tradePoints[a.id] = [];
             }
-            return true;
         }
-    } catch(e) { console.warn('⚠️ Ошибка загрузки графика:', e); }
-    return false;
+    } catch(e) {}
 }
 
-// ==================== LOCALSTORAGE ДЛЯ РЫБАЛКИ ====================
-function getFishingStorageKey() { return 'cryptoFishing_' + myUserId; }
-
-function saveFishingToLocalStorage() {
-    try {
-        const data = {
-            history: fishingData.history,
-            count: fishingData.count,
-            bestCatch: fishingData.bestCatch,
-            baits: fishingData.baits,
-            activeBait: fishingData.activeBait,
-        };
-        localStorage.setItem(getFishingStorageKey(), JSON.stringify(data));
-    } catch(e) { console.warn('⚠️ Ошибка сохранения рыбалки:', e); }
+function saveFishing() {
+    try { localStorage.setItem(getFishingKey(), JSON.stringify(fishingData)); } catch(e) {}
 }
-
-function loadFishingFromLocalStorage() {
+function loadFishing() {
     try {
-        const raw = localStorage.getItem(getFishingStorageKey());
+        const raw = localStorage.getItem(getFishingKey());
         if (raw) {
-            const data = JSON.parse(raw);
-            fishingData.history = data.history || [];
-            fishingData.count = data.count || 0;
-            fishingData.bestCatch = data.bestCatch || 0;
-            fishingData.baits = data.baits || {};
-            fishingData.activeBait = data.activeBait || null;
-            return true;
+            const d = JSON.parse(raw);
+            fishingData.history = d.history || [];
+            fishingData.count = d.count || 0;
+            fishingData.bestCatch = d.bestCatch || 0;
+            fishingData.baits = d.baits || {};
+            fishingData.activeBait = d.activeBait || null;
         }
-    } catch(e) { console.warn('⚠️ Ошибка загрузки рыбалки:', e); }
-    return false;
+    } catch(e) {}
 }
 
-// ==================== LOCALSTORAGE ДЛЯ ЛОТЕРЕИ ====================
-function getLotteryStorageKey() { return 'cryptoLottery_' + myUserId; }
-
-function saveLotteryToLocalStorage() {
-    try {
-        const data = {
-            history: lotteryData.history,
-            plays: lotteryData.plays,
-        };
-        localStorage.setItem(getLotteryStorageKey(), JSON.stringify(data));
-    } catch(e) { console.warn('⚠️ Ошибка сохранения лотереи:', e); }
+function saveLottery() {
+    try { localStorage.setItem(getLotteryKey(), JSON.stringify(lotteryData)); } catch(e) {}
 }
-
-function loadLotteryFromLocalStorage() {
+function loadLottery() {
     try {
-        const raw = localStorage.getItem(getLotteryStorageKey());
+        const raw = localStorage.getItem(getLotteryKey());
         if (raw) {
-            const data = JSON.parse(raw);
-            lotteryData.history = data.history || [];
-            lotteryData.plays = data.plays || 0;
-            return true;
+            const d = JSON.parse(raw);
+            lotteryData.history = d.history || [];
+            lotteryData.plays = d.plays || 0;
         }
-    } catch(e) { console.warn('⚠️ Ошибка загрузки лотереи:', e); }
-    return false;
+    } catch(e) {}
 }
 
-// ==================== FIREBASE — ТОЛЬКО ДЛЯ ДАННЫХ ИГРОКА ====================
+// ==================== FIREBASE ====================
 function loadFromFirebase() {
     if (!firebaseAvailable || !db || !myUserId || !isLoggedIn) return Promise.resolve(false);
     
@@ -889,7 +862,6 @@ function loadFromFirebase() {
         .then(snapshot => {
             const data = snapshot.val();
             if (data) {
-                // ✅ ЗАГРУЖАЕМ ТОЛЬКО ТО, ЧТО В FIREBASE
                 playerData.rub = data.rub ?? 0;
                 playerData.balances = data.balances || {};
                 playerData.history = data.history || [];
@@ -915,6 +887,7 @@ function loadFromFirebase() {
         });
 }
 
+// ✅ СОХРАНЕНИЕ В FIREBASE — ТОЛЬКО ТО, ЧТО НУЖНО
 function saveToFirebase() {
     if (!firebaseAvailable || !db || !myUserId || !isLoggedIn) return;
     try {
@@ -937,6 +910,36 @@ function saveToFirebase() {
             .then(() => console.log('✅ Данные сохранены в Firebase'))
             .catch(error => console.error('❌ Ошибка сохранения:', error.message));
     } catch(e) { console.error('❌ Ошибка:', e.message); }
+}
+
+// ==================== ЦЕНЫ ИЗ FIREBASE ====================
+function loadPricesFromFirebase() {
+    if (!firebaseAvailable || !db) return;
+    db.ref('prices').once('value')
+        .then(snapshot => {
+            const prices = snapshot.val();
+            if (prices) {
+                ASSET_LIST.forEach(asset => {
+                    if (prices[asset.id] !== undefined) {
+                        asset.price = prices[asset.id];
+                    }
+                });
+                renderMarket();
+                updatePriceDisplay();
+                updateChart();
+                updateUI();
+            }
+        })
+        .catch(error => console.error('❌ Ошибка загрузки цен:', error.message));
+}
+
+function savePricesToFirebase() {
+    if (!firebaseAvailable || !db) return;
+    const prices = {};
+    ASSET_LIST.forEach(a => { prices[a.id] = a.price; });
+    db.ref('prices').set(prices)
+        .then(() => console.log('✅ Цены сохранены'))
+        .catch(error => console.error('❌ Ошибка сохранения цен:', error.message));
 }
 
 // ==================== ЭКРАН УСПЕХА ====================
@@ -1193,7 +1196,7 @@ function executeTrade(type) {
         addHistory(historyType, asset.symbol, amount, price, type === 'buy-max' ? '(макс)' : '');
         if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
         tradePoints[asset.id].push({ price: price, type: 'buy', index: (chartData[asset.id] || []).length - 1 });
-        saveChartToLocalStorage();
+        saveChart();
         saveToFirebase();
         showSuccess('🟢 Покупка', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
     } else {
@@ -1205,7 +1208,7 @@ function executeTrade(type) {
         addHistory(historyType, asset.symbol, amount, price, type === 'sell-all' ? '(всё)' : '');
         if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
         tradePoints[asset.id].push({ price: price, type: 'sell', index: (chartData[asset.id] || []).length - 1 });
-        saveChartToLocalStorage();
+        saveChart();
         saveToFirebase();
         showSuccess('🔴 Продажа', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
     }
@@ -1236,6 +1239,8 @@ function renderHistory() {
         else if (item.type === 'buy-max') { sideClass = 'side-buy'; txt = '📈 Покупка макс'; }
         else if (item.type === 'transfer') { sideClass = 'side-transfer'; txt = '📤 Перевод'; }
         else if (item.type === 'receive') { sideClass = 'side-transfer'; txt = '📥 Получено'; }
+        else if (item.type === 'fish') { sideClass = 'side-fish'; txt = '🎣 Рыбалка'; }
+        else if (item.type === 'lottery') { sideClass = 'side-lottery'; txt = '🎰 Лотерея'; }
         div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
         historyList.appendChild(div);
     }
@@ -1258,7 +1263,7 @@ function renderTransferHistory() {
     }
 }
 
-// ==================== РЫБАЛКА (ТОЛЬКО localStorage) ====================
+// ==================== РЫБАЛКА (localStorage) ====================
 function goFishing() {
     if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
     if (!fishingData.activeBait || (fishingData.baits[fishingData.activeBait] || 0) <= 0) {
@@ -1332,7 +1337,7 @@ function goFishing() {
     }
     
     addHistory('fish', selected.symbol, roundedAmount, 1, `🐟 ${selected.name}`);
-    saveFishingToLocalStorage();
+    saveFishing();
     saveToFirebase();
     updateUI();
     if (isTrophy) { launchConfetti(); showSuccess('🏆 ТРОФЕЙ!', `${selected.symbol} ${roundedAmount.toFixed(6)} ${selected.name}`, formatRub(roundedAmount * (getAsset(selected.id)?.price || 1))); }
@@ -1401,14 +1406,14 @@ function renderBaitShop() {
                 if (playerData.rub < bait.price) { showToast(`❌ Недостаточно RUB!`, false); return; }
                 playerData.rub -= bait.price;
                 fishingData.baits[baitId] = (fishingData.baits[baitId] || 0) + 1;
-                saveFishingToLocalStorage();
+                saveFishing();
                 saveToFirebase();
                 showSuccess('🛒 Покупка', `${bait.name} приобретена`, formatRub(bait.price));
                 showToast(`✅ Куплена ${bait.name}`);
             } else if (action === 'use') {
                 if ((fishingData.baits[baitId] || 0) <= 0) { showToast('❌ У вас нет этой наживки!', false); return; }
                 fishingData.activeBait = baitId;
-                saveFishingToLocalStorage();
+                saveFishing();
                 showToast(`🎣 Выбрана наживка: ${bait.name} (×${bait.bonus.toFixed(1)})`);
             }
             updateUI();
@@ -1417,7 +1422,7 @@ function renderBaitShop() {
     });
 }
 
-// ==================== ЛОТЕРЕЯ (ТОЛЬКО localStorage) ====================
+// ==================== ЛОТЕРЕЯ (localStorage) ====================
 function drawWheel(rotation = 0) {
     const canvas = document.getElementById('wheelCanvas');
     if (!canvas) return;
@@ -1498,7 +1503,7 @@ function spinLottery() {
             lotteryData.history.unshift({ bet, win, multiplier, isWin, time: new Date().toLocaleTimeString() });
             if (lotteryData.history.length > 30) lotteryData.history.pop();
             addHistory('lottery', isWin ? '🎰 ВЫИГРЫШ' : '🎰 ПРОИГРЫШ', isWin ? win : bet, 1, isWin ? `×${multiplier}` : '');
-            saveLotteryToLocalStorage();
+            saveLottery();
             saveToFirebase();
             updateUI();
             document.getElementById('lotteryTotalPlays').textContent = lotteryData.plays;
@@ -1871,9 +1876,9 @@ function loginUser() {
 
 function logout() {
     saveToFirebase();
-    saveChartToLocalStorage();
-    saveFishingToLocalStorage();
-    saveLotteryToLocalStorage();
+    saveChart();
+    saveFishing();
+    saveLottery();
     clearSession();
     isLoggedIn = false;
     document.getElementById('loginOverlay').style.display = 'flex';
@@ -1905,14 +1910,15 @@ function enterGame() {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('appContainer').style.display = 'block';
     
-    loadChartFromLocalStorage();
-    loadFishingFromLocalStorage();
-    loadLotteryFromLocalStorage();
+    loadChart();
+    loadFishing();
+    loadLottery();
     
     loadFromFirebase().then(() => {
         for (const a of ASSET_LIST) {
             if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
         }
+        loadPricesFromFirebase();
         initGame();
     }).catch(() => {
         showToast('❌ Ошибка загрузки данных!', false);
@@ -1991,9 +1997,9 @@ function initGame() {
                 chartData[a.id] = [];
                 tradePoints[a.id] = [];
             }
-            saveChartToLocalStorage();
-            saveFishingToLocalStorage();
-            saveLotteryToLocalStorage();
+            saveChart();
+            saveFishing();
+            saveLottery();
             saveToFirebase();
             updateUI();
             showToast('🔄 Сброшено');
@@ -2003,9 +2009,10 @@ function initGame() {
     document.getElementById('saveBtn')?.addEventListener('click', () => {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         saveToFirebase();
-        saveChartToLocalStorage();
-        saveFishingToLocalStorage();
-        saveLotteryToLocalStorage();
+        saveChart();
+        saveFishing();
+        saveLottery();
+        savePricesToFirebase();
         showToast('✅ Сохранено');
     });
     
@@ -2033,6 +2040,7 @@ function initGame() {
         renderMarket();
         updateChart();
         updateUI();
+        savePricesToFirebase();
     }, 5000);
     
     updateUI();
@@ -2043,9 +2051,9 @@ function initGame() {
     setInterval(() => {
         if (isLoggedIn) {
             saveToFirebase();
-            saveChartToLocalStorage();
-            saveFishingToLocalStorage();
-            saveLotteryToLocalStorage();
+            saveChart();
+            saveFishing();
+            saveLottery();
         }
     }, 30000);
 }
@@ -2060,28 +2068,38 @@ function loadLeaderboard() {
         return;
     }
     
-    db.ref('users').orderByChild('total').limitToLast(20).on('value', snapshot => {
-        const data = snapshot.val();
-        if (!data) {
-            list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
-            return;
-        }
-        
-        const entries = Object.entries(data).filter(([id, u]) => u.username && u.total !== undefined);
-        entries.sort((a, b) => b[1].total - a[1].total);
-        
-        let html = '<div class="history-title">🏆 Топ игроков</div>';
-        
-        entries.slice(0, 20).forEach(([id, u], i) => {
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-            const isMe = id === myUserId;
-            const highlight = isMe ? ' style="background:rgba(59,130,246,0.1); border-radius:8px; padding:4px 8px;"' : '';
-            html += `<div class="lb-item"${highlight}><span class="name">${medal} ${u.username} ${isMe ? '👈' : ''}</span><span class="total">${formatRub(u.total || 0)}</span></div>`;
+    db.ref('users').orderByChild('total').limitToLast(20).once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (!data) {
+                list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
+                return;
+            }
+            
+            const entries = Object.entries(data).filter(([id, u]) => u.username && u.total !== undefined);
+            entries.sort((a, b) => b[1].total - a[1].total);
+            
+            let html = '<div class="history-title">🏆 Топ игроков</div>';
+            
+            if (entries.length === 0) {
+                list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
+                return;
+            }
+            
+            entries.slice(0, 20).forEach(([id, u], i) => {
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+                const isMe = id === myUserId;
+                const highlight = isMe ? ' style="background:rgba(59,130,246,0.1); border-radius:8px; padding:4px 8px;"' : '';
+                html += `<div class="lb-item"${highlight}><span class="name">${medal} ${u.username} ${isMe ? '👈' : ''}</span><span class="total">${formatRub(u.total || 0)}</span></div>`;
+            });
+            
+            list.innerHTML = html;
+            document.getElementById('onlineCount').textContent = entries.length;
+        })
+        .catch(error => {
+            console.error('❌ Ошибка загрузки рейтинга:', error);
+            list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Ошибка загрузки</div>';
         });
-        
-        list.innerHTML = html;
-        document.getElementById('onlineCount').textContent = entries.length;
-    });
 }
 
 // ==================== ЗАПУСК ====================
@@ -2107,13 +2125,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('userNameDisplay').textContent = myUsername;
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
-        loadChartFromLocalStorage();
-        loadFishingFromLocalStorage();
-        loadLotteryFromLocalStorage();
+        loadChart();
+        loadFishing();
+        loadLottery();
         loadFromFirebase().then(() => {
             for (const a of ASSET_LIST) {
                 if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
             }
+            loadPricesFromFirebase();
             initGame();
         }).catch(() => {
             showToast('❌ Ошибка загрузки данных!', false);
