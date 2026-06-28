@@ -371,7 +371,7 @@ function getCookie(name) {
     return null;
 }
 
-// ==================== СПИСОК АКТИВОВ (только для отображения) ====================
+// ==================== СПИСОК АКТИВОВ ====================
 const ASSET_LIST = [
     { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50 },
     { id: 'btc', name: 'BTC', symbol: '₿', price: 4520000 },
@@ -390,7 +390,7 @@ let myUsername = '', myUserId = '', myPassword = '';
 let isLoggedIn = false;
 let isDataLoaded = false;
 
-// ⚡ ДАННЫЕ ИГРОКА — ПРЯМО ИЗ FIREBASE, БЕЗ ПРОВЕРОК
+// ⚡ ДАННЫЕ ИГРОКА — ПРЯМО ИЗ FIREBASE
 let playerData = {
     rub: 0,
     balances: {},
@@ -507,16 +507,16 @@ function launchConfetti() {
     setTimeout(() => { container.innerHTML = ''; }, 4500);
 }
 
-// ==================== FIREBASE — ПРЯМОЕ ВЗАИМОДЕЙСТВИЕ ====================
+// ==================== FIREBASE ====================
 
-// 📥 ЗАГРУЗКА — берём ВСЁ что есть в Firebase, БЕЗ ПРОВЕРОК
+// 📥 ЗАГРУЗКА — ПРЯМАЯ, БЕЗ ПРОВЕРОК
 function loadFromFirebase() {
     if (!firebaseAvailable || !myUserId || !isLoggedIn) return Promise.resolve(false);
     return db.ref('users/' + myUserId).once('value')
         .then(snapshot => {
             const data = snapshot.val();
             if (data) {
-                // 🔥 ПРЯМАЯ ЗАГРУЗКА — ЧТО ЕСТЬ, ТО И ЕСТЬ
+                // 🔥 ПРЯМАЯ ЗАГРУЗКА
                 playerData.rub = data.rub ?? 0;
                 playerData.balances = data.balances || {};
                 playerData.total = data.total ?? 0;
@@ -524,12 +524,6 @@ function loadFromFirebase() {
                 playerData.transferHistory = data.transferHistory || [];
                 playerData.chartData = data.chartData || {};
                 playerData.tradePoints = data.tradePoints || {};
-                
-                // 📊 Графики и точки — просто загружаем
-                ASSET_LIST.forEach(a => {
-                    if (!playerData.chartData[a.id]) playerData.chartData[a.id] = [];
-                    if (!playerData.tradePoints[a.id]) playerData.tradePoints[a.id] = [];
-                });
                 
                 isDataLoaded = true;
                 updateUI();
@@ -543,14 +537,12 @@ function loadFromFirebase() {
         });
 }
 
-// 📤 СОХРАНЕНИЕ — ПРЯМОЕ СОХРАНЕНИЕ БЕЗ ПРОВЕРОК
+// 📤 СОХРАНЕНИЕ — update() БЕЗ ПЕРЕЗАПИСИ
 function saveToFirebase() {
     if (!firebaseAvailable || !myUserId || !isLoggedIn) return;
     try {
         const total = calcTotal();
         const data = {
-            username: myUsername,
-            password: myPassword,
             rub: playerData.rub,
             balances: playerData.balances,
             total: total,
@@ -560,7 +552,6 @@ function saveToFirebase() {
             history: playerData.history || [],
             lastActive: Date.now()
         };
-        // 🔥 update() — обновляет только переданные поля, НЕ ТРОГАЕТ остальные
         db.ref('users/' + myUserId).update(data).catch(error => console.warn('⚠️ Ошибка:', error.message));
     } catch(e) { console.warn('⚠️ Ошибка:', e.message); }
 }
@@ -1046,15 +1037,31 @@ function registerUser() {
     const password = passwordInput.value.trim();
     if (!username || !password) { showToast('❌ Введите имя и пароль!', false); return; }
     if (password.length < 4) { showToast('❌ Пароль должен быть минимум 4 символа', false); return; }
+    
+    // ✅ ФИКСИРОВАННЫЙ ID — user_ИМЯ_БЕЗ_СУФФИКСА
     myUsername = username;
     myPassword = password;
-    myUserId = 'user_' + username.replace(/\s/g, '_') + '_' + Date.now().toString(36);
+    myUserId = 'user_' + username.replace(/\s/g, '_').toLowerCase();
+    
     db.ref('users').orderByChild('username').equalTo(username).once('value')
         .then(snapshot => {
-            if (snapshot.val()) {
-                showToast('❌ Пользователь с таким именем уже существует!', false);
-                return;
+            const data = snapshot.val();
+            if (data) {
+                // Проверяем, существует ли уже такой пользователь
+                let exists = false;
+                for (const [id, user] of Object.entries(data)) {
+                    if (user.username === username) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (exists) {
+                    showToast('❌ Пользователь с таким именем уже существует!', false);
+                    return;
+                }
             }
+            
+            // Создаём нового пользователя
             const userData = {
                 username: myUsername,
                 password: myPassword,
@@ -1072,6 +1079,7 @@ function registerUser() {
                 userData.chartData[a.id] = [];
                 userData.tradePoints[a.id] = [];
             });
+            
             db.ref('users/' + myUserId).set(userData)
                 .then(() => {
                     showToast('✅ Регистрация успешна!');
@@ -1089,32 +1097,28 @@ function loginUser() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
     if (!username || !password) { showToast('❌ Введите имя и пароль!', false); return; }
-    db.ref('users').orderByChild('username').equalTo(username).once('value')
+    
+    // ✅ ФИКСИРОВАННЫЙ ID
+    const userId = 'user_' + username.replace(/\s/g, '_').toLowerCase();
+    
+    db.ref('users/' + userId).once('value')
         .then(snapshot => {
             const data = snapshot.val();
-            if (!data) { showToast('❌ Пользователь не найден! Зарегистрируйтесь.', false); return; }
-            let found = false;
-            for (const [id, user] of Object.entries(data)) {
-                if (user.username === username) {
-                    if (user.password === password) {
-                        myUserId = id;
-                        myUsername = username;
-                        myPassword = password;
-                        isLoggedIn = true;
-                        found = true;
-                        break;
-                    } else {
-                        showToast('❌ Неправильный пароль!', false);
-                        return;
-                    }
-                }
+            if (!data) {
+                showToast('❌ Пользователь не найден! Зарегистрируйтесь.', false);
+                return;
             }
-            if (found) {
-                saveSession();
-                enterGame();
-            } else {
-                showToast('❌ Ошибка входа', false);
+            if (data.password !== password) {
+                showToast('❌ Неправильный пароль!', false);
+                return;
             }
+            
+            myUsername = username;
+            myUserId = userId;
+            myPassword = password;
+            isLoggedIn = true;
+            saveSession();
+            enterGame();
         })
         .catch(e => showToast('❌ Ошибка: ' + e.message, false));
 }
