@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
-        /* ==================== СТИЛИ ==================== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; overflow-x: hidden; }
         .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); border: 1px solid rgba(255,255,255,0.08); border-radius: 44px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
@@ -264,6 +263,14 @@
             .trade-btn.sell-all, .trade-btn.buy-max { font-size: 11px; flex: 0.4; }
             .lottery-wheel { max-width: 220px; height: 220px; }
         }
+        
+        .price-edit-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
+        .price-edit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 10px; }
+        .price-edit-item { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 8px 10px; border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .price-edit-item .pe-label { font-size: 12px; color: #8ba0be; font-weight: 600; }
+        .price-edit-item .pe-input { background: rgba(0,0,0,0.3); color: #d6e8ff; border: 1px solid rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 20px; font-size: 13px; width: 100%; text-align: center; outline: none; }
+        .price-edit-item .pe-input:focus { border-color: #3b82f6; }
+        .price-edit-item .pe-current { font-size: 11px; color: #6e88a3; }
     </style>
 </head>
 <body>
@@ -302,6 +309,7 @@
         <button class="tab-btn" data-tab="mining">⛏️ Майнинг</button>
         <button class="tab-btn" data-tab="portfolio">💼 Портфель</button>
         <button class="tab-btn" data-tab="leaderboard">🏆 Рейтинг</button>
+        <button class="tab-btn" data-tab="admin">⚙️ Админ</button>
     </div>
 
     <!-- ===== TAB TRADE ===== -->
@@ -507,6 +515,23 @@
         </div>
     </div>
 
+    <!-- ===== TAB ADMIN ===== -->
+    <div id="tab-admin" class="tab-content">
+        <div class="price-edit-panel glass">
+            <div class="business-title"><span>⚙️</span> Управление ценами</div>
+            <div style="font-size:12px; color:#8ba0be; margin-bottom:10px;">
+                Измените цену и нажмите "Сохранить цены". Цены будут автоматически меняться каждые 7 секунд.
+            </div>
+            <div class="price-edit-grid" id="priceEditGrid"></div>
+            <button class="mining-btn" id="savePricesBtn" style="margin-top:12px; width:100%; background:#3b82f6; color:white;">💾 Сохранить цены</button>
+            <div id="priceStatus" style="margin-top:8px; font-size:12px; color:#6e88a3; text-align:center;"></div>
+        </div>
+        <div class="history-box" style="margin-top:12px;">
+            <div class="history-title">📋 Изменения цен</div>
+            <div id="priceHistoryList"><div class="history-item" style="color:#4a617c;">История изменений цен</div></div>
+        </div>
+    </div>
+
     <div class="reset-area">
         <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
         <button class="reset-btn" id="resetBtn">⟳ Сброс</button>
@@ -705,8 +730,8 @@ let selectedAssetId = 'ton';
 let tradeAmount = 1.0;
 
 let playerData = {
-    rub: 0,
-    balances: {},
+    rub: 1000,
+    balances: { ton: 1.0 },
     history: [],
     transferHistory: [],
     gear: { gpu: {}, cpu: {}, ram: {} },
@@ -716,11 +741,12 @@ let playerData = {
     businesses: {},
     businessHistory: [],
     electricityPaid: Date.now(),
-    total: 0,
+    total: 1000,
 };
 
 let chartData = {};
 let tradePoints = {};
+let priceHistory = [];
 
 let fishingData = { history: [], count: 0, bestCatch: 0, baits: {}, activeBait: null };
 let lotteryData = { history: [], plays: 0 };
@@ -806,7 +832,12 @@ function getChartKey() { return 'cryptoChart_' + myUserId; }
 function getFishingKey() { return 'cryptoFishing_' + myUserId; }
 function getLotteryKey() { return 'cryptoLottery_' + myUserId; }
 
-function saveChart() { try { localStorage.setItem(getChartKey(), JSON.stringify({ chartData, tradePoints })); } catch(e) {} }
+function saveChart() { 
+    try { 
+        localStorage.setItem(getChartKey(), JSON.stringify({ chartData, tradePoints })); 
+    } catch(e) {} 
+}
+
 function loadChart() {
     try {
         const raw = localStorage.getItem(getChartKey());
@@ -814,15 +845,10 @@ function loadChart() {
             const d = JSON.parse(raw);
             chartData = d.chartData || {};
             tradePoints = d.tradePoints || {};
-            for (const a of ASSET_LIST) {
-                if (!chartData[a.id]) chartData[a.id] = [];
-                if (!tradePoints[a.id]) tradePoints[a.id] = [];
-            }
-        } else {
-            for (const a of ASSET_LIST) {
-                chartData[a.id] = [];
-                tradePoints[a.id] = [];
-            }
+        }
+        for (const a of ASSET_LIST) {
+            if (!chartData[a.id]) chartData[a.id] = [];
+            if (!tradePoints[a.id]) tradePoints[a.id] = [];
         }
     } catch(e) {
         for (const a of ASSET_LIST) {
@@ -866,8 +892,8 @@ function loadFromFirebase() {
         .then(snapshot => {
             const data = snapshot.val();
             if (data) {
-                playerData.rub = data.rub ?? 0;
-                playerData.balances = data.balances || {};
+                playerData.rub = data.rub ?? 1000;
+                playerData.balances = data.balances || { ton: 1.0 };
                 playerData.history = data.history || [];
                 playerData.transferHistory = data.transferHistory || [];
                 playerData.gear = data.gear || { gpu: {}, cpu: {}, ram: {} };
@@ -892,6 +918,7 @@ function saveToFirebase() {
     if (!firebaseAvailable || !db || !myUserId || !isLoggedIn) return;
     try {
         const total = calcTotal();
+        playerData.total = total;
         const data = {
             rub: playerData.rub || 0,
             balances: playerData.balances || {},
@@ -905,9 +932,10 @@ function saveToFirebase() {
             businessHistory: playerData.businessHistory || [],
             electricityPaid: playerData.electricityPaid || Date.now(),
             total: total,
+            username: myUsername
         };
-        db.ref('users/' + myUserId).set(data)
-            .then(() => console.log('✅ Данные сохранены в Firebase'))
+        db.ref('users/' + myUserId).update(data)
+            .then(() => console.log('✅ Данные сохранены'))
             .catch(error => console.error('❌ Ошибка сохранения:', error.message));
     } catch(e) { console.error('❌ Ошибка:', e.message); }
 }
@@ -928,26 +956,176 @@ function loadPricesFromFirebase() {
                 updatePriceDisplay();
                 updateChart();
                 updateUI();
+                renderPriceEdits();
+                console.log('✅ Цены загружены из Firebase');
+            } else {
+                const initialPrices = {};
+                ASSET_LIST.forEach(a => { initialPrices[a.id] = a.price; });
+                db.ref('prices').set(initialPrices)
+                    .then(() => console.log('✅ Начальные цены созданы'));
             }
         })
         .catch(error => console.error('❌ Ошибка загрузки цен:', error.message));
 }
 
-function savePricesToFirebase() {
-    if (!firebaseAvailable || !db) return;
-    const prices = {};
-    ASSET_LIST.forEach(a => { prices[a.id] = a.price; });
-    db.ref('prices').set(prices)
-        .then(() => console.log('✅ Цены сохранены'))
-        .catch(error => console.error('❌ Ошибка сохранения цен:', error.message));
+// Автономное изменение цен
+let priceInterval = null;
+
+function startPriceFluctuation() {
+    if (priceInterval) clearInterval(priceInterval);
+    priceInterval = setInterval(() => {
+        if (!isLoggedIn) return;
+        
+        let priceChanged = false;
+        
+        for (const asset of ASSET_LIST) {
+            // Базовое изменение: от -2% до +2%
+            const volatility = (Math.random() * 4 - 2) / 100;
+            let newPrice = asset.price * (1 + volatility);
+            
+            // Иногда резкие скачки (10% шанс)
+            if (Math.random() < 0.1) {
+                const bigChange = (Math.random() * 8 - 4) / 100;
+                newPrice = asset.price * (1 + bigChange);
+            }
+            
+            // Иногда тренд (5% шанс на сильное движение)
+            if (Math.random() < 0.05) {
+                const trend = (Math.random() * 10 - 5) / 100;
+                newPrice = asset.price * (1 + trend);
+            }
+            
+            // Ограничиваем минимальную цену
+            if (newPrice < 0.001) newPrice = 0.001;
+            
+            // Округляем
+            if (asset.id === 'btc' || asset.id === 'eth') {
+                newPrice = Math.round(newPrice);
+            } else if (asset.id === 'usdt') {
+                newPrice = Math.round(newPrice * 100) / 100;
+            } else {
+                newPrice = Math.round(newPrice * 100) / 100;
+            }
+            
+            // Сохраняем изменение
+            if (newPrice !== asset.price) {
+                const oldPrice = asset.price;
+                asset.price = newPrice;
+                asset.change = Math.round(((newPrice - oldPrice) / oldPrice) * 100 * 100) / 100;
+                priceChanged = true;
+                
+                // Сохраняем в Firebase
+                if (firebaseAvailable && db) {
+                    db.ref('prices/' + asset.id).set(newPrice)
+                        .catch(err => console.error('❌ Ошибка сохранения цены:', err));
+                }
+                
+                // Добавляем в историю
+                if (asset.id === 'ton' || asset.id === 'btc' || asset.id === 'eth') {
+                    priceHistory.unshift({
+                        asset: asset.symbol,
+                        price: newPrice,
+                        change: asset.change,
+                        time: new Date().toLocaleTimeString()
+                    });
+                    if (priceHistory.length > 20) priceHistory.pop();
+                }
+            }
+        }
+        
+        if (priceChanged) {
+            renderMarket();
+            updateChart();
+            updatePriceDisplay();
+            renderPriceEdits();
+            renderPriceHistory();
+            updateUI();
+        }
+        
+    }, 7000);
 }
 
-function updatePriceDisplay() {
-    const asset = getSelectedAsset();
-    if (!asset) return;
-    if (currentPriceDisplay) currentPriceDisplay.textContent = formatRub(asset.price);
-    if (chartPair) chartPair.textContent = asset.symbol + ' / RUB';
-    if (chartPrice) chartPrice.textContent = formatRub(asset.price);
+function renderPriceEdits() {
+    const grid = document.getElementById('priceEditGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (const asset of ASSET_LIST) {
+        const div = document.createElement('div');
+        div.className = 'price-edit-item';
+        div.innerHTML = `
+            <span class="pe-label">${asset.symbol} ${asset.name}</span>
+            <input type="number" class="pe-input" id="price_${asset.id}" value="${asset.price}" step="0.01" min="0.001">
+            <span class="pe-current">Текущая: ${formatRub(asset.price)}</span>
+        `;
+        grid.appendChild(div);
+    }
+}
+
+function savePricesManually() {
+    if (!firebaseAvailable || !db) {
+        showToast('❌ Firebase недоступен!', false);
+        return;
+    }
+    
+    const updates = {};
+    let hasChanges = false;
+    
+    for (const asset of ASSET_LIST) {
+        const input = document.getElementById('price_' + asset.id);
+        if (input) {
+            const val = parseFloat(input.value);
+            if (!isNaN(val) && val > 0 && val !== asset.price) {
+                updates[asset.id] = val;
+                hasChanges = true;
+            }
+        }
+    }
+    
+    if (!hasChanges) {
+        showToast('❌ Нет изменений для сохранения', false);
+        return;
+    }
+    
+    db.ref('prices').update(updates)
+        .then(() => {
+            for (const [id, price] of Object.entries(updates)) {
+                const asset = ASSET_LIST.find(a => a.id === id);
+                if (asset) {
+                    const oldPrice = asset.price;
+                    asset.price = price;
+                    asset.change = Math.round(((price - oldPrice) / oldPrice) * 100 * 100) / 100;
+                }
+            }
+            renderMarket();
+            updateChart();
+            updatePriceDisplay();
+            renderPriceEdits();
+            updateUI();
+            showToast('✅ Цены обновлены!');
+            document.getElementById('priceStatus').textContent = '✅ Цены обновлены в ' + new Date().toLocaleTimeString();
+        })
+        .catch(error => {
+            showToast('❌ Ошибка: ' + error.message, false);
+            document.getElementById('priceStatus').textContent = '❌ Ошибка: ' + error.message;
+        });
+}
+
+function renderPriceHistory() {
+    const list = document.getElementById('priceHistoryList');
+    if (!list) return;
+    if (!priceHistory || priceHistory.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">История изменений цен</div>';
+        return;
+    }
+    list.innerHTML = '';
+    for (const item of priceHistory.slice(0, 15)) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const changeClass = item.change >= 0 ? 'positive' : 'negative';
+        const changeSign = item.change >= 0 ? '▲' : '▼';
+        div.innerHTML = `<span>${item.asset} → ${formatRub(item.price)}</span><span class="${changeClass}">${changeSign} ${Math.abs(item.change).toFixed(2)}%</span>`;
+        list.appendChild(div);
+    }
 }
 
 // ==================== TOAST & SUCCESS ====================
@@ -1485,7 +1663,6 @@ function executeTransfer() {
     else { const asset = getAsset(coinId); if (!asset) { showToast('❌ Неизвестная монета!', false); return; } balance = playerData.balances[coinId] || 0; symbol = asset.symbol; price = asset.price; }
     if (balance < amount) { showToast(`❌ Недостаточно ${symbol}!`, false); return; }
     
-    // Получаем ID получателя
     db.ref('users').orderByChild('username').equalTo(toUsername).once('value')
         .then(snapshot => {
             const data = snapshot.val();
@@ -1493,19 +1670,12 @@ function executeTransfer() {
             const toUserId = Object.keys(data)[0];
             if (toUserId === myUserId) { showToast('❌ Нельзя перевести самому себе!', false); return; }
             
-            // Списываем у себя
             if (coinId === 'rub') {
                 playerData.rub -= amount;
+                db.ref('users/' + toUserId + '/rub').transaction(current => (current || 0) + amount);
             } else {
                 playerData.balances[coinId] = (playerData.balances[coinId] || 0) - amount;
-            }
-            
-            // Зачисляем получателю
-            const recipientData = data[toUserId];
-            const newBalance = (recipientData.balances?.[coinId] || 0) + amount;
-            db.ref('users/' + toUserId + '/balances/' + coinId).set(newBalance);
-            if (coinId === 'rub') {
-                db.ref('users/' + toUserId + '/rub').set((recipientData.rub || 0) + amount);
+                db.ref('users/' + toUserId + '/balances/' + coinId).transaction(current => (current || 0) + amount);
             }
             
             playerData.transferHistory.unshift({ from: myUsername, to: toUsername, symbol: symbol, amount: Math.round(amount * 1000) / 1000, time: new Date().toLocaleTimeString() });
@@ -1545,12 +1715,29 @@ function updateUI() {
     rubEl.textContent = formatRub(playerData.rub || 0);
     const tonBalance = playerData.balances['ton'] || 0;
     tonEl.textContent = formatCoin(tonBalance) + ' TON';
-    totalValueEl.textContent = formatRub(calcTotal());
+    const total = calcTotal();
+    playerData.total = total;
+    totalValueEl.textContent = formatRub(total);
     renderPortfolio(); renderMarket(); updateChart(); renderHistory(); renderTransferHistory();
     renderBusiness(); updateBusinessStats(); renderBusinessHistory(); renderBaitShop(); updateFishingUI();
     renderLotteryHistory(); updateMiningUI(); renderShop();
     document.getElementById('lotteryTotalPlays').textContent = lotteryData.plays || 0;
     document.getElementById('transferBalanceDisplay').textContent = formatRub(playerData.rub || 0);
+    
+    // Сохраняем total
+    if (!window._saveTimeout) {
+        window._saveTimeout = setTimeout(() => {
+            if (isLoggedIn) {
+                const totalNow = calcTotal();
+                playerData.total = totalNow;
+                if (firebaseAvailable && db) {
+                    db.ref('users/' + myUserId + '/total').set(totalNow)
+                        .catch(err => console.error('❌ Ошибка сохранения total:', err));
+                }
+            }
+            window._saveTimeout = null;
+        }, 1000);
+    }
 }
 
 function renderPortfolio() {
@@ -1591,6 +1778,14 @@ function updateTradeInfo() {
     const total = tradeAmount * asset.price;
     totalPriceDisplay.textContent = formatRub(total);
     balanceInfoDisplay.textContent = formatCoin(playerData.balances[asset.id] || 0) + ' ' + asset.symbol;
+}
+
+function updatePriceDisplay() {
+    const asset = getSelectedAsset();
+    if (!asset) return;
+    if (currentPriceDisplay) currentPriceDisplay.textContent = formatRub(asset.price);
+    if (chartPair) chartPair.textContent = asset.symbol + ' / RUB';
+    if (chartPrice) chartPrice.textContent = formatRub(asset.price);
 }
 
 function updateChart() {
@@ -1676,8 +1871,19 @@ function registerUser() {
         .then(snapshot => {
             const data = snapshot.val();
             if (data) { for (const [id, user] of Object.entries(data)) { if (user.username === username) { showToast('❌ Пользователь уже существует!', false); return; } } }
-            db.ref('users/' + myUserId).set({ username: myUsername, password: myPassword, rub: 0, balances: { ton: 1.0 }, total: 0 })
-                .then(() => { showToast('✅ Регистрация успешна!'); isLoggedIn = true; saveSession(); enterGame(); })
+            db.ref('users/' + myUserId).set({ 
+                username: myUsername, 
+                password: myPassword, 
+                rub: 1000,
+                balances: { ton: 1.0 },
+                total: 1000
+            })
+                .then(() => { 
+                    showToast('✅ Регистрация успешна!'); 
+                    isLoggedIn = true; 
+                    saveSession(); 
+                    enterGame(); 
+                })
                 .catch(e => showToast('❌ Ошибка: ' + e.message, false));
         })
         .catch(e => showToast('❌ Ошибка: ' + e.message, false));
@@ -1702,6 +1908,8 @@ function loginUser() {
 
 function logout() {
     saveToFirebase(); saveChart(); saveFishing(); saveLottery();
+    if (priceInterval) clearInterval(priceInterval);
+    if (miningInterval) clearInterval(miningInterval);
     clearSession(); isLoggedIn = false;
     document.getElementById('loginOverlay').style.display = 'flex';
     document.getElementById('appContainer').style.display = 'none';
@@ -1728,9 +1936,20 @@ function enterGame() {
     document.getElementById('appContainer').style.display = 'block';
     loadChart(); loadFishing(); loadLottery();
     loadFromFirebase().then(() => {
-        for (const a of ASSET_LIST) { if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0; }
-        loadPricesFromFirebase(); initGame();
-    }).catch(() => { showToast('❌ Ошибка загрузки данных!', false); });
+        for (const a of ASSET_LIST) { 
+            if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0; 
+        }
+        loadPricesFromFirebase(); 
+        initGame();
+        const total = calcTotal();
+        playerData.total = total;
+        if (firebaseAvailable && db) {
+            db.ref('users/' + myUserId + '/total').set(total);
+        }
+        setTimeout(loadLeaderboard, 1000);
+    }).catch(() => { 
+        showToast('❌ Ошибка загрузки данных!', false); 
+    });
 }
 
 // ==================== ИНИЦИАЛИЗАЦИЯ ====================
@@ -1739,6 +1958,8 @@ function initGame() {
     document.getElementById('lotteryBtn')?.addEventListener('click', spinLottery);
     document.getElementById('toggleMiningBtn')?.addEventListener('click', toggleMining);
     document.getElementById('payElectricityBtn')?.addEventListener('click', payElectricity);
+    document.getElementById('savePricesBtn')?.addEventListener('click', savePricesManually);
+    
     document.getElementById('decAmount')?.addEventListener('click', () => {
         let v = tradeAmount - 0.5; if (v < 0.1) v = 0.1;
         tradeAmount = Math.round(v * 10) / 10;
@@ -1756,12 +1977,14 @@ function initGame() {
     document.getElementById('sellBtn')?.addEventListener('click', () => executeTrade('sell'));
     document.getElementById('sellAllBtn')?.addEventListener('click', () => executeTrade('sell-all'));
     document.getElementById('transferBtn')?.addEventListener('click', executeTransfer);
+    
     document.querySelectorAll('.shop-tab').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.shop-tab').forEach(b => b.classList.remove('active'));
             this.classList.add('active'); currentShopTab = this.dataset.shop; renderShop();
         });
     });
+    
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1770,13 +1993,15 @@ function initGame() {
             document.getElementById('tab-' + this.dataset.tab).classList.add('active');
             if (this.dataset.tab === 'leaderboard') loadLeaderboard();
             if (this.dataset.tab === 'trade') setTimeout(updateChart, 100);
+            if (this.dataset.tab === 'admin') { renderPriceEdits(); renderPriceHistory(); }
         });
     });
+    
     document.getElementById('resetBtn')?.addEventListener('click', () => {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         if (confirm('Сбросить прогресс?')) {
             if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
-            playerData = { rub: 0, balances: {}, history: [], transferHistory: [], gear: { gpu: {}, cpu: {}, ram: {} }, miningActive: false, minedTotal: 0, miningCoin: 'ton', businesses: {}, businessHistory: [], electricityPaid: Date.now(), total: 0 };
+            playerData = { rub: 1000, balances: { ton: 1.0 }, history: [], transferHistory: [], gear: { gpu: {}, cpu: {}, ram: {} }, miningActive: false, minedTotal: 0, miningCoin: 'ton', businesses: {}, businessHistory: [], electricityPaid: Date.now(), total: 1000 };
             chartData = {}; tradePoints = {};
             fishingData = { history: [], count: 0, bestCatch: 0, baits: {}, activeBait: null };
             lotteryData = { history: [], plays: 0 };
@@ -1785,31 +2010,34 @@ function initGame() {
             showToast('🔄 Сброшено');
         }
     });
+    
     document.getElementById('saveBtn')?.addEventListener('click', () => {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-        saveToFirebase(); saveChart(); saveFishing(); saveLottery(); savePricesToFirebase();
+        saveToFirebase(); saveChart(); saveFishing(); saveLottery(); 
+        const total = calcTotal();
+        playerData.total = total;
+        if (firebaseAvailable && db) {
+            db.ref('users/' + myUserId + '/total').set(total);
+        }
         showToast('✅ Сохранено');
     });
+    
     document.getElementById('logoutBtn')?.addEventListener('click', () => { if (confirm('Выйти из аккаунта?')) logout(); });
+    
     setInterval(() => { if (isLoggedIn) applyBusinessIncome(); }, 10000);
     setInterval(() => {
         if (!isLoggedIn) return;
-        for (const asset of ASSET_LIST) {
-            const volatility = (Math.random() * 10 - 5) / 100;
-            let newPrice = asset.price * (1 + volatility);
-            if (newPrice < 0.001) newPrice = 0.001;
-            newPrice = Math.round(newPrice * 100) / 100;
-            if (newPrice !== asset.price) {
-                const oldPrice = asset._oldPrice || asset.price;
-                asset.change = Math.round(((newPrice - oldPrice) / oldPrice) * 100 * 100) / 100;
-                asset._oldPrice = newPrice;
-                asset.price = newPrice;
+        const total = calcTotal();
+        if (Math.abs((playerData.total || 0) - total) > 0.01) {
+            playerData.total = total;
+            if (firebaseAvailable && db) {
+                db.ref('users/' + myUserId + '/total').set(total);
             }
         }
-        renderMarket(); updateChart(); updateUI(); savePricesToFirebase();
-    }, 5000);
+    }, 30000);
+    
+    startPriceFluctuation();
     updateUI(); drawWheel(); loadLeaderboard();
-    setInterval(() => { if (isLoggedIn) { saveToFirebase(); saveChart(); saveFishing(); saveLottery(); } }, 30000);
 }
 
 // ==================== LEADERBOARD ====================
@@ -1817,35 +2045,65 @@ function loadLeaderboard() {
     const list = document.getElementById('leaderboardList');
     if (!list) return;
     if (!firebaseAvailable || !db) {
-        list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Ошибка загрузки рейтинга</div>';
+        list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">❌ Firebase недоступен</div>';
         return;
     }
-    db.ref('users').orderByChild('total').limitToLast(20).once('value')
+    
+    list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">⏳ Загрузка...</div>';
+    
+    db.ref('users').once('value')
         .then(snapshot => {
             const data = snapshot.val();
             if (!data) {
-                list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
+                list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">😕 Нет игроков</div>';
                 return;
             }
-            const entries = Object.entries(data).filter(([id, u]) => u.username !== undefined && u.total !== undefined && u.total > 0);
-            entries.sort((a, b) => b[1].total - a[1].total);
-            let html = '<div class="history-title">🏆 Топ игроков</div>';
+            
+            const entries = Object.entries(data)
+                .filter(([id, user]) => user && user.username && user.username.length > 0)
+                .map(([id, user]) => {
+                    let total = user.rub || 0;
+                    if (user.balances) {
+                        for (const [assetId, amount] of Object.entries(user.balances)) {
+                            const asset = ASSET_LIST.find(a => a.id === assetId);
+                            if (asset && amount > 0) {
+                                total += amount * asset.price;
+                            }
+                        }
+                    }
+                    return {
+                        id: id,
+                        username: user.username || 'Аноним',
+                        total: total,
+                        rub: user.rub || 0
+                    };
+                });
+            
             if (entries.length === 0) {
-                list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
+                list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">😕 Нет активных игроков</div>';
                 return;
             }
-            entries.slice(0, 20).forEach(([id, u], i) => {
+            
+            entries.sort((a, b) => b.total - a.total);
+            
+            let html = '<div class="history-title">🏆 Топ игроков</div>';
+            
+            entries.slice(0, 20).forEach((p, i) => {
                 const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-                const isMe = id === myUserId;
-                const highlight = isMe ? ' style="background:rgba(59,130,246,0.1); border-radius:8px; padding:4px 8px;"' : '';
-                html += `<div class="lb-item"${highlight}><span class="name">${medal} ${u.username} ${isMe ? '👈' : ''}</span><span class="total">${formatRub(u.total || 0)}</span></div>`;
+                const isMe = p.id === myUserId;
+                const highlight = isMe ? ' style="background:rgba(59,130,246,0.15); border-radius:12px; padding:6px 10px;"' : '';
+                html += `<div class="lb-item"${highlight}>
+                    <span class="name">${medal} ${p.username} ${isMe ? '👈' : ''}</span>
+                    <span class="total">${formatRub(p.total)}</span>
+                </div>`;
             });
+            
             list.innerHTML = html;
             document.getElementById('onlineCount').textContent = entries.length;
         })
         .catch(error => {
             console.error('❌ Ошибка загрузки рейтинга:', error);
-            list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Ошибка загрузки</div>';
+            list.innerHTML = `<div style="color:#f87171; text-align:center; padding:20px;">❌ Ошибка: ${error.message}</div>`;
         });
 }
 
@@ -1884,15 +2142,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
     document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
+    
     if (loadSession() && isLoggedIn) {
         document.getElementById('userNameDisplay').textContent = myUsername;
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
         loadChart(); loadFishing(); loadLottery();
         loadFromFirebase().then(() => {
-            for (const a of ASSET_LIST) { if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0; }
-            loadPricesFromFirebase(); initGame();
-        }).catch(() => { showToast('❌ Ошибка загрузки данных!', false); });
+            for (const a of ASSET_LIST) { 
+                if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0; 
+            }
+            loadPricesFromFirebase(); 
+            initGame();
+            const total = calcTotal();
+            playerData.total = total;
+            if (firebaseAvailable && db) {
+                db.ref('users/' + myUserId + '/total').set(total);
+            }
+            setTimeout(loadLeaderboard, 1000);
+        }).catch(() => { 
+            showToast('❌ Ошибка загрузки данных!', false); 
+        });
     }
 });
 </script>
