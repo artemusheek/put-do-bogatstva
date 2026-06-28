@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
-        /* Стили оставлены без изменений, они не влияют на логику */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; overflow-x: hidden; }
         .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); border: 1px solid rgba(255,255,255,0.08); border-radius: 44px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
@@ -928,7 +927,7 @@ function loadPricesFromFirebase() {
                     }
                 });
                 renderMarket();
-                updatePriceDisplay(); // ✅ ИСПРАВЛЕНО: теперь функция существует
+                updatePriceDisplay();
                 updateChart();
                 updateUI();
             }
@@ -945,8 +944,7 @@ function savePricesToFirebase() {
         .catch(error => console.error('❌ Ошибка сохранения цен:', error.message));
 }
 
-// ✅ НОВАЯ ФУНКЦИЯ (которой не хватало)
-// ДОБАВИТЬ ЭТУ ФУНКЦИЮ В КОНЕЦ ФАЙЛА
+// ✅ ИСПРАВЛЕННАЯ ФУНКЦИЯ (она теперь активна и без комментариев)
 function updatePriceDisplay() {
     const asset = getSelectedAsset();
     if (!asset) return;
@@ -2093,7 +2091,10 @@ function loadLeaderboard() {
                 return;
             }
             
-            const entries = Object.entries(data).filter(([id, u]) => u.username && u.total !== undefined);
+            // Фильтруем только тех, у кого есть total и username
+            const entries = Object.entries(data).filter(([id, u]) => u.username !== undefined && u.total !== undefined && u.total > 0);
+            
+            // Сортируем по убыванию total
             entries.sort((a, b) => b[1].total - a[1].total);
             
             let html = '<div class="history-title">🏆 Топ игроков</div>';
