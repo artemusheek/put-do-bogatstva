@@ -119,6 +119,8 @@
         .history-item .side-transfer { color: #60a5fa; }
         .history-item .side-business { color: #f97316; }
         .history-item .side-bill { color: #fbbf24; }
+        .history-item .side-fish { color: #fbbf24; }
+        .history-item .side-lottery { color: #a78bfa; }
 
         .mining-panel { display: flex; flex-direction: column; gap: 14px; }
         .mining-stats { display: flex; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.15); padding: 12px 14px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.04); justify-content: space-between; align-items: center; }
@@ -548,26 +550,22 @@ const firebaseConfig = {
 let firebaseAvailable = false;
 let db = null;
 
-// ✅ Проверяем Firebase
 if (typeof firebase !== 'undefined' && firebase.initializeApp) {
     try {
         const app = firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         firebaseAvailable = true;
-        console.log('✅ Firebase подключен успешно');
         document.getElementById('onlineStatus').textContent = '🟢 Онлайн';
         document.getElementById('onlineStatus').style.color = '#4ade80';
     } catch(e) {
-        console.error('❌ Ошибка Firebase:', e.message);
-        document.getElementById('onlineStatus').textContent = '❌ Ошибка подключения';
+        document.getElementById('onlineStatus').textContent = '❌ Ошибка';
         document.getElementById('onlineStatus').style.color = '#f87171';
-        alert('⚠️ Ошибка подключения к Firebase! Проверьте интернет и настройки.');
+        alert('⚠️ Ошибка подключения к Firebase!');
     }
 } else {
-    console.error('❌ Firebase SDK не загружен!');
     document.getElementById('onlineStatus').textContent = '❌ Firebase не загружен';
     document.getElementById('onlineStatus').style.color = '#f87171';
-    alert('⚠️ Firebase SDK не загружен! Проверьте подключение к интернету.');
+    alert('⚠️ Firebase SDK не загружен!');
 }
 
 // ==================== COOKIE ====================
@@ -791,18 +789,15 @@ function getMaxBuyAmount() {
     return Math.floor((playerData.rub / asset.price) * 10000) / 10000;
 }
 
-// ==================== FIREBASE — ТОЛЬКО ОНЛАЙН ====================
+// ==================== FIREBASE — ВСЕ ДАННЫЕ СОХРАНЯЮТСЯ ====================
 function loadFromFirebase() {
-    if (!firebaseAvailable || !db) {
-        showToast('❌ Firebase недоступен!', false);
-        return Promise.reject('Firebase недоступен');
-    }
-    if (!myUserId || !isLoggedIn) return Promise.resolve(false);
+    if (!firebaseAvailable || !db || !myUserId || !isLoggedIn) return Promise.resolve(false);
     
     return db.ref('users/' + myUserId).once('value')
         .then(snapshot => {
             const data = snapshot.val();
             if (data) {
+                // ✅ ЗАГРУЖАЕМ ВСЁ
                 playerData.rub = data.rub ?? 0;
                 playerData.balances = data.balances || {};
                 playerData.history = data.history || [];
@@ -835,17 +830,12 @@ function loadFromFirebase() {
         })
         .catch(error => {
             console.error('❌ Ошибка загрузки:', error.message);
-            showToast('❌ Ошибка загрузки данных из Firebase!', false);
             return false;
         });
 }
 
 function saveToFirebase() {
-    if (!firebaseAvailable || !db) {
-        showToast('❌ Firebase недоступен!', false);
-        return;
-    }
-    if (!myUserId || !isLoggedIn) return;
+    if (!firebaseAvailable || !db || !myUserId || !isLoggedIn) return;
     try {
         const total = calcTotal();
         const data = {
@@ -870,7 +860,6 @@ function saveToFirebase() {
             chartData: chartData || {},
             tradePoints: tradePoints || {},
             total: total,
-            lastActive: Date.now()
         };
         db.ref('users/' + myUserId).set(data)
             .then(() => console.log('✅ Данные сохранены в Firebase'))
@@ -1151,7 +1140,7 @@ function executeTrade(type) {
     saveToFirebase();
 }
 
-// ==================== ОСТАЛЬНЫЕ ФУНКЦИИ (сокращённо) ====================
+// ==================== ИСТОРИЯ ====================
 function addHistory(type, symbol, amount, price, extra = '') {
     playerData.history.unshift({ type, symbol, amount: Math.round(amount * 1000) / 1000, price: Math.round(price * 100) / 100, time: new Date().toLocaleTimeString(), extra: extra });
     if (playerData.history.length > 30) playerData.history.pop();
@@ -1197,7 +1186,7 @@ function renderTransferHistory() {
     }
 }
 
-// ==================== РЫБАЛКА (сокращённо) ====================
+// ==================== РЫБАЛКА (СОХРАНЯЕТСЯ В FIREBASE) ====================
 function goFishing() {
     if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
     if (!playerData.activeBait || (playerData.baits[playerData.activeBait] || 0) <= 0) {
@@ -1277,7 +1266,83 @@ function goFishing() {
     else showToast(`🎣 Вы поймали ${selected.symbol} ${roundedAmount.toFixed(6)} ${selected.name}`);
 }
 
-// ==================== ЛОТЕРЕЯ (сокращённо) ====================
+function updateFishingUI() {
+    document.getElementById('fishingTotalCount').textContent = playerData.fishingCount || 0;
+    document.getElementById('fishingBestCatch').textContent = playerData.bestCatch ? playerData.bestCatch.toFixed(6) : '—';
+    if (playerData.activeBait && playerData.baits[playerData.activeBait] > 0) {
+        const bait = BAIT_TYPES.find(b => b.id === playerData.activeBait);
+        document.getElementById('activeBaitDisplay').textContent = `${bait?.icon || ''} ${bait?.name || playerData.activeBait} (${playerData.baits[playerData.activeBait]} шт.)`;
+    } else {
+        document.getElementById('activeBaitDisplay').textContent = 'Нет';
+        playerData.activeBait = null;
+    }
+    renderFishingHistory();
+}
+
+function renderFishingHistory() {
+    const list = document.getElementById('fishingHistoryList');
+    if (!list) return;
+    if (!playerData.fishingHistory || playerData.fishingHistory.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Рыбалка ждёт вас!</div>';
+        return;
+    }
+    list.innerHTML = '';
+    for (const item of playerData.fishingHistory.slice(0, 15)) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `<span><span class="side-fish">🎣</span> ${item.symbol} +${item.amount.toFixed(6)} ${item.name} ${item.bait ? `(${item.bait})` : ''}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
+}
+
+function renderBaitShop() {
+    const shop = document.getElementById('baitShop');
+    if (!shop) return;
+    shop.innerHTML = '';
+    for (const bait of BAIT_TYPES) {
+        const count = playerData.baits[bait.id] || 0;
+        const isActive = playerData.activeBait === bait.id;
+        const card = document.createElement('div');
+        card.className = 'bait-card' + (isActive ? ' active' : '');
+        card.innerHTML = `
+            <div class="bait-icon">${bait.icon}</div>
+            <div class="bait-name">${bait.name}</div>
+            <div class="bait-desc">×${bait.bonus.toFixed(1)} к улову</div>
+            <div class="bait-price">${formatRub(bait.price)}</div>
+            <div class="bait-count">🔄 ${count} шт.</div>
+            ${isActive ? '<div class="bait-selected">✅ АКТИВНА</div>' : ''}
+            <button class="buy-bait-btn" data-bait="${bait.id}" data-action="buy">Купить</button>
+            ${count > 0 ? `<button class="buy-bait-btn" data-bait="${bait.id}" data-action="use" style="background:#2a5a3a;border-color:#4ade80;">🎣 Использовать</button>` : ''}
+        `;
+        shop.appendChild(card);
+    }
+
+    document.querySelectorAll('.buy-bait-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+            const baitId = this.dataset.bait;
+            const action = this.dataset.action;
+            const bait = BAIT_TYPES.find(b => b.id === baitId);
+            if (!bait) return;
+            if (action === 'buy') {
+                if (playerData.rub < bait.price) { showToast(`❌ Недостаточно RUB!`, false); return; }
+                playerData.rub -= bait.price;
+                playerData.baits[baitId] = (playerData.baits[baitId] || 0) + 1;
+                showSuccess('🛒 Покупка', `${bait.name} приобретена`, formatRub(bait.price));
+                showToast(`✅ Куплена ${bait.name}`);
+            } else if (action === 'use') {
+                if ((playerData.baits[baitId] || 0) <= 0) { showToast('❌ У вас нет этой наживки!', false); return; }
+                playerData.activeBait = baitId;
+                showToast(`🎣 Выбрана наживка: ${bait.name} (×${bait.bonus.toFixed(1)})`);
+            }
+            updateUI();
+            saveToFirebase();
+            playBeep('buy');
+        });
+    });
+}
+
+// ==================== ЛОТЕРЕЯ (СОХРАНЯЕТСЯ В FIREBASE) ====================
 function drawWheel(rotation = 0) {
     const canvas = document.getElementById('wheelCanvas');
     if (!canvas) return;
@@ -1384,7 +1449,7 @@ function renderLotteryHistory() {
     }
 }
 
-// ==================== МАЙНИНГ (сокращённо) ====================
+// ==================== МАЙНИНГ (СОХРАНЯЕТСЯ В FIREBASE) ====================
 function renderShop() {
     const grid = document.getElementById('shopGrid');
     if (!grid) return;
@@ -1491,7 +1556,7 @@ function executeTransfer() {
     playBeep('buy');
 }
 
-// ==================== ОСТАЛЬНЫЕ UI ====================
+// ==================== UI ====================
 function updateUI() {
     rubEl.textContent = formatRub(playerData.rub || 0);
     const tonBalance = playerData.balances['ton'] || 0;
@@ -1672,83 +1737,6 @@ function updateChart() {
     ctx.fillText(lastPrice.toFixed(2), lx + 10, ly - 4);
 }
 
-// ==================== РЫБАЛКА UI ====================
-function updateFishingUI() {
-    document.getElementById('fishingTotalCount').textContent = playerData.fishingCount || 0;
-    document.getElementById('fishingBestCatch').textContent = playerData.bestCatch ? playerData.bestCatch.toFixed(6) : '—';
-    if (playerData.activeBait && playerData.baits[playerData.activeBait] > 0) {
-        const bait = BAIT_TYPES.find(b => b.id === playerData.activeBait);
-        document.getElementById('activeBaitDisplay').textContent = `${bait?.icon || ''} ${bait?.name || playerData.activeBait} (${playerData.baits[playerData.activeBait]} шт.)`;
-    } else {
-        document.getElementById('activeBaitDisplay').textContent = 'Нет';
-        playerData.activeBait = null;
-    }
-    renderFishingHistory();
-}
-
-function renderFishingHistory() {
-    const list = document.getElementById('fishingHistoryList');
-    if (!list) return;
-    if (!playerData.fishingHistory || playerData.fishingHistory.length === 0) {
-        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Рыбалка ждёт вас!</div>';
-        return;
-    }
-    list.innerHTML = '';
-    for (const item of playerData.fishingHistory.slice(0, 15)) {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        div.innerHTML = `<span><span class="side-fish">🎣</span> ${item.symbol} +${item.amount.toFixed(6)} ${item.name} ${item.bait ? `(${item.bait})` : ''}</span><span>${item.time}</span>`;
-        list.appendChild(div);
-    }
-}
-
-function renderBaitShop() {
-    const shop = document.getElementById('baitShop');
-    if (!shop) return;
-    shop.innerHTML = '';
-    for (const bait of BAIT_TYPES) {
-        const count = playerData.baits[bait.id] || 0;
-        const isActive = playerData.activeBait === bait.id;
-        const card = document.createElement('div');
-        card.className = 'bait-card' + (isActive ? ' active' : '');
-        card.innerHTML = `
-            <div class="bait-icon">${bait.icon}</div>
-            <div class="bait-name">${bait.name}</div>
-            <div class="bait-desc">×${bait.bonus.toFixed(1)} к улову</div>
-            <div class="bait-price">${formatRub(bait.price)}</div>
-            <div class="bait-count">🔄 ${count} шт.</div>
-            ${isActive ? '<div class="bait-selected">✅ АКТИВНА</div>' : ''}
-            <button class="buy-bait-btn" data-bait="${bait.id}" data-action="buy">Купить</button>
-            ${count > 0 ? `<button class="buy-bait-btn" data-bait="${bait.id}" data-action="use" style="background:#2a5a3a;border-color:#4ade80;">🎣 Использовать</button>` : ''}
-        `;
-        shop.appendChild(card);
-    }
-
-    document.querySelectorAll('.buy-bait-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-            const baitId = this.dataset.bait;
-            const action = this.dataset.action;
-            const bait = BAIT_TYPES.find(b => b.id === baitId);
-            if (!bait) return;
-            if (action === 'buy') {
-                if (playerData.rub < bait.price) { showToast(`❌ Недостаточно RUB!`, false); return; }
-                playerData.rub -= bait.price;
-                playerData.baits[baitId] = (playerData.baits[baitId] || 0) + 1;
-                showSuccess('🛒 Покупка', `${bait.name} приобретена`, formatRub(bait.price));
-                showToast(`✅ Куплена ${bait.name}`);
-            } else if (action === 'use') {
-                if ((playerData.baits[baitId] || 0) <= 0) { showToast('❌ У вас нет этой наживки!', false); return; }
-                playerData.activeBait = baitId;
-                showToast(`🎣 Выбрана наживка: ${bait.name} (×${bait.bonus.toFixed(1)})`);
-            }
-            updateUI();
-            saveToFirebase();
-            playBeep('buy');
-        });
-    });
-}
-
 // ==================== ВХОД ====================
 function registerUser() {
     const username = document.getElementById('usernameInput').value.trim();
@@ -1773,7 +1761,7 @@ function registerUser() {
                     if (user.username === username) { showToast('❌ Пользователь уже существует!', false); return; }
                 }
             }
-            db.ref('users/' + myUserId).set({ username: myUsername, password: myPassword, registered: Date.now() })
+            db.ref('users/' + myUserId).set({ username: myUsername, password: myPassword })
                 .then(() => { showToast('✅ Регистрация успешна!'); isLoggedIn = true; saveSession(); enterGame(); })
                 .catch(e => showToast('❌ Ошибка: ' + e.message, false));
         })
@@ -1816,7 +1804,7 @@ function logout() {
 
 function saveSession() {
     if (!isLoggedIn) return;
-    setCookie('cryptoSession', { username: myUsername, userId: myUserId, password: myPassword, timestamp: Date.now() }, 365);
+    setCookie('cryptoSession', { username: myUsername, userId: myUserId, password: myPassword }, 365);
 }
 
 function loadSession() {
@@ -1830,7 +1818,7 @@ function loadSession() {
 
 function clearSession() {
     isLoggedIn = false;
-    setCookie('cryptoSession', { username: myUsername, userId: myUserId, password: myPassword, loggedOut: true, timestamp: Date.now() }, 365);
+    setCookie('cryptoSession', { username: myUsername, userId: myUserId, password: myPassword, loggedOut: true }, 365);
 }
 
 function enterGame() {
@@ -1968,14 +1956,40 @@ function initGame() {
     setInterval(() => { if (isLoggedIn) saveToFirebase(); }, 30000);
 }
 
+// ==================== LEADERBOARD ====================
 function loadLeaderboard() {
     const list = document.getElementById('leaderboardList');
     if (!list) return;
-    list.innerHTML = `
-        <div class="history-title">🏆 Топ игроков</div>
-        <div class="lb-item"><span class="name">👑 ${myUsername}</span><span class="total">${formatRub(calcTotal())}</span></div>
-    `;
-    document.getElementById('onlineCount').textContent = '1';
+    
+    if (!firebaseAvailable || !db) {
+        list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Ошибка загрузки рейтинга</div>';
+        return;
+    }
+    
+    db.ref('users').orderByChild('total').limitToLast(20).on('value', snapshot => {
+        const data = snapshot.val();
+        if (!data) {
+            list.innerHTML = '<div style="color:#4a617c; text-align:center; padding:20px;">Нет игроков</div>';
+            return;
+        }
+        
+        const entries = Object.entries(data).filter(([id, u]) => u.username && u.total !== undefined);
+        entries.sort((a, b) => b[1].total - a[1].total);
+        
+        let html = '<div class="history-title">🏆 Топ игроков</div>';
+        let hasOthers = false;
+        
+        entries.slice(0, 20).forEach(([id, u], i) => {
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+            const isMe = id === myUserId;
+            if (isMe) hasOthers = true;
+            const highlight = isMe ? ' style="background:rgba(59,130,246,0.1); border-radius:8px; padding:4px 8px;"' : '';
+            html += `<div class="lb-item"${highlight}><span class="name">${medal} ${u.username} ${isMe ? '👈' : ''}</span><span class="total">${formatRub(u.total || 0)}</span></div>`;
+        });
+        
+        list.innerHTML = html;
+        document.getElementById('onlineCount').textContent = entries.length;
+    });
 }
 
 // ==================== ЗАПУСК ====================
