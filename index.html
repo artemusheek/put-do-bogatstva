@@ -3,31 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=no">
-    <title>P2P Крипто-трейдер + Магнат</title>
-    
+    <title>Крипто-магнат</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; overflow-x: hidden; }
-        .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px) saturate(180%); -webkit-backdrop-filter: blur(32px) saturate(180%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); border-radius: 44px; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; }
+        .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); border: 1px solid rgba(255,255,255,0.08); border-radius: 44px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
         .app-container { max-width: 960px; width: 100%; padding: 24px 22px 28px; }
-
+        
         .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10,14,23,0.92); backdrop-filter: blur(30px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .login-box { max-width: 400px; width: 100%; padding: 40px 32px; text-align: center; }
         .login-box h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
         .login-box p { color: #8ba0be; font-size: 14px; margin-bottom: 16px; }
         .login-box input { width: 100%; padding: 14px 20px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.3); color: white; font-size: 16px; outline: none; transition: 0.2s; margin-bottom: 10px; }
-        .login-box input:focus { border-color: #3b82f6; box-shadow: 0 0 30px rgba(59,130,246,0.1); }
+        .login-box input:focus { border-color: #3b82f6; }
         .login-box .login-btn { width: 100%; margin-top: 6px; padding: 14px; border: none; border-radius: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
         .login-box .login-btn:hover { transform: scale(1.02); }
-        .login-box .login-btn:active { transform: scale(0.96); }
         .login-box .register-link { color: #8ba0be; font-size: 13px; margin-top: 12px; cursor: pointer; display: inline-block; transition: 0.2s; }
         .login-box .register-link:hover { color: #b7d6f5; }
         .online-status { font-size: 12px; margin-top: 10px; }
 
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: rgba(0,0,0,0.25); padding: 6px; border-radius: 60px; border: 1px solid rgba(255,255,255,0.04); flex-wrap: wrap; }
-        .tab-btn { flex: 1; padding: 10px 6px; border: none; border-radius: 40px; background: transparent; color: #8ba0be; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; letter-spacing: 0.3px; min-width: 70px; }
-        .tab-btn.active { background: rgba(59,130,246,0.2); color: white; box-shadow: 0 0 30px rgba(59,130,246,0.08); }
-        .tab-btn:active { transform: scale(0.96); }
+        .tab-btn { flex: 1; padding: 10px 6px; border: none; border-radius: 40px; background: transparent; color: #8ba0be; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; min-width: 70px; }
+        .tab-btn.active { background: rgba(59,130,246,0.2); color: white; }
         .tab-content { display: none; animation: fadeSlide 0.3s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -53,8 +50,7 @@
 
         .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 6px; margin: 12px 0 16px; }
         .asset-card { background: rgba(0,0,0,0.2); border-radius: 20px; padding: 8px 4px; border: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: 0.15s; text-align: center; }
-        .asset-card.active { border: 2px solid #3b82f6; background: rgba(59,130,246,0.1); box-shadow: 0 0 25px rgba(59,130,246,0.08); }
-        .asset-card:active { transform: scale(0.94); }
+        .asset-card.active { border: 2px solid #3b82f6; background: rgba(59,130,246,0.1); }
         .asset-card .icon { font-size: 20px; }
         .asset-card .name { font-weight: 600; font-size: 12px; color: #dce8f5; }
         .asset-card .price { font-size: 11px; color: #a8c0dd; background: rgba(0,0,0,0.2); padding: 0 8px; border-radius: 30px; display: inline-block; }
@@ -65,34 +61,28 @@
         .trade-panel { padding: 14px 14px 12px; margin: 4px 0 12px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); }
         .trade-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
         .trade-top .selected-label { font-weight: 500; color: #b6cef0; background: rgba(0,0,0,0.2); padding: 4px 16px; border-radius: 40px; font-size: 14px; }
-
         .amount-control { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.25); padding: 2px 8px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.04); }
-        .amount-control button { background: none; border: none; color: #b7d6f5; font-size: 24px; font-weight: 300; cursor: pointer; width: 28px; transition: 0.1s; }
+        .amount-control button { background: none; border: none; color: #b7d6f5; font-size: 24px; font-weight: 300; cursor: pointer; width: 28px; }
         .amount-control button:active { transform: scale(1.3); color: white; }
         .amount-control span { font-size: 20px; font-weight: 700; min-width: 44px; text-align: center; color: white; }
-
         .trade-buttons { display: flex; gap: 10px; margin: 8px 0 4px; flex-wrap: wrap; }
-        .trade-btn { flex: 1; padding: 12px 8px; border: none; border-radius: 40px; font-weight: 700; font-size: 15px; transition: 0.1s; cursor: pointer; box-shadow: 0 4px 0 #0b121a; min-width: 80px; }
+        .trade-btn { flex: 1; padding: 12px 8px; border: none; border-radius: 40px; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 4px 0 #0b121a; min-width: 80px; transition: 0.1s; }
         .trade-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0b121a; }
         .trade-btn.buy { background: #0f3b2a; color: #7ddfa0; border: 1px solid #1b7a4a; }
         .trade-btn.sell { background: #4a1e28; color: #f7a1b0; border: 1px solid #aa3f52; }
         .trade-btn.sell-all { background: #4a1e28; color: #f7a1b0; border: 1px solid #aa3f52; flex: 0.5; font-size: 13px; }
         .trade-btn.buy-max { background: #0f3b2a; color: #7ddfa0; border: 1px solid #1b7a4a; flex: 0.5; font-size: 13px; }
-
         .trade-info { display: flex; justify-content: space-between; color: #8ba0be; font-size: 12px; padding: 0 4px; margin-top: 8px; flex-wrap: wrap; gap: 4px; }
-        .trade-info span:last-child { color: #d6e8ff; font-weight: 500; }
         .trade-info .total-price { color: #c8b6ff; font-weight: 700; font-size: 14px; }
 
         .transfer-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
         .transfer-panel .transfer-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .transfer-panel .transfer-title .icon { font-size: 18px; }
         .transfer-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         .transfer-row input, .transfer-row select { background: rgba(0,0,0,0.3); color: #d6e8ff; border: 1px solid rgba(255,255,255,0.06); padding: 10px 16px; border-radius: 40px; font-size: 14px; outline: none; flex: 1; min-width: 120px; transition: 0.2s; }
-        .transfer-row input:focus, .transfer-row select:focus { border-color: #3b82f6; box-shadow: 0 0 30px rgba(59,130,246,0.05); }
+        .transfer-row input:focus, .transfer-row select:focus { border-color: #3b82f6; }
         .transfer-row input::placeholder { color: #4a617c; }
-        .transfer-row select option { background: #0b121a; color: white; }
-        .transfer-btn { padding: 10px 28px; border: none; border-radius: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 20px rgba(59,130,246,0.2); }
-        .transfer-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(59,130,246,0.3); }
+        .transfer-btn { padding: 10px 28px; border: none; border-radius: 40px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .transfer-btn:hover { transform: scale(1.02); }
         .transfer-btn:active { transform: scale(0.94); }
 
         .history-box { margin-top: 12px; padding: 8px 12px 2px; background: rgba(0,0,0,0.15); border-radius: 24px; border: 1px solid rgba(255,255,255,0.03); max-height: 110px; overflow-y: auto; }
@@ -104,11 +94,9 @@
         .history-item .side-buy { color: #4ade80; }
         .history-item .side-sell { color: #f87171; }
         .history-item .side-transfer { color: #60a5fa; }
-        .history-item .side-fish { color: #fbbf24; }
-        .history-item .side-lottery { color: #a78bfa; }
         .history-item .side-business { color: #f97316; }
 
-        /* ===== БИЗНЕС-МАГНАТ ===== */
+        /* БИЗНЕС */
         .business-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; }
         .business-panel .business-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .business-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
@@ -122,7 +110,6 @@
         .business-card .b-btn:active { transform: scale(0.94); background: #2a5a6a; }
         .business-card .b-btn.buy { background: #0f3b2a; color: #7ddfa0; border-color: #1b7a4a; }
         .business-card .b-btn.upgrade { background: #4a1e28; color: #f7a1b0; border-color: #aa3f52; }
-
         .business-stat { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 20px; margin-top: 8px; }
         .business-stat span { font-size: 13px; color: #8ba0be; }
         .business-stat .stat-value { color: #fbbf24; font-weight: 700; }
@@ -134,7 +121,6 @@
         .mining-stats .stat .val.green { color: #6ee7b7; }
         .mining-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         .mining-controls select { background: rgba(0,0,0,0.3); color: #d6e8ff; border: 1px solid rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 40px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; }
-        .mining-controls select option { background: #0b121a; color: white; }
         .mining-btn { padding: 10px 24px; border: none; border-radius: 40px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.15s; background: #1a3a4a; color: #8fd0e8; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 4px 0 #0a1a22; }
         .mining-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #0a1a22; }
         .mining-btn.active { background: #0f3b2a; color: #7ddfa0; border-color: #1b7a4a; }
@@ -150,10 +136,8 @@
         .shop-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
         .shop-tab { padding: 6px 16px; border: none; border-radius: 30px; background: rgba(0,0,0,0.2); color: #8ba0be; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.15s; border: 1px solid rgba(255,255,255,0.04); }
         .shop-tab.active { background: rgba(59,130,246,0.2); color: white; border-color: rgba(59,130,246,0.3); }
-        .shop-tab:active { transform: scale(0.94); }
 
         .fishing-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; text-align: center; }
-        .fishing-panel .fishing-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .fishing-pool { width: 100%; height: 140px; background: radial-gradient(ellipse at center, #0d4a6b, #062433); border-radius: 30px; border: 2px solid rgba(59,130,246,0.15); position: relative; overflow: hidden; cursor: pointer; transition: 0.2s; }
         .fishing-pool:hover { border-color: rgba(59,130,246,0.3); }
         .fishing-pool:active { transform: scale(0.98); }
@@ -195,17 +179,16 @@
         .fishing-stats .stat-value { color: #b7e0ff; font-weight: 600; }
 
         .lottery-panel { padding: 16px 14px; background: rgba(0,0,0,0.15); border-radius: 32px; border: 1px solid rgba(255,255,255,0.04); margin: 12px 0; text-align: center; }
-        .lottery-panel .lottery-title { color: #6e88a3; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .lottery-wheel { width: 100%; max-width: 300px; height: 300px; margin: 0 auto; position: relative; border-radius: 50%; overflow: hidden; border: 4px solid rgba(255,215,0,0.3); box-shadow: 0 0 60px rgba(255,215,0,0.1); }
+        .lottery-wheel { width: 100%; max-width: 300px; height: 300px; margin: 0 auto; position: relative; border-radius: 50%; overflow: hidden; border: 4px solid rgba(255,215,0,0.3); }
         .lottery-wheel canvas { width: 100%; height: 100%; }
         .lottery-wheel .center-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fbbf24; font-size: 14px; font-weight: 700; text-align: center; pointer-events: none; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
         .lottery-wheel .center-text .big { font-size: 24px; color: #fff; }
         .lottery-wheel .center-text .sub { font-size: 11px; color: #8ba0be; }
         .lottery-controls { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
         .lottery-controls input { background: rgba(0,0,0,0.3); color: #d6e8ff; border: 1px solid rgba(255,255,255,0.06); padding: 10px 16px; border-radius: 40px; font-size: 14px; outline: none; width: 150px; transition: 0.2s; text-align: center; }
-        .lottery-controls input:focus { border-color: #fbbf24; box-shadow: 0 0 30px rgba(251,191,36,0.05); }
-        .lottery-controls .lottery-btn { padding: 10px 32px; border: none; border-radius: 40px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0a0e17; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 20px rgba(251,191,36,0.2); }
-        .lottery-controls .lottery-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(251,191,36,0.3); }
+        .lottery-controls input:focus { border-color: #fbbf24; }
+        .lottery-controls .lottery-btn { padding: 10px 32px; border: none; border-radius: 40px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0a0e17; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .lottery-controls .lottery-btn:hover { transform: scale(1.02); }
         .lottery-controls .lottery-btn:active { transform: scale(0.94); }
         .lottery-info { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; font-size: 13px; color: #6e88a3; }
         .lottery-info span { background: rgba(0,0,0,0.15); padding: 6px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.03); }
@@ -214,21 +197,6 @@
         .lottery-result .result-win { color: #4ade80; font-weight: 700; }
         .lottery-result .result-lose { color: #f87171; font-weight: 700; }
         .lottery-result .result-amount { color: #fbbf24; font-weight: 700; }
-        .lottery-history-box { margin-top: 12px; padding: 8px 12px 2px; background: rgba(0,0,0,0.15); border-radius: 24px; border: 1px solid rgba(255,255,255,0.03); max-height: 110px; overflow-y: auto; }
-        .lottery-history-box::-webkit-scrollbar { width: 3px; }
-        .lottery-history-box::-webkit-scrollbar-thumb { background: #2a4055; border-radius: 10px; }
-
-        .reset-area { display: flex; justify-content: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
-        .reset-btn, .save-btn, .logout-btn { background: transparent; border: 1px solid #2f4862; color: #8baecf; padding: 5px 20px; border-radius: 40px; font-size: 12px; cursor: pointer; transition: 0.1s; }
-        .reset-btn:active, .save-btn:active, .logout-btn:active { background: #1f3142; color: white; }
-        .logout-btn { border-color: #6b2f3a; color: #f7a1b0; }
-        .logout-btn:hover { background: rgba(107,47,58,0.2); }
-
-        .footer-note { text-align: center; color: #3f5b78; font-size: 10px; margin-top: 10px; }
-        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16,28,46,0.95); backdrop-filter: blur(20px); color: #d6e8ff; padding: 14px 32px; border-radius: 40px; font-size: 14px; border: 1px solid rgba(59,130,246,0.2); box-shadow: 0 10px 40px rgba(0,0,0,0.6); z-index: 999; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; transform: translateX(-50%) translateY(20px); }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.success { border-color: rgba(74,222,128,0.3); }
-        .toast.error { border-color: rgba(248,113,113,0.3); }
 
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; margin: 10px 0; }
         .portfolio-item { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.03); }
@@ -240,6 +208,16 @@
         .leaderboard .lb-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .leaderboard .lb-item .name { color: #b7d6f5; }
         .leaderboard .lb-item .total { color: #c8b6ff; font-weight: 600; }
+
+        .reset-area { display: flex; justify-content: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+        .reset-btn, .save-btn, .logout-btn { background: transparent; border: 1px solid #2f4862; color: #8baecf; padding: 5px 20px; border-radius: 40px; font-size: 12px; cursor: pointer; transition: 0.1s; }
+        .reset-btn:active, .save-btn:active, .logout-btn:active { background: #1f3142; color: white; }
+        .logout-btn { border-color: #6b2f3a; color: #f7a1b0; }
+
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16,28,46,0.95); backdrop-filter: blur(20px); color: #d6e8ff; padding: 14px 32px; border-radius: 40px; font-size: 14px; border: 1px solid rgba(59,130,246,0.2); z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; transform: translateX(-50%) translateY(20px); }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: rgba(74,222,128,0.3); }
+        .toast.error { border-color: rgba(248,113,113,0.3); }
 
         .transfer-success-screen {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -265,19 +243,16 @@
         @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        .footer-note { text-align: center; color: #3f5b78; font-size: 10px; margin-top: 10px; }
+
         @media (max-width: 600px) {
             .app-container { padding: 16px; }
             .balance-item .value { font-size: 14px; }
             .market-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
-            .shop-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-            .bait-shop { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
             .business-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
             .tab-btn { font-size: 11px; padding: 8px 4px; min-width: 50px; }
-            .transfer-row input, .transfer-row select { min-width: 80px; font-size: 13px; padding: 8px 12px; }
-            .transfer-btn { padding: 8px 18px; font-size: 13px; }
             .trade-btn { font-size: 13px; padding: 10px 6px; min-width: 60px; }
             .trade-btn.sell-all, .trade-btn.buy-max { font-size: 11px; flex: 0.4; }
-            .fishing-pool { height: 100px; }
             .lottery-wheel { max-width: 220px; height: 220px; }
         }
     </style>
@@ -375,16 +350,12 @@
     <div id="tab-business" class="tab-content">
         <div class="business-panel glass">
             <div class="business-title"><span>🏢</span> Бизнес-империя</div>
-            
             <div class="business-stat">
                 <span>💰 Доход в час: <span class="stat-value" id="businessIncomePerHour">0 ₽</span></span>
                 <span>🏢 Всего бизнесов: <span class="stat-value" id="businessTotalCount">0</span></span>
-                <span>⭐ Уровень: <span class="stat-value" id="businessLevel">1</span></span>
             </div>
-            
             <div class="business-grid" id="businessGrid"></div>
         </div>
-        
         <div class="history-box" style="margin-top:12px;">
             <div class="history-title">📋 история бизнеса</div>
             <div id="businessHistoryList"><div class="history-item" style="color:#4a617c;">Начните строить империю!</div></div>
@@ -394,13 +365,9 @@
     <!-- ===== TAB LOTTERY ===== -->
     <div id="tab-lottery" class="tab-content">
         <div class="lottery-panel glass">
-            <div class="lottery-title"><span>🎰</span> Крипто-лотерея</div>
             <div class="lottery-wheel" id="lotteryWheel">
                 <canvas id="wheelCanvas" width="300" height="300"></canvas>
-                <div class="center-text">
-                    <div class="big">🎰</div>
-                    <div class="sub">10% шанс</div>
-                </div>
+                <div class="center-text"><div class="big">🎰</div><div class="sub">10% шанс</div></div>
             </div>
             <div class="lottery-controls">
                 <input type="number" id="lotteryBetInput" placeholder="Ставка (RUB)" min="1" step="1" value="10">
@@ -416,7 +383,7 @@
                 <span style="color:#4a617c;">Нажмите "Крутить!", чтобы попытать удачу</span>
             </div>
         </div>
-        <div class="lottery-history-box">
+        <div class="history-box" style="margin-top:12px;">
             <div class="history-title">📋 история лотереи</div>
             <div id="lotteryHistoryList"><div class="history-item" style="color:#4a617c;">Сыграйте в лотерею!</div></div>
         </div>
@@ -425,12 +392,9 @@
     <!-- ===== TAB FISHING ===== -->
     <div id="tab-fishing" class="tab-content">
         <div class="fishing-panel glass">
-            <div class="fishing-title"><span>🎣</span> Крипто-рыбалка</div>
             <div class="fishing-pool" id="fishingPool">
                 <div class="water-overlay"></div>
-                <div class="fish-icons">
-                    <span>🐟</span><span>🐠</span><span>🐡</span><span>🐙</span><span>🦈</span><span>🐬</span>
-                </div>
+                <div class="fish-icons"><span>🐟</span><span>🐠</span><span>🐡</span><span>🐙</span><span>🦈</span><span>🐬</span></div>
                 <div class="fishing-text">НАЖМИТЕ, ЧТОБЫ ЗАБРОСИТЬ</div>
                 <div class="splash" id="fishingSplash">💦</div>
             </div>
@@ -443,7 +407,7 @@
                 <span>🎣 Активная наживка: <span class="stat-value" id="activeBaitDisplay">Нет</span></span>
             </div>
         </div>
-        <div style="margin-top: 10px; font-size: 13px; color: #8ba0be;">🛒 Магазин наживок</div>
+        <div style="margin-top:10px; font-size:13px; color:#8ba0be;">🛒 Магазин наживок</div>
         <div class="bait-shop" id="baitShop"></div>
         <div class="history-box" style="margin-top:12px;">
             <div class="history-title">📋 история уловов</div>
@@ -504,7 +468,7 @@
                 </select>
                 <button class="mining-btn" id="toggleMiningBtn">▶ Запустить майнинг</button>
             </div>
-            <div style="margin-top: 6px; font-size: 13px; color: #8ba0be;">🛒 Магазин оборудования</div>
+            <div style="margin-top:6px; font-size:13px; color:#8ba0be;">🛒 Магазин оборудования</div>
             <div class="shop-tabs">
                 <button class="shop-tab active" data-shop="gpu">🎮 Видеокарты</button>
                 <button class="shop-tab" data-shop="cpu">💻 Процессоры</button>
@@ -542,7 +506,7 @@
 
 <!-- ===== ЭКРАН УСПЕХА ===== -->
 <div class="transfer-success-screen" id="successScreen">
-    <div class="success-icon" id="successIcon">✓</div>
+    <div class="success-icon">✓</div>
     <div class="success-text" id="successText">Успешно!</div>
     <div class="success-sub" id="successSub">Операция выполнена</div>
     <div class="success-details">
@@ -559,7 +523,7 @@
 <div id="toast" class="toast"></div>
 
 <script>
-// ==================== FIREBASE (только для входа) ====================
+// ==================== FIREBASE ====================
 const firebaseConfig = {
     apiKey: "AIzaSyADDsFRF3Dwewv8MqcbQrRMZESK3CoG5AU",
     authDomain: "put-do-bogatstva.firebaseapp.com",
@@ -596,81 +560,7 @@ function getCookie(name) {
     return null;
 }
 
-// ==================== LOCALSTORAGE ====================
-function getStorageKey() {
-    return 'cryptoGame_' + myUserId;
-}
-
-function saveToLocalStorage() {
-    try {
-        const data = {
-            rub: playerData.rub,
-            balances: playerData.balances,
-            history: playerData.history,
-            transferHistory: playerData.transferHistory,
-            fishingHistory: playerData.fishingHistory,
-            fishingCount: playerData.fishingCount,
-            bestCatch: playerData.bestCatch,
-            baits: playerData.baits,
-            activeBait: playerData.activeBait,
-            lotteryHistory: playerData.lotteryHistory,
-            lotteryPlays: playerData.lotteryPlays,
-            gear: playerData.gear,
-            miningActive: playerData.miningActive,
-            minedTotal: playerData.minedTotal,
-            miningCoin: playerData.miningCoin,
-            chartData: chartData,
-            tradePoints: tradePoints,
-            // Бизнес
-            businesses: playerData.businesses,
-            businessHistory: playerData.businessHistory,
-            businessLevel: playerData.businessLevel,
-            lastBusinessIncome: playerData.lastBusinessIncome,
-        };
-        localStorage.setItem(getStorageKey(), JSON.stringify(data));
-    } catch(e) { console.warn('⚠️ Ошибка сохранения:', e); }
-}
-
-function loadFromLocalStorage() {
-    try {
-        const raw = localStorage.getItem(getStorageKey());
-        if (raw) {
-            const data = JSON.parse(raw);
-            playerData.rub = data.rub ?? 0;
-            playerData.balances = data.balances || {};
-            playerData.history = data.history || [];
-            playerData.transferHistory = data.transferHistory || [];
-            playerData.fishingHistory = data.fishingHistory || [];
-            playerData.fishingCount = data.fishingCount || 0;
-            playerData.bestCatch = data.bestCatch || 0;
-            playerData.baits = data.baits || {};
-            playerData.activeBait = data.activeBait || null;
-            playerData.lotteryHistory = data.lotteryHistory || [];
-            playerData.lotteryPlays = data.lotteryPlays || 0;
-            playerData.gear = data.gear || { gpu: {}, cpu: {}, ram: {} };
-            playerData.miningActive = data.miningActive || false;
-            playerData.minedTotal = data.minedTotal || 0;
-            playerData.miningCoin = data.miningCoin || 'ton';
-            chartData = data.chartData || {};
-            tradePoints = data.tradePoints || {};
-            // Бизнес
-            playerData.businesses = data.businesses || {};
-            playerData.businessHistory = data.businessHistory || [];
-            playerData.businessLevel = data.businessLevel || 1;
-            playerData.lastBusinessIncome = data.lastBusinessIncome || 0;
-            
-            ASSET_LIST.forEach(a => {
-                if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-                if (!chartData[a.id]) chartData[a.id] = [];
-                if (!tradePoints[a.id]) tradePoints[a.id] = [];
-            });
-            return true;
-        }
-    } catch(e) { console.warn('⚠️ Ошибка загрузки:', e); }
-    return false;
-}
-
-// ==================== СПИСОК АКТИВОВ ====================
+// ==================== ДАННЫЕ ====================
 const ASSET_LIST = [
     { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50 },
     { id: 'btc', name: 'BTC', symbol: '₿', price: 4520000 },
@@ -684,16 +574,15 @@ const ASSET_LIST = [
     { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83 },
 ];
 
-// ===== БИЗНЕСЫ =====
 const BUSINESS_TYPES = [
-    { id: 'cafe', name: 'Кафе', icon: '☕', basePrice: 1000, baseIncome: 50, desc: 'Уютное кафе' },
-    { id: 'hotel', name: 'Отель', icon: '🏨', basePrice: 5000, baseIncome: 200, desc: 'Комфортабельный отель' },
-    { id: 'restaurant', name: 'Ресторан', icon: '🍽️', basePrice: 10000, baseIncome: 400, desc: 'Элитный ресторан' },
-    { id: 'shop', name: 'Магазин', icon: '🛍️', basePrice: 20000, baseIncome: 700, desc: 'Торговый центр' },
-    { id: 'office', name: 'Бизнес-центр', icon: '🏢', basePrice: 50000, baseIncome: 1500, desc: 'Офисный центр' },
-    { id: 'factory', name: 'Завод', icon: '🏭', basePrice: 100000, baseIncome: 3000, desc: 'Промышленный завод' },
-    { id: 'mall', name: 'Торговый центр', icon: '🏬', basePrice: 200000, baseIncome: 5000, desc: 'Мега-молл' },
-    { id: 'skyscraper', name: 'Небоскрёб', icon: '🏗️', basePrice: 500000, baseIncome: 12000, desc: 'Небоскрёб' },
+    { id: 'cafe', name: 'Кафе', icon: '☕', basePrice: 1000, baseIncome: 50 },
+    { id: 'hotel', name: 'Отель', icon: '🏨', basePrice: 5000, baseIncome: 200 },
+    { id: 'restaurant', name: 'Ресторан', icon: '🍽️', basePrice: 10000, baseIncome: 400 },
+    { id: 'shop', name: 'Магазин', icon: '🛍️', basePrice: 20000, baseIncome: 700 },
+    { id: 'office', name: 'Бизнес-центр', icon: '🏢', basePrice: 50000, baseIncome: 1500 },
+    { id: 'factory', name: 'Завод', icon: '🏭', basePrice: 100000, baseIncome: 3000 },
+    { id: 'mall', name: 'Торговый центр', icon: '🏬', basePrice: 200000, baseIncome: 5000 },
+    { id: 'skyscraper', name: 'Небоскрёб', icon: '🏗️', basePrice: 500000, baseIncome: 12000 },
 ];
 
 const MINING_GEAR = {
@@ -734,11 +623,11 @@ const MINING_GEAR = {
 };
 
 const BAIT_TYPES = [
-    { id: 'worm', name: 'Червяк', icon: '🐛', price: 100, bonus: 1.0, desc: 'Обычная наживка' },
-    { id: 'corn', name: 'Кукуруза', icon: '🌽', price: 300, bonus: 1.5, desc: 'Хорошая наживка' },
-    { id: 'shrimp', name: 'Креветка', icon: '🦐', price: 800, bonus: 2.5, desc: 'Отличная наживка' },
-    { id: 'squid', name: 'Кальмар', icon: '🦑', price: 2000, bonus: 4.0, desc: 'Деликатесная наживка' },
-    { id: 'golden_bait', name: 'Золотая наживка', icon: '✨', price: 5000, bonus: 8.0, desc: '⭐ Легендарная наживка!' },
+    { id: 'worm', name: 'Червяк', icon: '🐛', price: 100, bonus: 1.0 },
+    { id: 'corn', name: 'Кукуруза', icon: '🌽', price: 300, bonus: 1.5 },
+    { id: 'shrimp', name: 'Креветка', icon: '🦐', price: 800, bonus: 2.5 },
+    { id: 'squid', name: 'Кальмар', icon: '🦑', price: 2000, bonus: 4.0 },
+    { id: 'golden_bait', name: 'Золотая наживка', icon: '✨', price: 5000, bonus: 8.0 },
 ];
 
 const FISHING_REWARDS = [
@@ -758,8 +647,19 @@ const FISHING_TROPHIES = [
     { id: 'btc', symbol: '🐋', name: 'КИТ BTC', min: 0.00001, max: 0.00005, weight: 0.5 },
     { id: 'eth', symbol: '🐉', name: 'ДРАКОН ETH', min: 0.001, max: 0.005, weight: 0.5 },
     { id: 'ton', symbol: '🐙', name: 'ОСЬМИНОГ TON', min: 0.05, max: 0.2, weight: 0.5 },
-    { id: 'sol', symbol: '🌟', name: 'ЗВЕЗДА SOL', min: 0.01, max: 0.05, weight: 0.3 },
-    { id: 'xrp', symbol: '💎', name: 'АЛМАЗ XRP', min: 0.1, max: 0.5, weight: 0.3 },
+];
+
+const LOTTERY_SEGMENTS = [
+    { label: '×2', color: '#fbbf24', multiplier: 2 },
+    { label: '×5', color: '#f59e0b', multiplier: 5 },
+    { label: '×10', color: '#f97316', multiplier: 10 },
+    { label: '×100', color: '#ef4444', multiplier: 100 },
+    { label: '0', color: '#4a617c', multiplier: 0 },
+    { label: '0', color: '#4a617c', multiplier: 0 },
+    { label: '0', color: '#4a617c', multiplier: 0 },
+    { label: '0', color: '#4a617c', multiplier: 0 },
+    { label: '0', color: '#4a617c', multiplier: 0 },
+    { label: '0', color: '#4a617c', multiplier: 0 },
 ];
 
 // ==================== СОСТОЯНИЕ ====================
@@ -785,20 +685,12 @@ let playerData = {
     miningCoin: 'ton',
     businesses: {},
     businessHistory: [],
-    businessLevel: 1,
-    lastBusinessIncome: 0,
 };
 
 let chartData = {};
 let tradePoints = {};
 let selectedAssetId = 'ton';
 let tradeAmount = 1.0;
-
-ASSET_LIST.forEach(a => {
-    if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-    if (!chartData[a.id]) chartData[a.id] = [];
-    if (!tradePoints[a.id]) tradePoints[a.id] = [];
-});
 
 // ==================== DOM ====================
 const rubEl = document.getElementById('rubBalance');
@@ -816,97 +708,20 @@ const ctx = chartCanvas.getContext('2d');
 const chartPair = document.getElementById('chartPair');
 const chartPrice = document.getElementById('chartPrice');
 
-const transferCoinSelect = document.getElementById('transferCoinSelect');
-const transferAmountInput = document.getElementById('transferAmountInput');
-const transferToInput = document.getElementById('transferToInput');
-const transferBtn = document.getElementById('transferBtn');
-const transferBalanceDisplay = document.getElementById('transferBalanceDisplay');
-const transferHistoryList = document.getElementById('transferHistoryList');
-
-const fishingPool = document.getElementById('fishingPool');
-const fishingSplash = document.getElementById('fishingSplash');
-const fishingResult = document.getElementById('fishingResult');
-const fishingTotalCount = document.getElementById('fishingTotalCount');
-const fishingBestCatch = document.getElementById('fishingBestCatch');
-const fishingHistoryList = document.getElementById('fishingHistoryList');
-const baitShop = document.getElementById('baitShop');
-const activeBaitDisplay = document.getElementById('activeBaitDisplay');
-
-const lotteryBtn = document.getElementById('lotteryBtn');
-const lotteryBetInput = document.getElementById('lotteryBetInput');
-const lotteryResult = document.getElementById('lotteryResult');
-const lotteryTotalPlays = document.getElementById('lotteryTotalPlays');
-const lotteryHistoryList = document.getElementById('lotteryHistoryList');
-const wheelCanvas = document.getElementById('wheelCanvas');
-const wheelCtx = wheelCanvas.getContext('2d');
-
-const hashrateDisplay = document.getElementById('hashrateDisplay');
-const minedDisplay = document.getElementById('minedDisplay');
-const miningStatus = document.getElementById('miningStatus');
-const shopGrid = document.getElementById('shopGrid');
-const toggleMiningBtn = document.getElementById('toggleMiningBtn');
-const mineCoinSelect = document.getElementById('mineCoinSelect');
-
-const successScreen = document.getElementById('successScreen');
-const successIcon = document.getElementById('successIcon');
-const successText = document.getElementById('successText');
-const successSub = document.getElementById('successSub');
-const successAmount = document.getElementById('successAmount');
-const successTo = document.getElementById('successTo');
-const successBtn = document.getElementById('successBtn');
-const confettiContainer = document.getElementById('confettiContainer');
-
-const loginOverlay = document.getElementById('loginOverlay');
-const usernameInput = document.getElementById('usernameInput');
-const passwordInput = document.getElementById('passwordInput');
-const loginBtn = document.getElementById('loginBtn');
-const registerLink = document.getElementById('registerLink');
-const onlineStatus = document.getElementById('onlineStatus');
-const userNameDisplay = document.getElementById('userNameDisplay');
-const onlineCount = document.getElementById('onlineCount');
-const leaderboardList = document.getElementById('leaderboardList');
-const portfolioGrid = document.getElementById('portfolioGrid');
-const portfolioTotal = document.getElementById('portfolioTotal');
-
-// Business DOM
-const businessGrid = document.getElementById('businessGrid');
-const businessIncomePerHour = document.getElementById('businessIncomePerHour');
-const businessTotalCount = document.getElementById('businessTotalCount');
-const businessLevel = document.getElementById('businessLevel');
-const businessHistoryList = document.getElementById('businessHistoryList');
-
-// ==================== ВСПОМОГАТЕЛЬНЫЕ ====================
+// ==================== ФУНКЦИИ ====================
 function formatRub(v) {
     if (v === undefined || v === null) return '0 ₽';
     if (v >= 1000) return v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
     return v.toFixed(2) + ' ₽';
 }
-function formatCoin(v) {
-    if (v === undefined || v === null) return '0.0000';
-    return v.toFixed(4);
-}
+function formatCoin(v) { return v === undefined ? '0.0000' : v.toFixed(4); }
 function getAsset(id) { return ASSET_LIST.find(a => a.id === id); }
-function getSelectedAsset() { return getAsset(selectedAssetId); }
 
 function calcTotal() {
     let total = playerData.rub || 0;
-    const balances = playerData.balances || {};
-    ASSET_LIST.forEach(asset => {
-        const balance = balances[asset.id] || 0;
-        total += balance * asset.price;
-    });
-    return total;
-}
-
-function calcTotalPower() {
-    let total = 0;
-    ['gpu', 'cpu', 'ram'].forEach(type => {
-        const items = playerData.gear[type] || {};
-        Object.entries(items).forEach(([id, count]) => {
-            const gearItem = MINING_GEAR[type].find(g => g.id === id);
-            if (gearItem) total += gearItem.power * count;
-        });
-    });
+    for (const asset of ASSET_LIST) {
+        total += (playerData.balances[asset.id] || 0) * asset.price;
+    }
     return total;
 }
 
@@ -922,70 +737,168 @@ function calcBusinessIncome() {
     return total;
 }
 
-function updateTradeInfo() {
-    const asset = getSelectedAsset();
-    if (!asset) return;
-    const amount = tradeAmount;
-    const price = asset.price;
-    const total = amount * price;
-    totalPriceDisplay.textContent = formatRub(total);
-    const balance = (playerData.balances || {})[asset.id] || 0;
-    balanceInfoDisplay.textContent = formatCoin(balance) + ' ' + asset.symbol;
+function calcTotalPower() {
+    let total = 0;
+    ['gpu', 'cpu', 'ram'].forEach(type => {
+        for (const [id, count] of Object.entries(playerData.gear[type] || {})) {
+            const item = MINING_GEAR[type].find(g => g.id === id);
+            if (item) total += item.power * count;
+        }
+    });
+    return total;
 }
 
 function getMaxBuyAmount() {
     const asset = getSelectedAsset();
     if (!asset) return 0;
-    const rub = playerData.rub || 0;
-    return Math.floor((rub / asset.price) * 10000) / 10000;
+    return Math.floor((playerData.rub / asset.price) * 10000) / 10000;
+}
+
+// ==================== LOCALSTORAGE ====================
+function getStorageKey() { return 'cryptoGame_' + myUserId; }
+
+function saveToLocalStorage() {
+    try {
+        const data = {
+            rub: playerData.rub,
+            balances: playerData.balances,
+            history: playerData.history,
+            transferHistory: playerData.transferHistory,
+            fishingHistory: playerData.fishingHistory,
+            fishingCount: playerData.fishingCount,
+            bestCatch: playerData.bestCatch,
+            baits: playerData.baits,
+            activeBait: playerData.activeBait,
+            lotteryHistory: playerData.lotteryHistory,
+            lotteryPlays: playerData.lotteryPlays,
+            gear: playerData.gear,
+            miningActive: playerData.miningActive,
+            minedTotal: playerData.minedTotal,
+            miningCoin: playerData.miningCoin,
+            businesses: playerData.businesses,
+            businessHistory: playerData.businessHistory,
+            chartData: chartData,
+            tradePoints: tradePoints,
+        };
+        localStorage.setItem(getStorageKey(), JSON.stringify(data));
+    } catch(e) { console.warn('⚠️ Ошибка сохранения:', e); }
+}
+
+function loadFromLocalStorage() {
+    try {
+        const raw = localStorage.getItem(getStorageKey());
+        if (raw) {
+            const data = JSON.parse(raw);
+            playerData.rub = data.rub ?? 0;
+            playerData.balances = data.balances || {};
+            playerData.history = data.history || [];
+            playerData.transferHistory = data.transferHistory || [];
+            playerData.fishingHistory = data.fishingHistory || [];
+            playerData.fishingCount = data.fishingCount || 0;
+            playerData.bestCatch = data.bestCatch || 0;
+            playerData.baits = data.baits || {};
+            playerData.activeBait = data.activeBait || null;
+            playerData.lotteryHistory = data.lotteryHistory || [];
+            playerData.lotteryPlays = data.lotteryPlays || 0;
+            playerData.gear = data.gear || { gpu: {}, cpu: {}, ram: {} };
+            playerData.miningActive = data.miningActive || false;
+            playerData.minedTotal = data.minedTotal || 0;
+            playerData.miningCoin = data.miningCoin || 'ton';
+            playerData.businesses = data.businesses || {};
+            playerData.businessHistory = data.businessHistory || [];
+            chartData = data.chartData || {};
+            tradePoints = data.tradePoints || {};
+            
+            for (const a of ASSET_LIST) {
+                if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
+                if (!chartData[a.id]) chartData[a.id] = [];
+                if (!tradePoints[a.id]) tradePoints[a.id] = [];
+            }
+            return true;
+        }
+    } catch(e) { console.warn('⚠️ Ошибка загрузки:', e); }
+    return false;
 }
 
 // ==================== ЭКРАН УСПЕХА ====================
-function showSuccess(title, subtitle, amount, to = '') {
-    successIcon.textContent = '✓';
-    successText.textContent = title;
-    successSub.textContent = subtitle;
-    successAmount.textContent = amount;
-    successTo.textContent = to;
-    successScreen.classList.add('active');
-    launchConfetti();
+function showSuccess(title, subtitle, amount) {
+    const screen = document.getElementById('successScreen');
+    const text = document.getElementById('successText');
+    const sub = document.getElementById('successSub');
+    const amt = document.getElementById('successAmount');
+    if (screen && text && sub && amt) {
+        text.textContent = title;
+        sub.textContent = subtitle;
+        amt.textContent = amount;
+        screen.classList.add('active');
+        launchConfetti();
+    }
 }
 
-function hideSuccess() {
-    successScreen.classList.remove('active');
-}
-
-successBtn.addEventListener('click', hideSuccess);
-successScreen.addEventListener('click', (e) => {
-    if (e.target === successScreen) hideSuccess();
+document.getElementById('successBtn')?.addEventListener('click', () => {
+    document.getElementById('successScreen')?.classList.remove('active');
+});
+document.getElementById('successScreen')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.remove('active');
 });
 
 // ==================== КОНФЕТТИ ====================
 function launchConfetti() {
-    const container = confettiContainer;
+    const container = document.getElementById('confettiContainer');
+    if (!container) return;
     container.innerHTML = '';
-    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd', '#ff9ff3', '#ff6348', '#00d2d3', '#ffd93d', '#6c5ce7'];
+    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd', '#ff9ff3'];
     const shapes = ['■', '●', '▲', '★', '♦'];
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 80; i++) {
         const el = document.createElement('div');
         el.className = 'confetti';
         el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
         el.style.left = Math.random() * 100 + '%';
         el.style.color = colors[Math.floor(Math.random() * colors.length)];
-        el.style.fontSize = (Math.random() * 14 + 8) + 'px';
+        el.style.fontSize = (Math.random() * 12 + 8) + 'px';
         el.style.animationDuration = (Math.random() * 2 + 2) + 's';
         el.style.animationDelay = (Math.random() * 1.5) + 's';
-        el.style.transform = `rotate(${Math.random() * 360}deg)`;
         container.appendChild(el);
     }
-    setTimeout(() => { container.innerHTML = ''; }, 4500);
+    setTimeout(() => { container.innerHTML = ''; }, 4000);
+}
+
+// ==================== TOAST ====================
+let toastTimeout = null;
+function showToast(msg, isSuccess = true) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'toast show ' + (isSuccess ? 'success' : 'error');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ==================== ЗВУКИ ====================
+let audioCtx = null;
+function playBeep(type) {
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = type === 'buy' ? 880 : 440;
+        gain.gain.value = 0.08;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    } catch(e) {}
 }
 
 // ==================== БИЗНЕС ====================
 function renderBusiness() {
-    businessGrid.innerHTML = '';
-    BUSINESS_TYPES.forEach(business => {
-        const data = playerData.businesses[business.id] || { level: 0 };
+    const grid = document.getElementById('businessGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    for (const business of BUSINESS_TYPES) {
+        const data = playerData.businesses?.[business.id] || { level: 0 };
         const count = data.level || 0;
         const income = business.baseIncome * (count || 1) * 1.1;
         const price = Math.round(business.basePrice * (1 + count * 0.5));
@@ -998,46 +911,46 @@ function renderBusiness() {
             <div class="b-level">Уровень: ${count}</div>
             <div class="b-income">💰 ${formatRub(income)}/час</div>
             <div class="b-price">${formatRub(price)}</div>
-            <button class="b-btn buy" data-id="${business.id}" data-action="buy">🏗️ Купить</button>
-            ${count > 0 ? `<button class="b-btn upgrade" data-id="${business.id}" data-action="upgrade">⬆️ Улучшить</button>` : ''}
+            <button class="b-btn buy" data-id="${business.id}">🏗️ Купить</button>
+            ${count > 0 ? `<button class="b-btn upgrade" data-id="${business.id}">⬆️ Улучшить</button>` : ''}
         `;
-        businessGrid.appendChild(card);
-    });
+        grid.appendChild(card);
+    }
 
     document.querySelectorAll('.b-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', function() {
             if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-            const id = btn.dataset.id;
-            const action = btn.dataset.action;
+            const id = this.dataset.id;
             const business = BUSINESS_TYPES.find(b => b.id === id);
             if (!business) return;
-            const data = playerData.businesses[id] || { level: 0 };
+            const data = playerData.businesses?.[id] || { level: 0 };
             const count = data.level || 0;
             const price = Math.round(business.basePrice * (1 + count * 0.5));
+            const isBuy = this.classList.contains('buy');
             
-            if (action === 'buy') {
-                if (playerData.rub < price) {
-                    showToast('❌ Недостаточно RUB!', false);
-                    return;
-                }
-                playerData.rub -= price;
-                if (!playerData.businesses[id]) playerData.businesses[id] = { level: 0 };
-                playerData.businesses[id].level = (playerData.businesses[id].level || 0) + 1;
-                addBusinessHistory('buy', business.name, price);
-                showSuccess('🏢 Бизнес куплен!', `${business.name} приобретён`, formatRub(price));
-            } else if (action === 'upgrade') {
-                if (playerData.rub < price) {
-                    showToast('❌ Недостаточно RUB!', false);
-                    return;
-                }
-                playerData.rub -= price;
-                playerData.businesses[id].level = (playerData.businesses[id].level || 0) + 1;
-                addBusinessHistory('upgrade', business.name, price);
-                showSuccess('⬆️ Улучшение!', `${business.name} улучшен до ${playerData.businesses[id].level} уровня`, formatRub(price));
+            if (playerData.rub < price) {
+                showToast('❌ Недостаточно RUB!', false);
+                return;
             }
+            
+            playerData.rub -= price;
+            if (!playerData.businesses) playerData.businesses = {};
+            if (!playerData.businesses[id]) playerData.businesses[id] = { level: 0 };
+            playerData.businesses[id].level = (playerData.businesses[id].level || 0) + 1;
+            
+            const action = isBuy ? 'Покупка' : 'Улучшение';
+            const name = business.name;
+            playerData.businessHistory.unshift({ type: action, name: name, price: price, time: new Date().toLocaleTimeString() });
+            if (playerData.businessHistory.length > 30) playerData.businessHistory.pop();
+            
+            showSuccess(isBuy ? '🏢 Бизнес куплен!' : '⬆️ Улучшение!', 
+                       `${name} ${isBuy ? 'приобретён' : 'улучшен до ' + playerData.businesses[id].level + ' уровня'}`,
+                       formatRub(price));
+            
             updateUI();
             saveToLocalStorage();
             playBeep('buy');
+            renderBusinessHistory();
         });
     });
     
@@ -1045,55 +958,40 @@ function renderBusiness() {
 }
 
 function updateBusinessStats() {
-    const income = calcBusinessIncome();
-    businessIncomePerHour.textContent = formatRub(income);
-    let count = 0;
-    for (const [id, data] of Object.entries(playerData.businesses || {})) {
-        count += data.level || 0;
+    const incomeEl = document.getElementById('businessIncomePerHour');
+    const countEl = document.getElementById('businessTotalCount');
+    if (incomeEl) incomeEl.textContent = formatRub(calcBusinessIncome());
+    if (countEl) {
+        let count = 0;
+        for (const [id, data] of Object.entries(playerData.businesses || {})) {
+            count += data.level || 0;
+        }
+        countEl.textContent = count;
     }
-    businessTotalCount.textContent = count;
-    businessLevel.textContent = playerData.businessLevel || 1;
-}
-
-function addBusinessHistory(type, name, price) {
-    const entry = {
-        type: type === 'buy' ? 'Покупка' : 'Улучшение',
-        name: name,
-        price: price,
-        time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
-    };
-    if (!playerData.businessHistory) playerData.businessHistory = [];
-    playerData.businessHistory.unshift(entry);
-    if (playerData.businessHistory.length > 30) playerData.businessHistory.pop();
-    renderBusinessHistory();
 }
 
 function renderBusinessHistory() {
+    const list = document.getElementById('businessHistoryList');
+    if (!list) return;
     if (!playerData.businessHistory || playerData.businessHistory.length === 0) {
-        businessHistoryList.innerHTML = `<div class="history-item" style="color:#4a617c;">Начните строить империю!</div>`;
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Начните строить империю!</div>';
         return;
     }
-    businessHistoryList.innerHTML = '';
-    playerData.businessHistory.slice(0, 15).forEach(item => {
+    list.innerHTML = '';
+    for (const item of playerData.businessHistory.slice(0, 15)) {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.innerHTML = `
-            <span><span class="side-business">🏢</span> ${item.type} ${item.name} за ${formatRub(item.price)}</span>
-            <span>${item.time}</span>
-        `;
-        businessHistoryList.appendChild(div);
-    });
+        div.innerHTML = `<span><span class="side-business">🏢</span> ${item.type} ${item.name} за ${formatRub(item.price)}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
 }
 
-// ==================== ДОХОД ОТ БИЗНЕСА ====================
 function applyBusinessIncome() {
     if (!isLoggedIn) return;
     const income = calcBusinessIncome();
     if (income > 0) {
-        const hourlyIncome = income / 3600;
-        const reward = hourlyIncome * 10; // каждые 10 секунд
+        const reward = income / 3600 * 10;
         playerData.rub += reward;
-        playerData.lastBusinessIncome = reward;
         updateUI();
         saveToLocalStorage();
     }
@@ -1101,29 +999,21 @@ function applyBusinessIncome() {
 
 // ==================== ОСТАЛЬНЫЕ ФУНКЦИИ (сокращённо) ====================
 function addHistory(type, symbol, amount, price, extra = '') {
-    const entry = {
-        type, symbol, amount: Math.round(amount * 1000) / 1000,
-        price: Math.round(price * 100) / 100,
-        time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' }),
-        extra: extra
-    };
-    if (!playerData.history) playerData.history = [];
-    playerData.history.unshift(entry);
+    playerData.history.unshift({ type, symbol, amount: Math.round(amount * 1000) / 1000, price: Math.round(price * 100) / 100, time: new Date().toLocaleTimeString(), extra: extra });
     if (playerData.history.length > 30) playerData.history.pop();
     renderHistory();
 }
 
 function renderHistory() {
     if (!playerData.history || playerData.history.length === 0) {
-        historyList.innerHTML = `<div class="history-item" style="color:#4a617c;">Операций пока нет</div>`;
+        historyList.innerHTML = '<div class="history-item" style="color:#4a617c;">Операций пока нет</div>';
         return;
     }
     historyList.innerHTML = '';
-    playerData.history.forEach(item => {
+    for (const item of playerData.history) {
         const div = document.createElement('div');
         div.className = 'history-item';
-        let sideClass = 'side-buy';
-        let txt = 'Покупка';
+        let sideClass = 'side-buy', txt = 'Покупка';
         if (item.type === 'sell') { sideClass = 'side-sell'; txt = 'Продажа'; }
         else if (item.type === 'sell-all') { sideClass = 'side-sell'; txt = '📉 Продажа всё'; }
         else if (item.type === 'buy-max') { sideClass = 'side-buy'; txt = '📈 Покупка макс'; }
@@ -1133,178 +1023,421 @@ function renderHistory() {
         else if (item.type === 'lottery') { sideClass = 'side-lottery'; txt = '🎰 Лотерея'; }
         div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
         historyList.appendChild(div);
+    }
+}
+
+function renderTransferHistory() {
+    const list = document.getElementById('transferHistoryList');
+    if (!list) return;
+    if (!playerData.transferHistory || playerData.transferHistory.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Переводов пока нет</div>';
+        return;
+    }
+    list.innerHTML = '';
+    for (const item of playerData.transferHistory.slice(0, 15)) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const isOut = item.from === myUsername;
+        div.innerHTML = `<span><span style="color:${isOut ? '#f87171' : '#4ade80'}">${isOut ? '📤' : '📥'}</span> ${item.symbol} ${item.amount.toFixed(3)} → ${item.to}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
+}
+
+// ==================== ТОРГОВЛЯ ====================
+function executeTrade(type) {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    const asset = getSelectedAsset();
+    if (!asset) return;
+    const price = asset.price;
+    let amount = tradeAmount;
+    if (type === 'buy-max') {
+        amount = getMaxBuyAmount();
+        if (amount <= 0) { showToast('❌ Недостаточно RUB!', false); return; }
+        tradeAmount = amount;
+        tradeAmountSpan.textContent = amount.toFixed(1);
+    }
+    if (type === 'sell-all') {
+        amount = playerData.balances[asset.id] || 0;
+        if (amount <= 0) { showToast('❌ У вас нет ' + asset.symbol + '!', false); return; }
+        tradeAmount = amount;
+        tradeAmountSpan.textContent = amount.toFixed(1);
+    }
+    if (amount <= 0) return;
+    const totalCost = amount * price;
+    const currentBalance = playerData.balances[asset.id] || 0;
+
+    if (type === 'buy' || type === 'buy-max') {
+        if (playerData.rub < totalCost) { showToast('❌ Недостаточно RUB!', false); return; }
+        playerData.rub -= totalCost;
+        playerData.balances[asset.id] = (playerData.balances[asset.id] || 0) + amount;
+        playBeep('buy');
+        const historyType = type === 'buy-max' ? 'buy-max' : 'buy';
+        addHistory(historyType, asset.symbol, amount, price, type === 'buy-max' ? '(макс)' : '');
+        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
+        tradePoints[asset.id].push({ price: price, type: 'buy', index: (chartData[asset.id] || []).length - 1 });
+        saveToLocalStorage();
+        showSuccess('🟢 Покупка', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
+    } else {
+        if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!', false); return; }
+        playerData.balances[asset.id] = currentBalance - amount;
+        playerData.rub += totalCost;
+        playBeep('sell');
+        const historyType = type === 'sell-all' ? 'sell-all' : 'sell';
+        addHistory(historyType, asset.symbol, amount, price, type === 'sell-all' ? '(всё)' : '');
+        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
+        tradePoints[asset.id].push({ price: price, type: 'sell', index: (chartData[asset.id] || []).length - 1 });
+        saveToLocalStorage();
+        showSuccess('🔴 Продажа', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
+    }
+    if (tradePoints[asset.id] && tradePoints[asset.id].length > 30) tradePoints[asset.id].shift();
+    updateUI();
+    saveToLocalStorage();
+}
+
+function getSelectedAsset() { return getAsset(selectedAssetId); }
+
+// ==================== РЫБАЛКА ====================
+function goFishing() {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    if (!playerData.activeBait || (playerData.baits[playerData.activeBait] || 0) <= 0) {
+        showToast('⚠️ Нет активной наживки!', false);
+        return;
+    }
+    
+    const splash = document.getElementById('fishingSplash');
+    if (splash) {
+        splash.classList.remove('active');
+        void splash.offsetWidth;
+        splash.classList.add('active');
+        setTimeout(() => splash.classList.remove('active'), 800);
+    }
+    
+    let bonus = 1.0;
+    let baitId = null;
+    if (playerData.activeBait && playerData.baits[playerData.activeBait] > 0) {
+        const bait = BAIT_TYPES.find(b => b.id === playerData.activeBait);
+        if (bait) {
+            bonus = bait.bonus;
+            baitId = playerData.activeBait;
+            playerData.baits[playerData.activeBait] = (playerData.baits[playerData.activeBait] || 0) - 1;
+            if (playerData.baits[playerData.activeBait] <= 0) playerData.activeBait = null;
+        }
+    }
+    
+    const allRewards = [...FISHING_REWARDS, ...FISHING_TROPHIES];
+    let totalWeight = 0;
+    const weightedRewards = allRewards.map(r => {
+        const isTrophy = FISHING_TROPHIES.some(t => t.id === r.id && t.name === r.name);
+        let weight = r.weight;
+        if (isTrophy) weight = r.weight * bonus;
+        totalWeight += weight;
+        return { ...r, weight: weight };
+    });
+    
+    let random = Math.random() * totalWeight;
+    let selected = weightedRewards[0];
+    for (const reward of weightedRewards) {
+        random -= reward.weight;
+        if (random <= 0) { selected = reward; break; }
+    }
+    
+    const amount = (selected.min + Math.random() * (selected.max - selected.min)) * bonus;
+    const roundedAmount = Math.round(amount * 100000) / 100000;
+    
+    if (selected.id === 'usdt') {
+        playerData.balances['usdt'] = (playerData.balances['usdt'] || 0) + roundedAmount;
+    } else {
+        playerData.balances[selected.id] = (playerData.balances[selected.id] || 0) + roundedAmount;
+    }
+    
+    playerData.fishingCount = (playerData.fishingCount || 0) + 1;
+    if (roundedAmount > (playerData.bestCatch || 0)) playerData.bestCatch = roundedAmount;
+    
+    const catchEntry = {
+        symbol: selected.symbol,
+        name: selected.name,
+        amount: roundedAmount,
+        bait: baitId ? BAIT_TYPES.find(b => b.id === baitId)?.name || 'Наживка' : 'Без наживки',
+        time: new Date().toLocaleTimeString()
+    };
+    playerData.fishingHistory.unshift(catchEntry);
+    if (playerData.fishingHistory.length > 30) playerData.fishingHistory.pop();
+    
+    const isTrophy = FISHING_TROPHIES.some(t => t.id === selected.id && t.name === selected.name);
+    const result = document.getElementById('fishingResult');
+    if (result) {
+        result.innerHTML = `<div class="result-caught"><span class="coin-symbol">${selected.symbol}</span><span class="coin-amount">+${roundedAmount.toFixed(6)} ${selected.name}</span>${isTrophy ? ' 🏆 ТРОФЕЙ!' : ''}</div>`;
+    }
+    
+    addHistory('fish', selected.symbol, roundedAmount, 1, `🐟 ${selected.name}`);
+    updateUI();
+    saveToLocalStorage();
+    if (isTrophy) { launchConfetti(); showSuccess('🏆 ТРОФЕЙ!', `${selected.symbol} ${roundedAmount.toFixed(6)} ${selected.name}`, formatRub(roundedAmount * (getAsset(selected.id)?.price || 1))); }
+    else showToast(`🎣 Вы поймали ${selected.symbol} ${roundedAmount.toFixed(6)} ${selected.name}`);
+}
+
+// ==================== ЛОТЕРЕЯ ====================
+function drawWheel(rotation = 0) {
+    const canvas = document.getElementById('wheelCanvas');
+    if (!canvas) return;
+    const w = canvas.width, h = canvas.height;
+    const ctx = canvas.getContext('2d');
+    const cx = w/2, cy = h/2, radius = Math.min(w, h)/2 - 10;
+    const segments = LOTTERY_SEGMENTS.length;
+    const angleStep = (2 * Math.PI) / segments;
+
+    ctx.clearRect(0, 0, w, h);
+    for (let i = 0; i < segments; i++) {
+        const startAngle = i * angleStep + rotation;
+        const endAngle = startAngle + angleStep;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = LOTTERY_SEGMENTS[i].color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        const textAngle = startAngle + angleStep/2;
+        ctx.fillStyle = '#fff';
+        ctx.font = '14px Inter';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(LOTTERY_SEGMENTS[i].label, cx + Math.cos(textAngle)*radius*0.65, cy + Math.sin(textAngle)*radius*0.65);
+    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(255,215,0,0.3)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - 12, 12);
+    ctx.lineTo(cx, 0);
+    ctx.lineTo(cx + 12, 12);
+    ctx.closePath();
+    ctx.fillStyle = '#fbbf24';
+    ctx.fill();
+}
+
+function spinLottery() {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    const bet = parseInt(document.getElementById('lotteryBetInput')?.value || 0);
+    if (isNaN(bet) || bet < 1) { showToast('❌ Минимальная ставка 1 ₽', false); return; }
+    if (bet > playerData.rub) { showToast(`❌ Недостаточно RUB!`, false); return; }
+    
+    const randomIndex = Math.floor(Math.random() * LOTTERY_SEGMENTS.length);
+    const multiplier = LOTTERY_SEGMENTS[randomIndex].multiplier;
+    const win = bet * multiplier;
+    const isWin = multiplier > 0;
+    
+    const spins = 5 + Math.random() * 3;
+    const finalAngle = spins * 2 * Math.PI + (randomIndex / LOTTERY_SEGMENTS.length) * 2 * Math.PI;
+    const duration = 2000;
+    const startTime = Date.now();
+    
+    function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        drawWheel(finalAngle * eased);
+        if (progress < 1) requestAnimationFrame(animate);
+        else {
+            playerData.rub -= bet;
+            if (isWin) {
+                playerData.rub += win;
+                launchConfetti();
+                document.getElementById('lotteryResult').innerHTML = `<span class="result-win">🎉 ВЫИГРЫШ! ×${multiplier}</span><span class="result-amount">+${formatRub(win)}</span>`;
+                showSuccess('🎉 ВЫИГРЫШ!', `×${multiplier}`, formatRub(win));
+            } else {
+                document.getElementById('lotteryResult').innerHTML = `<span class="result-lose">😔 Проигрыш</span><span style="color:#4a617c;">-${formatRub(bet)}</span>`;
+                showToast(`😔 Проигрыш ${formatRub(bet)}`, false);
+            }
+            playerData.lotteryPlays = (playerData.lotteryPlays || 0) + 1;
+            playerData.lotteryHistory.unshift({ bet, win, multiplier, isWin, time: new Date().toLocaleTimeString() });
+            if (playerData.lotteryHistory.length > 30) playerData.lotteryHistory.pop();
+            addHistory('lottery', isWin ? '🎰 ВЫИГРЫШ' : '🎰 ПРОИГРЫШ', isWin ? win : bet, 1, isWin ? `×${multiplier}` : '');
+            updateUI();
+            saveToLocalStorage();
+            document.getElementById('lotteryTotalPlays').textContent = playerData.lotteryPlays;
+            renderLotteryHistory();
+        }
+    }
+    animate();
+}
+
+function renderLotteryHistory() {
+    const list = document.getElementById('lotteryHistoryList');
+    if (!list) return;
+    if (!playerData.lotteryHistory || playerData.lotteryHistory.length === 0) {
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Сыграйте в лотерею!</div>';
+        return;
+    }
+    list.innerHTML = '';
+    for (const item of playerData.lotteryHistory.slice(0, 15)) {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const result = item.isWin ? `✅ +${formatRub(item.win)}` : `❌ -${formatRub(item.bet)}`;
+        div.innerHTML = `<span><span class="side-lottery">🎰</span> ${item.isWin ? 'Выигрыш' : 'Проигрыш'} ${result}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
+}
+
+// ==================== МАЙНИНГ ====================
+function renderShop() {
+    const grid = document.getElementById('shopGrid');
+    if (!grid) return;
+    const items = MINING_GEAR[currentShopTab] || [];
+    grid.innerHTML = '';
+    for (const item of items) {
+        const count = playerData.gear[currentShopTab]?.[item.id] || 0;
+        const card = document.createElement('div');
+        card.className = 'shop-card';
+        card.innerHTML = `
+            <div style="font-size:24px;">${item.icon}</div>
+            <div class="item-name">${item.name}</div>
+            <div class="item-power">⚡ ${item.power} MH/s</div>
+            <div class="item-price">${formatRub(item.price)}</div>
+            <div class="item-count">🖥️ ${count} шт.</div>
+            <button class="buy-btn" data-type="${currentShopTab}" data-id="${item.id}">Купить</button>
+        `;
+        grid.appendChild(card);
+    }
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+            const type = this.dataset.type, id = this.dataset.id;
+            const item = MINING_GEAR[type].find(g => g.id === id);
+            if (!item) return;
+            if (playerData.rub < item.price) { showToast('❌ Недостаточно RUB!', false); return; }
+            playerData.rub -= item.price;
+            if (!playerData.gear[type]) playerData.gear[type] = {};
+            playerData.gear[type][id] = (playerData.gear[type][id] || 0) + 1;
+            showSuccess('🛒 Покупка', `${item.name} приобретён`, formatRub(item.price));
+            updateUI();
+            saveToLocalStorage();
+            playBeep('buy');
+        });
     });
 }
 
-// ==================== FIREBASE ВХОД ====================
-function registerUser() {
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-    if (!username || !password) { showToast('❌ Введите имя и пароль!', false); return; }
-    if (password.length < 4) { showToast('❌ Пароль должен быть минимум 4 символа', false); return; }
-    
-    myUsername = username;
-    myPassword = password;
-    myUserId = 'user_' + username.replace(/\s/g, '_').toLowerCase();
-    
-    db.ref('users').orderByChild('username').equalTo(username).once('value')
-        .then(snapshot => {
-            const data = snapshot.val();
-            if (data) {
-                let exists = false;
-                for (const [id, user] of Object.entries(data)) {
-                    if (user.username === username) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (exists) {
-                    showToast('❌ Пользователь с таким именем уже существует!', false);
-                    return;
-                }
-            }
-            
-            const userData = {
-                username: myUsername,
-                password: myPassword,
-                registered: Date.now()
-            };
-            
-            db.ref('users/' + myUserId).set(userData)
-                .then(() => {
-                    showToast('✅ Регистрация успешна!');
-                    isLoggedIn = true;
-                    saveSession();
-                    enterGame();
-                })
-                .catch(e => showToast('❌ Ошибка регистрации: ' + e.message, false));
-        })
-        .catch(e => showToast('❌ Ошибка: ' + e.message, false));
+function updateMiningUI() {
+    const power = calcTotalPower();
+    document.getElementById('hashrateDisplay').textContent = power.toFixed(2) + ' MH/s';
+    const coinId = playerData.miningCoin || 'ton';
+    const asset = getAsset(coinId);
+    document.getElementById('minedDisplay').textContent = playerData.minedTotal.toFixed(4) + ' ' + (asset ? asset.symbol : coinId.toUpperCase());
+    const status = document.getElementById('miningStatus');
+    status.textContent = playerData.miningActive ? '🟢 Работает' : '⏸ Остановлен';
+    status.style.color = playerData.miningActive ? '#4ade80' : '#f87171';
+    const btn = document.getElementById('toggleMiningBtn');
+    btn.textContent = playerData.miningActive ? '⏹ Остановить' : '▶ Запустить';
+    btn.classList.toggle('active', playerData.miningActive);
 }
 
-function loginUser() {
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-    if (!username || !password) { showToast('❌ Введите имя и пароль!', false); return; }
-    
-    const userId = 'user_' + username.replace(/\s/g, '_').toLowerCase();
-    
-    db.ref('users/' + userId).once('value')
-        .then(snapshot => {
-            const data = snapshot.val();
-            if (!data) {
-                showToast('❌ Пользователь не найден! Зарегистрируйтесь.', false);
-                return;
-            }
-            if (data.password !== password) {
-                showToast('❌ Неправильный пароль!', false);
-                return;
-            }
-            
-            myUsername = username;
-            myUserId = userId;
-            myPassword = password;
-            isLoggedIn = true;
-            saveSession();
-            enterGame();
-        })
-        .catch(e => showToast('❌ Ошибка: ' + e.message, false));
-}
-
-function logout() {
+let miningInterval = null;
+function toggleMining() {
+    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    playerData.miningActive = !playerData.miningActive;
+    if (playerData.miningActive) {
+        if (calcTotalPower() === 0) { showToast('⚠️ Нет оборудования!', false); playerData.miningActive = false; updateMiningUI(); return; }
+        playerData.miningCoin = document.getElementById('mineCoinSelect').value;
+        if (miningInterval) clearInterval(miningInterval);
+        miningInterval = setInterval(() => {
+            if (!playerData.miningActive || !isLoggedIn) return;
+            const power = calcTotalPower();
+            if (power === 0) { playerData.miningActive = false; updateMiningUI(); clearInterval(miningInterval); miningInterval = null; showToast('⛔ Майнинг остановлен', false); return; }
+            const reward = power * 0.0002;
+            playerData.minedTotal += reward;
+            const coinId = playerData.miningCoin || 'ton';
+            playerData.balances[coinId] = (playerData.balances[coinId] || 0) + reward;
+            updateUI();
+            saveToLocalStorage();
+        }, 5000);
+        showToast(`⛏️ Майнинг ${playerData.miningCoin.toUpperCase()} запущен`);
+    } else {
+        if (miningInterval) { clearInterval(miningInterval); miningInterval = null; }
+        showToast('⏸ Майнинг остановлен');
+    }
+    updateMiningUI();
     saveToLocalStorage();
-    clearSession();
-    isLoggedIn = false;
-    loginOverlay.style.display = 'flex';
-    document.getElementById('appContainer').style.display = 'none';
-    showToast('👋 Вы вышли из аккаунта');
 }
 
-function saveSession() {
-    if (!isLoggedIn) return;
-    const session = { username: myUsername, userId: myUserId, password: myPassword, timestamp: Date.now() };
-    setCookie('cryptoSession', session, 365);
+// ==================== UI ====================
+function updateUI() {
+    rubEl.textContent = formatRub(playerData.rub || 0);
+    const tonBalance = playerData.balances['ton'] || 0;
+    tonEl.textContent = formatCoin(tonBalance) + ' TON';
+    totalValueEl.textContent = formatRub(calcTotal());
+    renderPortfolio();
+    renderMarket();
+    updateChart();
+    renderHistory();
+    renderTransferHistory();
+    renderBusiness();
+    updateBusinessStats();
+    renderBusinessHistory();
+    renderBaitShop();
+    updateFishingUI();
+    renderLotteryHistory();
+    updateMiningUI();
+    renderShop();
+    document.getElementById('lotteryTotalPlays').textContent = playerData.lotteryPlays || 0;
 }
 
-function loadSession() {
-    const session = getCookie('cryptoSession');
-    if (session && session.username && session.userId) {
-        myUsername = session.username;
-        myUserId = session.userId;
-        myPassword = session.password || '';
-        isLoggedIn = true;
-        return true;
+function renderPortfolio() {
+    const grid = document.getElementById('portfolioGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    let total = playerData.rub || 0;
+    for (const asset of ASSET_LIST) {
+        const balance = playerData.balances[asset.id] || 0;
+        const value = balance * asset.price;
+        total += value;
+        const div = document.createElement('div');
+        div.className = 'portfolio-item';
+        div.innerHTML = `<div class="p-icon">${asset.symbol}</div><div class="p-name">${asset.name}</div><div class="p-balance">${formatCoin(balance)}</div><div style="font-size:11px;color:#8ba0be;">${formatRub(value)}</div>`;
+        grid.appendChild(div);
     }
-    return false;
+    document.getElementById('portfolioTotal').textContent = formatRub(total);
 }
 
-function clearSession() {
-    isLoggedIn = false;
-    const session = { username: myUsername, userId: myUserId, password: myPassword, loggedOut: true, timestamp: Date.now() };
-    setCookie('cryptoSession', session, 365);
-}
-
-function isSessionActive() {
-    const session = getCookie('cryptoSession');
-    if (session && session.username && session.userId && !session.loggedOut) return true;
-    return false;
-}
-
-function enterGame() {
-    userNameDisplay.textContent = myUsername;
-    loginOverlay.style.display = 'none';
-    document.getElementById('appContainer').style.display = 'block';
-    
-    // Загружаем из localStorage
-    loadFromLocalStorage();
-    
-    // Если нет данных — создаём дефолтные
-    if (!playerData.balances || Object.keys(playerData.balances).length === 0) {
-        ASSET_LIST.forEach(a => {
-            playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-        });
+function renderMarket() {
+    marketGrid.innerHTML = '';
+    for (const asset of ASSET_LIST) {
+        const card = document.createElement('div');
+        card.className = 'asset-card' + (asset.id === selectedAssetId ? ' active' : '');
+        const ch = asset.change || 0;
+        const chClass = ch >= 0 ? 'positive' : 'negative';
+        const chSign = ch >= 0 ? '▲' : '▼';
+        card.innerHTML = `<div class="icon">${asset.symbol}</div><div class="name">${asset.name}</div><div class="price">${formatRub(asset.price)}</div><div class="change ${chClass}">${chSign} ${Math.abs(ch).toFixed(2)}%</div>`;
+        card.addEventListener('click', () => { selectedAssetId = asset.id; renderMarket(); updateChart(); updateTradeInfo(); });
+        marketGrid.appendChild(card);
     }
-    
-    loadPricesFromLocalStorage();
-    initGame();
+    updateTradeInfo();
 }
 
-// ==================== ЦЕНЫ (localStorage) ====================
-function savePricesToLocalStorage() {
-    try {
-        const prices = {};
-        ASSET_LIST.forEach(a => { prices[a.id] = a.price; });
-        localStorage.setItem('cryptoPrices_' + myUserId, JSON.stringify(prices));
-    } catch(e) {}
+function updateTradeInfo() {
+    const asset = getSelectedAsset();
+    if (!asset) return;
+    const total = tradeAmount * asset.price;
+    totalPriceDisplay.textContent = formatRub(total);
+    balanceInfoDisplay.textContent = formatCoin(playerData.balances[asset.id] || 0) + ' ' + asset.symbol;
 }
 
-function loadPricesFromLocalStorage() {
-    try {
-        const raw = localStorage.getItem('cryptoPrices_' + myUserId);
-        if (raw) {
-            const prices = JSON.parse(raw);
-            ASSET_LIST.forEach(asset => {
-                if (prices[asset.id] !== undefined) {
-                    asset.price = prices[asset.id];
-                }
-            });
-        }
-    } catch(e) {}
-}
-
-// ==================== ГРАФИК ====================
 function updateChart() {
     const asset = getSelectedAsset();
     if (!asset) return;
     if (!chartData[asset.id]) chartData[asset.id] = [];
+    chartData[asset.id].push(asset.price);
+    if (chartData[asset.id].length > 50) chartData[asset.id].shift();
+
     const data = chartData[asset.id];
-    
     const w = chartCanvas.parentElement.clientWidth || 700;
     const h = chartCanvas.parentElement.clientHeight || 160;
     chartCanvas.width = w;
     chartCanvas.height = h;
     ctx.clearRect(0, 0, w, h);
-    
     if (data.length < 2) {
         ctx.fillStyle = '#4a617c';
         ctx.font = '14px Inter';
@@ -1320,16 +1453,15 @@ function updateChart() {
     const max = Math.max(...data) * 1.002;
     const range = max - min || 1;
 
-    const gridLines = 5;
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 5]);
-    for (let i = 0; i <= gridLines; i++) {
-        const y = pad.top + graphH - (i / gridLines) * graphH;
-        const price = min + (i / gridLines) * range;
+    for (let i = 0; i <= 5; i++) {
+        const y = pad.top + graphH - (i / 5) * graphH;
+        const price = min + (i / 5) * range;
         ctx.beginPath();
         ctx.moveTo(pad.left, y);
         ctx.lineTo(w - pad.right, y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 5]);
         ctx.stroke();
         ctx.fillStyle = '#6e88a3';
         ctx.font = '11px Inter';
@@ -1339,12 +1471,7 @@ function updateChart() {
     }
     ctx.setLineDash([]);
 
-    const color = asset.id === 'ton' ? '#3b82f6' : 
-                  asset.id === 'btc' ? '#f7931a' :
-                  asset.id === 'eth' ? '#627eea' :
-                  asset.id === 'sol' ? '#9945ff' :
-                  asset.id === 'xrp' ? '#00aae4' : '#3b82f6';
-    
+    const color = asset.id === 'ton' ? '#3b82f6' : asset.id === 'btc' ? '#f7931a' : asset.id === 'eth' ? '#627eea' : '#3b82f6';
     ctx.beginPath();
     ctx.strokeStyle = color;
     ctx.lineWidth = 2.5;
@@ -1371,7 +1498,7 @@ function updateChart() {
     ctx.fill();
 
     const points = (tradePoints[asset.id] || []).filter(p => p.index < data.length);
-    points.forEach(p => {
+    for (const p of points) {
         const idx = p.index;
         const x = pad.left + (idx / (data.length - 1)) * graphW;
         const y = pad.top + graphH - ((p.price - min) / range) * graphH;
@@ -1391,7 +1518,7 @@ function updateChart() {
         ctx.shadowBlur = 16;
         ctx.fill();
         ctx.shadowBlur = 0;
-    });
+    }
 
     const lastPrice = data[data.length - 1];
     const lx = pad.left + ((data.length - 1) / (data.length - 1)) * graphW;
@@ -1417,356 +1544,41 @@ function updateChart() {
     ctx.fillText(lastPrice.toFixed(2), lx + 10, ly - 4);
 }
 
-// ==================== UI ОБНОВЛЕНИЕ ====================
-function updateUI() {
-    updateBalances();
-    renderPortfolio();
-    renderMarket();
-    updatePriceDisplay();
-    updateChart();
-    renderHistory();
-    renderTransferHistory();
-    updateTransferBalance();
-    updateTradeInfo();
-    updateFishingUI();
-    renderBaitShop();
-    updateLotteryUI();
-    drawWheel();
-    renderShop();
-    updateMiningUI();
-    renderBusiness();
-    updateBusinessStats();
-    renderBusinessHistory();
-    mineCoinSelect.value = playerData.miningCoin || 'ton';
-}
-
-function updateBalances() {
-    rubEl.textContent = formatRub(playerData.rub || 0);
-    const tonBalance = (playerData.balances || {})['ton'] || 0;
-    tonEl.textContent = formatCoin(tonBalance) + ' TON';
-    totalValueEl.textContent = formatRub(calcTotal());
-    updateTransferBalance();
-    updateTradeInfo();
-}
-
-function updatePriceDisplay() {
-    const asset = getSelectedAsset();
-    if (asset) {
-        currentPriceDisplay.textContent = formatRub(asset.price);
-        selectedLabel.textContent = asset.symbol + ' ' + asset.name;
-        chartPair.textContent = asset.symbol + ' / RUB';
-        chartPrice.textContent = formatRub(asset.price);
-        updateTradeInfo();
-    }
-}
-
-function updateTransferBalance() {
-    const coinId = transferCoinSelect.value;
-    if (coinId === 'rub') {
-        transferBalanceDisplay.textContent = formatRub(playerData.rub || 0);
-    } else {
-        const balance = (playerData.balances || {})[coinId] || 0;
-        const asset = getAsset(coinId);
-        transferBalanceDisplay.textContent = formatCoin(balance) + ' ' + (asset ? asset.symbol : coinId.toUpperCase());
-    }
-}
-
-function renderPortfolio() {
-    portfolioGrid.innerHTML = '';
-    let total = playerData.rub || 0;
-    const balances = playerData.balances || {};
-    ASSET_LIST.forEach(asset => {
-        const balance = balances[asset.id] || 0;
-        const value = balance * asset.price;
-        total += value;
-        const div = document.createElement('div');
-        div.className = 'portfolio-item';
-        div.innerHTML = `
-            <div class="p-icon">${asset.symbol}</div>
-            <div class="p-name">${asset.name}</div>
-            <div class="p-balance">${formatCoin(balance)}</div>
-            <div style="font-size:11px;color:#8ba0be;">${formatRub(value)}</div>
-        `;
-        portfolioGrid.appendChild(div);
-    });
-    portfolioTotal.textContent = formatRub(total);
-}
-
-function renderMarket() {
-    marketGrid.innerHTML = '';
-    ASSET_LIST.forEach(asset => {
-        const card = document.createElement('div');
-        card.className = 'asset-card' + (asset.id === selectedAssetId ? ' active' : '');
-        const ch = asset.change || 0;
-        const chClass = ch >= 0 ? 'positive' : 'negative';
-        const chSign = ch >= 0 ? '▲' : '▼';
-        card.innerHTML = `
-            <div class="icon">${asset.symbol}</div>
-            <div class="name">${asset.name}</div>
-            <div class="price">${formatRub(asset.price)}</div>
-            <div class="change ${chClass}">${chSign} ${Math.abs(ch).toFixed(2)}%</div>
-        `;
-        card.addEventListener('click', () => {
-            selectedAssetId = asset.id;
-            renderMarket();
-            updatePriceDisplay();
-            updateChart();
-            updateTradeInfo();
-        });
-        marketGrid.appendChild(card);
-    });
-}
-
-// ==================== ТОРГОВЛЯ ====================
-function executeTrade(type) {
-    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-    const asset = getSelectedAsset();
-    if (!asset) return;
-    const price = asset.price;
-    let amount = tradeAmount;
-    if (type === 'buy-max') {
-        amount = getMaxBuyAmount();
-        if (amount <= 0) { showToast('❌ Недостаточно RUB для покупки!', false); return; }
-        tradeAmount = amount;
-        tradeAmountSpan.textContent = amount.toFixed(1);
-    }
-    if (type === 'sell-all') {
-        amount = (playerData.balances || {})[asset.id] || 0;
-        if (amount <= 0) { showToast('❌ У вас нет ' + asset.symbol + ' для продажи!', false); return; }
-        tradeAmount = amount;
-        tradeAmountSpan.textContent = amount.toFixed(1);
-    }
-    if (amount <= 0) return;
-    const totalCost = amount * price;
-    const currentBalance = (playerData.balances || {})[asset.id] || 0;
-
-    if (type === 'buy' || type === 'buy-max') {
-        if ((playerData.rub || 0) < totalCost) { showToast('❌ Недостаточно RUB!', false); return; }
-        playerData.rub = (playerData.rub || 0) - totalCost;
-        if (!playerData.balances) playerData.balances = {};
-        playerData.balances[asset.id] = (playerData.balances[asset.id] || 0) + amount;
-        playBeep('buy');
-        const historyType = type === 'buy-max' ? 'buy-max' : 'buy';
-        addHistory(historyType, asset.symbol, amount, price, type === 'buy-max' ? '(макс)' : '');
-        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
-        tradePoints[asset.id].push({ price: price, type: 'buy', index: (chartData[asset.id] || []).length - 1 });
-        saveToLocalStorage();
-        showSuccess('🟢 Покупка', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
-    } else {
-        if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!', false); return; }
-        playerData.balances[asset.id] = currentBalance - amount;
-        playerData.rub = (playerData.rub || 0) + totalCost;
-        playBeep('sell');
-        const historyType = type === 'sell-all' ? 'sell-all' : 'sell';
-        addHistory(historyType, asset.symbol, amount, price, type === 'sell-all' ? '(всё)' : '');
-        if (!tradePoints[asset.id]) tradePoints[asset.id] = [];
-        tradePoints[asset.id].push({ price: price, type: 'sell', index: (chartData[asset.id] || []).length - 1 });
-        saveToLocalStorage();
-        showSuccess('🔴 Продажа', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
-    }
-    if (tradePoints[asset.id] && tradePoints[asset.id].length > 30) tradePoints[asset.id].shift();
-    updateUI();
-    saveToLocalStorage();
-    const actionText = type === 'buy' ? 'Покупка' : type === 'buy-max' ? 'Покупка (макс)' : type === 'sell-all' ? 'Продажа (всё)' : 'Продажа';
-    showToast(`✅ ${actionText} ${amount.toFixed(4)} ${asset.symbol} за ${formatRub(totalCost)}`);
-}
-
-// ==================== ПЕРЕВОДЫ ====================
-function executeTransfer() {
-    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-    
-    const coinId = transferCoinSelect.value;
-    const amount = parseFloat(transferAmountInput.value);
-    const toUsername = transferToInput.value.trim();
-    
-    if (!toUsername) { showToast('❌ Укажите получателя!', false); return; }
-    if (toUsername === myUsername) { showToast('❌ Нельзя перевести самому себе!', false); return; }
-    if (isNaN(amount) || amount <= 0) { showToast('❌ Введите корректную сумму!', false); return; }
-    
-    let balance = 0;
-    let symbol = '';
-    let price = 1;
-    
-    if (coinId === 'rub') {
-        balance = playerData.rub || 0;
-        symbol = 'RUB';
-        price = 1;
-    } else {
-        const asset = getAsset(coinId);
-        if (!asset) { showToast('❌ Неизвестная монета!', false); return; }
-        balance = (playerData.balances || {})[coinId] || 0;
-        symbol = asset.symbol;
-        price = asset.price;
-    }
-    
-    if (balance < amount) { showToast(`❌ Недостаточно ${symbol}!`, false); return; }
-    
-    // В локалке просто добавляем получателя (имитация)
-    playerData.rub = (playerData.rub || 0) - amount;
-    
-    const transferEntry = {
-        from: myUsername,
-        to: toUsername,
-        symbol: symbol,
-        amount: Math.round(amount * 1000) / 1000,
-        time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
-    };
-    
-    if (!playerData.transferHistory) playerData.transferHistory = [];
-    playerData.transferHistory.unshift(transferEntry);
-    if (playerData.transferHistory.length > 30) playerData.transferHistory.pop();
-    
-    addHistory('transfer', symbol, amount, price, '→ ' + toUsername);
-    saveToLocalStorage();
-    showSuccess('💸 Перевод', `${amount.toFixed(4)} ${symbol} → ${toUsername}`, formatRub(amount));
-    updateUI();
-    transferAmountInput.value = '';
-    transferToInput.value = '';
-    playBeep('buy');
-}
-
-// ==================== РЫБАЛКА ====================
-function getRandomReward() {
-    let bonus = 1.0;
-    let baitId = null;
-    if (playerData.activeBait && playerData.baits[playerData.activeBait] > 0) {
-        const bait = BAIT_TYPES.find(b => b.id === playerData.activeBait);
-        if (bait) {
-            bonus = bait.bonus;
-            baitId = playerData.activeBait;
-            playerData.baits[playerData.activeBait] = (playerData.baits[playerData.activeBait] || 0) - 1;
-            if (playerData.baits[playerData.activeBait] <= 0) {
-                playerData.activeBait = null;
-            }
-        }
-    }
-    
-    const allRewards = [...FISHING_REWARDS, ...FISHING_TROPHIES];
-    let totalWeight = 0;
-    const weightedRewards = allRewards.map(r => {
-        const isTrophy = FISHING_TROPHIES.some(t => t.id === r.id && t.name === r.name);
-        let weight = r.weight;
-        if (isTrophy) weight = r.weight * bonus;
-        totalWeight += weight;
-        return { ...r, weight: weight };
-    });
-    
-    let random = Math.random() * totalWeight;
-    let selected = weightedRewards[0];
-    for (const reward of weightedRewards) {
-        random -= reward.weight;
-        if (random <= 0) {
-            selected = reward;
-            break;
-        }
-    }
-    
-    const amount = (selected.min + Math.random() * (selected.max - selected.min)) * bonus;
-    const roundedAmount = Math.round(amount * 100000) / 100000;
-    
-    return {
-        ...selected,
-        amount: roundedAmount,
-        baitUsed: baitId,
-        bonus: bonus
-    };
-}
-
-function goFishing() {
-    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-    if (!playerData.activeBait || (playerData.baits[playerData.activeBait] || 0) <= 0) {
-        showToast('⚠️ Нет активной наживки! Купите в магазине.', false);
-        return;
-    }
-    
-    fishingSplash.classList.remove('active');
-    void fishingSplash.offsetWidth;
-    fishingSplash.classList.add('active');
-    setTimeout(() => fishingSplash.classList.remove('active'), 800);
-    
-    const reward = getRandomReward();
-    
-    if (reward.id === 'usdt') {
-        playerData.balances['usdt'] = (playerData.balances['usdt'] || 0) + reward.amount;
-    } else {
-        playerData.balances[reward.id] = (playerData.balances[reward.id] || 0) + reward.amount;
-    }
-    
-    playerData.fishingCount = (playerData.fishingCount || 0) + 1;
-    if (reward.amount > (playerData.bestCatch || 0)) {
-        playerData.bestCatch = reward.amount;
-    }
-    
-    const catchEntry = {
-        symbol: reward.symbol,
-        name: reward.name,
-        amount: reward.amount,
-        bait: reward.baitUsed ? BAIT_TYPES.find(b => b.id === reward.baitUsed)?.name || 'Наживка' : 'Без наживки',
-        time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
-    };
-    if (!playerData.fishingHistory) playerData.fishingHistory = [];
-    playerData.fishingHistory.unshift(catchEntry);
-    if (playerData.fishingHistory.length > 30) playerData.fishingHistory.pop();
-    
-    const isTrophy = FISHING_TROPHIES.some(t => t.id === reward.id && t.name === reward.name);
-    const trophyText = isTrophy ? ' ТРОФЕЙ!' : '';
-    const baitText = reward.baitUsed ? ` (${BAIT_TYPES.find(b => b.id === reward.baitUsed)?.name})` : '';
-    
-    fishingResult.innerHTML = `
-        <div class="result-caught">
-            <span class="coin-symbol">${reward.symbol}</span>
-            <span class="coin-amount">+${reward.amount.toFixed(6)} ${reward.name}</span>
-            ${trophyText}
-            ${baitText}
-        </div>
-    `;
-    
-    addHistory('fish', reward.symbol, reward.amount, 1, `🐟 ${reward.name} ${baitText}`);
-    
-    updateUI();
-    saveToLocalStorage();
-    
-    if (isTrophy) {
-        launchConfetti();
-        showSuccess('🏆 ТРОФЕЙ!', `${reward.symbol} ${reward.amount.toFixed(6)} ${reward.name}`, formatRub(reward.amount * (getAsset(reward.id)?.price || 1)));
-    } else {
-        showToast(`🎣 Вы поймали ${reward.symbol} ${reward.amount.toFixed(6)} ${reward.name}${baitText}`);
-    }
-}
-
+// ==================== РЫБАЛКА UI ====================
 function updateFishingUI() {
-    fishingTotalCount.textContent = playerData.fishingCount || 0;
-    fishingBestCatch.textContent = playerData.bestCatch ? playerData.bestCatch.toFixed(6) : '—';
+    document.getElementById('fishingTotalCount').textContent = playerData.fishingCount || 0;
+    document.getElementById('fishingBestCatch').textContent = playerData.bestCatch ? playerData.bestCatch.toFixed(6) : '—';
     if (playerData.activeBait && playerData.baits[playerData.activeBait] > 0) {
         const bait = BAIT_TYPES.find(b => b.id === playerData.activeBait);
-        activeBaitDisplay.textContent = `${bait?.icon || ''} ${bait?.name || playerData.activeBait} (${playerData.baits[playerData.activeBait]} шт.)`;
+        document.getElementById('activeBaitDisplay').textContent = `${bait?.icon || ''} ${bait?.name || playerData.activeBait} (${playerData.baits[playerData.activeBait]} шт.)`;
     } else {
-        activeBaitDisplay.textContent = 'Нет';
-        if (playerData.activeBait) playerData.activeBait = null;
+        document.getElementById('activeBaitDisplay').textContent = 'Нет';
+        playerData.activeBait = null;
     }
     renderFishingHistory();
 }
 
 function renderFishingHistory() {
+    const list = document.getElementById('fishingHistoryList');
+    if (!list) return;
     if (!playerData.fishingHistory || playerData.fishingHistory.length === 0) {
-        fishingHistoryList.innerHTML = `<div class="history-item" style="color:#4a617c;">Рыбалка ждёт вас!</div>`;
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Рыбалка ждёт вас!</div>';
         return;
     }
-    fishingHistoryList.innerHTML = '';
-    playerData.fishingHistory.slice(0, 15).forEach(item => {
+    list.innerHTML = '';
+    for (const item of playerData.fishingHistory.slice(0, 15)) {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.innerHTML = `
-            <span><span class="side-fish">🎣</span> ${item.symbol} +${item.amount.toFixed(6)} ${item.name} ${item.bait ? `(${item.bait})` : ''}</span>
-            <span>${item.time}</span>
-        `;
-        fishingHistoryList.appendChild(div);
-    });
+        div.innerHTML = `<span><span class="side-fish">🎣</span> ${item.symbol} +${item.amount.toFixed(6)} ${item.name} ${item.bait ? `(${item.bait})` : ''}</span><span>${item.time}</span>`;
+        list.appendChild(div);
+    }
 }
 
 function renderBaitShop() {
-    baitShop.innerHTML = '';
-    BAIT_TYPES.forEach(bait => {
+    const shop = document.getElementById('baitShop');
+    if (!shop) return;
+    shop.innerHTML = '';
+    for (const bait of BAIT_TYPES) {
         const count = playerData.baits[bait.id] || 0;
         const isActive = playerData.activeBait === bait.id;
         const card = document.createElement('div');
@@ -1774,40 +1586,33 @@ function renderBaitShop() {
         card.innerHTML = `
             <div class="bait-icon">${bait.icon}</div>
             <div class="bait-name">${bait.name}</div>
-            <div class="bait-desc">${bait.desc}</div>
-            <div class="bait-desc" style="color:#fbbf24;">×${bait.bonus.toFixed(1)} к улову</div>
+            <div class="bait-desc">×${bait.bonus.toFixed(1)} к улову</div>
             <div class="bait-price">${formatRub(bait.price)}</div>
             <div class="bait-count">🔄 ${count} шт.</div>
             ${isActive ? '<div class="bait-selected">✅ АКТИВНА</div>' : ''}
             <button class="buy-bait-btn" data-bait="${bait.id}" data-action="buy">Купить</button>
             ${count > 0 ? `<button class="buy-bait-btn" data-bait="${bait.id}" data-action="use" style="background:#2a5a3a;border-color:#4ade80;">🎣 Использовать</button>` : ''}
         `;
-        baitShop.appendChild(card);
-    });
+        shop.appendChild(card);
+    }
 
     document.querySelectorAll('.buy-bait-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', function() {
             if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-            const baitId = btn.dataset.bait;
-            const action = btn.dataset.action;
+            const baitId = this.dataset.bait;
+            const action = this.dataset.action;
             const bait = BAIT_TYPES.find(b => b.id === baitId);
             if (!bait) return;
             if (action === 'buy') {
-                if (playerData.rub < bait.price) {
-                    showToast(`❌ Недостаточно RUB для покупки ${bait.name}`, false);
-                    return;
-                }
+                if (playerData.rub < bait.price) { showToast(`❌ Недостаточно RUB!`, false); return; }
                 playerData.rub -= bait.price;
                 playerData.baits[baitId] = (playerData.baits[baitId] || 0) + 1;
-                showToast(`✅ Куплена ${bait.name}`);
                 showSuccess('🛒 Покупка', `${bait.name} приобретена`, formatRub(bait.price));
+                showToast(`✅ Куплена ${bait.name}`);
             } else if (action === 'use') {
-                if ((playerData.baits[baitId] || 0) <= 0) {
-                    showToast('❌ У вас нет этой наживки!', false);
-                    return;
-                }
+                if ((playerData.baits[baitId] || 0) <= 0) { showToast('❌ У вас нет этой наживки!', false); return; }
                 playerData.activeBait = baitId;
-                showToast(`🎣 Выбрана наживка: ${bait.name} (×${bait.bonus.toFixed(1)} к улову)`);
+                showToast(`🎣 Выбрана наживка: ${bait.name} (×${bait.bonus.toFixed(1)})`);
             }
             updateUI();
             saveToLocalStorage();
@@ -1816,458 +1621,170 @@ function renderBaitShop() {
     });
 }
 
-// ==================== ЛОТЕРЕЯ ====================
-const LOTTERY_SEGMENTS = [
-    { label: '×2', color: '#fbbf24', multiplier: 2 },
-    { label: '×5', color: '#f59e0b', multiplier: 5 },
-    { label: '×10', color: '#f97316', multiplier: 10 },
-    { label: '×100', color: '#ef4444', multiplier: 100 },
-    { label: '0', color: '#4a617c', multiplier: 0 },
-    { label: '0', color: '#4a617c', multiplier: 0 },
-    { label: '0', color: '#4a617c', multiplier: 0 },
-    { label: '0', color: '#4a617c', multiplier: 0 },
-    { label: '0', color: '#4a617c', multiplier: 0 },
-    { label: '0', color: '#4a617c', multiplier: 0 },
-];
-
-function drawWheel(rotation = 0) {
-    const w = wheelCanvas.width;
-    const h = wheelCanvas.height;
-    const cx = w / 2;
-    const cy = h / 2;
-    const radius = Math.min(w, h) / 2 - 10;
-    const segments = LOTTERY_SEGMENTS.length;
-    const angleStep = (2 * Math.PI) / segments;
-
-    wheelCtx.clearRect(0, 0, w, h);
-    
-    for (let i = 0; i < segments; i++) {
-        const startAngle = i * angleStep + rotation;
-        const endAngle = startAngle + angleStep;
-        
-        wheelCtx.beginPath();
-        wheelCtx.moveTo(cx, cy);
-        wheelCtx.arc(cx, cy, radius, startAngle, endAngle);
-        wheelCtx.closePath();
-        wheelCtx.fillStyle = LOTTERY_SEGMENTS[i].color;
-        wheelCtx.fill();
-        wheelCtx.strokeStyle = 'rgba(255,255,255,0.1)';
-        wheelCtx.lineWidth = 1;
-        wheelCtx.stroke();
-        
-        const textAngle = startAngle + angleStep / 2;
-        const textRadius = radius * 0.65;
-        const tx = cx + Math.cos(textAngle) * textRadius;
-        const ty = cy + Math.sin(textAngle) * textRadius;
-        wheelCtx.fillStyle = '#fff';
-        wheelCtx.font = '14px Inter';
-        wheelCtx.textAlign = 'center';
-        wheelCtx.textBaseline = 'middle';
-        wheelCtx.fillText(LOTTERY_SEGMENTS[i].label, tx, ty);
-    }
-    
-    wheelCtx.beginPath();
-    wheelCtx.arc(cx, cy, radius, 0, 2 * Math.PI);
-    wheelCtx.strokeStyle = 'rgba(255,215,0,0.3)';
-    wheelCtx.lineWidth = 3;
-    wheelCtx.stroke();
-    
-    wheelCtx.beginPath();
-    wheelCtx.moveTo(cx - 12, 12);
-    wheelCtx.lineTo(cx, 0);
-    wheelCtx.lineTo(cx + 12, 12);
-    wheelCtx.closePath();
-    wheelCtx.fillStyle = '#fbbf24';
-    wheelCtx.fill();
-    wheelCtx.shadowColor = '#fbbf24';
-    wheelCtx.shadowBlur = 20;
-    wheelCtx.fill();
-    wheelCtx.shadowBlur = 0;
-}
-
-function spinLottery() {
+// ==================== ПЕРЕВОДЫ ====================
+function executeTransfer() {
     if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
+    const coinId = document.getElementById('transferCoinSelect').value;
+    const amount = parseFloat(document.getElementById('transferAmountInput').value);
+    const toUsername = document.getElementById('transferToInput').value.trim();
+    if (!toUsername) { showToast('❌ Укажите получателя!', false); return; }
+    if (toUsername === myUsername) { showToast('❌ Нельзя перевести самому себе!', false); return; }
+    if (isNaN(amount) || amount <= 0) { showToast('❌ Введите сумму!', false); return; }
     
-    const bet = parseInt(lotteryBetInput.value);
-    if (isNaN(bet) || bet < 1) {
-        showToast('❌ Минимальная ставка 1 ₽', false);
-        return;
-    }
-    if (bet > playerData.rub) {
-        showToast(`❌ Недостаточно RUB! У вас ${formatRub(playerData.rub)}`, false);
-        return;
-    }
+    let balance = 0, symbol = '', price = 1;
+    if (coinId === 'rub') { balance = playerData.rub; symbol = 'RUB'; }
+    else { const asset = getAsset(coinId); if (!asset) { showToast('❌ Неизвестная монета!', false); return; } balance = playerData.balances[coinId] || 0; symbol = asset.symbol; price = asset.price; }
+    if (balance < amount) { showToast(`❌ Недостаточно ${symbol}!`, false); return; }
     
-    const segments = LOTTERY_SEGMENTS.length;
-    const randomIndex = Math.floor(Math.random() * segments);
-    const multiplier = LOTTERY_SEGMENTS[randomIndex].multiplier;
-    const win = bet * multiplier;
-    const isWin = multiplier > 0;
-    
-    const spins = 5 + Math.random() * 3;
-    const finalAngle = spins * 2 * Math.PI + (randomIndex / segments) * 2 * Math.PI;
-    const duration = 2000;
-    const startTime = Date.now();
-    const startRotation = 0;
-    
-    function animateWheel() {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const currentAngle = startRotation + finalAngle * eased;
-        drawWheel(currentAngle);
-        
-        if (progress < 1) {
-            requestAnimationFrame(animateWheel);
-        } else {
-            playerData.rub -= bet;
-            if (isWin) {
-                playerData.rub += win;
-                launchConfetti();
-                lotteryResult.innerHTML = `
-                    <span class="result-win">🎉 ВЫИГРЫШ! ×${multiplier}</span>
-                    <span class="result-amount">+${formatRub(win)}</span>
-                `;
-                showSuccess('🎉 ВЫИГРЫШ!', `×${multiplier}`, formatRub(win));
-                showToast(`🎉 Вы выиграли ${formatRub(win)}! (×${multiplier})`);
-            } else {
-                lotteryResult.innerHTML = `
-                    <span class="result-lose">😔 Проигрыш</span>
-                    <span style="color:#4a617c;">-${formatRub(bet)}</span>
-                `;
-                showToast(`😔 Проигрыш ${formatRub(bet)}`, false);
-            }
-            
-            playerData.lotteryPlays = (playerData.lotteryPlays || 0) + 1;
-            playerData.lotteryHistory.unshift({
-                bet: bet,
-                win: win,
-                multiplier: multiplier,
-                isWin: isWin,
-                time: new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' })
-            });
-            if (playerData.lotteryHistory.length > 30) playerData.lotteryHistory.pop();
-            
-            addHistory('lottery', isWin ? '🎰 ВЫИГРЫШ' : '🎰 ПРОИГРЫШ', isWin ? win : bet, 1, isWin ? `×${multiplier}` : '');
-            
-            updateUI();
-            saveToLocalStorage();
-        }
-    }
-    
-    animateWheel();
-}
-
-function updateLotteryUI() {
-    lotteryTotalPlays.textContent = playerData.lotteryPlays || 0;
-    renderLotteryHistory();
-}
-
-function renderLotteryHistory() {
-    if (!playerData.lotteryHistory || playerData.lotteryHistory.length === 0) {
-        lotteryHistoryList.innerHTML = `<div class="history-item" style="color:#4a617c;">Сыграйте в лотерею!</div>`;
-        return;
-    }
-    lotteryHistoryList.innerHTML = '';
-    playerData.lotteryHistory.slice(0, 15).forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        const result = item.isWin ? `✅ +${formatRub(item.win)}` : `❌ -${formatRub(item.bet)}`;
-        div.innerHTML = `
-            <span><span class="side-lottery">🎰</span> ${item.isWin ? 'Выигрыш' : 'Проигрыш'} ${result}</span>
-            <span>${item.time}</span>
-        `;
-        lotteryHistoryList.appendChild(div);
-    });
-}
-
-// ==================== МАЙНИНГ ====================
-function renderShop() {
-    const items = MINING_GEAR[currentShopTab] || [];
-    shopGrid.innerHTML = '';
-    items.forEach(item => {
-        const count = playerData.gear[currentShopTab]?.[item.id] || 0;
-        const card = document.createElement('div');
-        card.className = 'shop-card';
-        card.innerHTML = `
-            <div style="font-size:24px;">${item.icon}</div>
-            <div class="item-name">${item.name}</div>
-            <div class="item-power">⚡ ${item.power} MH/s</div>
-            <div class="item-price">${formatRub(item.price)}</div>
-            <div class="item-count">🖥️ ${count} шт.</div>
-            <button class="buy-btn" data-type="${currentShopTab}" data-id="${item.id}">Купить</button>
-        `;
-        shopGrid.appendChild(card);
-    });
-    document.querySelectorAll('.buy-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-            const type = btn.dataset.type;
-            const id = btn.dataset.id;
-            const item = MINING_GEAR[type].find(g => g.id === id);
-            if (!item) return;
-            if (playerData.rub < item.price) {
-                showToast('❌ Недостаточно RUB для покупки ' + item.name, false);
-                return;
-            }
-            playerData.rub -= item.price;
-            if (!playerData.gear[type]) playerData.gear[type] = {};
-            playerData.gear[type][id] = (playerData.gear[type][id] || 0) + 1;
-            showSuccess('🛒 Покупка', `${item.name} приобретён`, formatRub(item.price));
-            updateUI();
-            saveToLocalStorage();
-            showToast('✅ Куплен ' + item.name);
-            playBeep('buy');
-        });
-    });
-}
-
-function updateMiningUI() {
-    const power = calcTotalPower();
-    hashrateDisplay.textContent = power.toFixed(2) + ' MH/s';
-    
-    const coinId = playerData.miningCoin || 'ton';
-    const asset = getAsset(coinId);
-    minedDisplay.textContent = playerData.minedTotal.toFixed(4) + ' ' + (asset ? asset.symbol : coinId.toUpperCase());
-    
-    miningStatus.textContent = playerData.miningActive ? '🟢 Работает' : '⏸ Остановлен';
-    miningStatus.style.color = playerData.miningActive ? '#4ade80' : '#f87171';
-    toggleMiningBtn.textContent = playerData.miningActive ? '⏹ Остановить' : '▶ Запустить';
-    toggleMiningBtn.classList.toggle('active', playerData.miningActive);
-}
-
-let miningInterval = null;
-
-function toggleMining() {
-    if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
-    playerData.miningActive = !playerData.miningActive;
-    if (playerData.miningActive) {
-        const power = calcTotalPower();
-        if (power === 0) {
-            showToast('⚠️ Нет оборудования! Купите в магазине.', false);
-            playerData.miningActive = false;
-            updateMiningUI();
-            return;
-        }
-        playerData.miningCoin = mineCoinSelect.value;
-        startMiningLoop();
-        showToast(`⛏️ Майнинг ${playerData.miningCoin.toUpperCase()} запущен`);
-    } else {
-        if (miningInterval) {
-            clearInterval(miningInterval);
-            miningInterval = null;
-        }
-        showToast('⏸ Майнинг остановлен');
-    }
-    updateMiningUI();
+    playerData.rub = (playerData.rub || 0) - amount;
+    playerData.transferHistory.unshift({ from: myUsername, to: toUsername, symbol: symbol, amount: Math.round(amount * 1000) / 1000, time: new Date().toLocaleTimeString() });
+    if (playerData.transferHistory.length > 30) playerData.transferHistory.pop();
+    addHistory('transfer', symbol, amount, price, '→ ' + toUsername);
     saveToLocalStorage();
+    showSuccess('💸 Перевод', `${amount.toFixed(4)} ${symbol} → ${toUsername}`, formatRub(amount));
+    updateUI();
+    document.getElementById('transferAmountInput').value = '';
+    document.getElementById('transferToInput').value = '';
+    playBeep('buy');
 }
 
-function startMiningLoop() {
-    if (miningInterval) clearInterval(miningInterval);
-    miningInterval = setInterval(() => {
-        if (!playerData.miningActive || !isLoggedIn) return;
-        const power = calcTotalPower();
-        if (power === 0) {
-            playerData.miningActive = false;
-            updateMiningUI();
-            clearInterval(miningInterval);
-            miningInterval = null;
-            showToast('⛔ Майнинг остановлен: нет оборудования', false);
-            return;
-        }
-        const reward = power * 0.0002;
-        playerData.minedTotal += reward;
-        const coinId = playerData.miningCoin || 'ton';
-        playerData.balances[coinId] = (playerData.balances[coinId] || 0) + reward;
-        updateUI();
-        saveToLocalStorage();
-    }, 5000);
+// ==================== ВХОД ====================
+function registerUser() {
+    const username = document.getElementById('usernameInput').value.trim();
+    const password = document.getElementById('passwordInput').value.trim();
+    if (!username || !password) { showToast('❌ Введите имя и пароль!', false); return; }
+    if (password.length < 4) { showToast('❌ Пароль минимум 4 символа', false); return; }
+    
+    myUsername = username;
+    myPassword = password;
+    myUserId = 'user_' + username.replace(/\s/g, '_').toLowerCase();
+    
+    db.ref('users').orderByChild('username').equalTo(username).once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                for (const [id, user] of Object.entries(data)) {
+                    if (user.username === username) { showToast('❌ Пользователь уже существует!', false); return; }
+                }
+            }
+            db.ref('users/' + myUserId).set({ username: myUsername, password: myPassword, registered: Date.now() })
+                .then(() => { showToast('✅ Регистрация успешна!'); isLoggedIn = true; saveSession(); enterGame(); })
+                .catch(e => showToast('❌ Ошибка: ' + e.message, false));
+        })
+        .catch(e => showToast('❌ Ошибка: ' + e.message, false));
 }
 
-// ==================== ЗВУКИ ====================
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
-function playBeep(type) {
-    try {
-        if (!audioCtx) audioCtx = new AudioCtx();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = type === 'buy' ? 880 : 440;
-        gain.gain.value = 0.08;
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
-    } catch(e) {}
+function loginUser() {
+    const username = document.getElementById('usernameInput').value.trim();
+    const password = document.getElementById('passwordInput').value.trim();
+    if (!username || !password) { showToast('❌ Введите имя и пароль!', false); return; }
+    
+    const userId = 'user_' + username.replace(/\s/g, '_').toLowerCase();
+    db.ref('users/' + userId).once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (!data) { showToast('❌ Пользователь не найден! Зарегистрируйтесь.', false); return; }
+            if (data.password !== password) { showToast('❌ Неправильный пароль!', false); return; }
+            myUsername = username; myUserId = userId; myPassword = password;
+            isLoggedIn = true;
+            saveSession();
+            enterGame();
+        })
+        .catch(e => showToast('❌ Ошибка: ' + e.message, false));
 }
 
-// ==================== TOAST ====================
-let toastTimeout = null;
-function showToast(msg, isSuccess = true) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'toast show ' + (isSuccess ? 'success' : 'error');
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => el.classList.remove('show'), 3000);
+function logout() {
+    saveToLocalStorage();
+    clearSession();
+    isLoggedIn = false;
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('appContainer').style.display = 'none';
+    showToast('👋 Вы вышли');
+}
+
+function saveSession() {
+    if (!isLoggedIn) return;
+    setCookie('cryptoSession', { username: myUsername, userId: myUserId, password: myPassword, timestamp: Date.now() }, 365);
+}
+
+function loadSession() {
+    const session = getCookie('cryptoSession');
+    if (session && session.username && session.userId) {
+        myUsername = session.username; myUserId = session.userId; myPassword = session.password || ''; isLoggedIn = true;
+        return true;
+    }
+    return false;
+}
+
+function clearSession() {
+    isLoggedIn = false;
+    setCookie('cryptoSession', { username: myUsername, userId: myUserId, password: myPassword, loggedOut: true, timestamp: Date.now() }, 365);
+}
+
+function enterGame() {
+    document.getElementById('userNameDisplay').textContent = myUsername;
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'block';
+    loadFromLocalStorage();
+    for (const a of ASSET_LIST) {
+        if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
+    }
+    initGame();
 }
 
 // ==================== ИНИЦИАЛИЗАЦИЯ ====================
 function initGame() {
-    renderMarket();
-    updateBalances();
-    updatePriceDisplay();
-    tradeAmountSpan.textContent = tradeAmount.toFixed(1);
-    renderHistory();
-    updateChart();
-    renderPortfolio();
-    renderTransferHistory();
-    updateTransferBalance();
-    updateTradeInfo();
-    updateFishingUI();
-    renderBaitShop();
-    updateLotteryUI();
-    drawWheel();
-    renderShop();
-    updateMiningUI();
-    renderBusiness();
-    updateBusinessStats();
-    renderBusinessHistory();
-
-    fishingPool.addEventListener('click', goFishing);
-    lotteryBtn.addEventListener('click', spinLottery);
-    toggleMiningBtn.addEventListener('click', toggleMining);
-
-    // Доход от бизнеса каждые 10 секунд
-    setInterval(() => {
-        if (isLoggedIn) applyBusinessIncome();
-    }, 10000);
-
-    // Обновление цен
-    setInterval(() => {
-        if (isLoggedIn) {
-            ASSET_LIST.forEach(asset => {
-                const volatility = (Math.random() * 10 - 5) / 100;
-                let newPrice = asset.price * (1 + volatility);
-                if (newPrice < 0.001) newPrice = 0.001;
-                newPrice = Math.round(newPrice * 100) / 100;
-                const oldPrice = asset.price;
-                if (newPrice !== oldPrice) {
-                    asset.price = newPrice;
-                    const change = ((asset.price - oldPrice) / oldPrice) * 100;
-                    asset.change = Math.round(change * 100) / 100;
-                }
-            });
-            savePricesToLocalStorage();
-            renderMarket();
-            updatePriceDisplay();
-            updateChart();
-            updateBalances();
-            renderPortfolio();
-            updateTradeInfo();
-        }
-    }, 5000);
-
-    // Автосохранение
-    setInterval(() => {
-        if (isLoggedIn) saveToLocalStorage();
-    }, 15000);
-}
-
-// ==================== СОБЫТИЯ ====================
-document.addEventListener('DOMContentLoaded', () => {
-    if (loadSession() && isSessionActive()) {
-        userNameDisplay.textContent = myUsername;
-        isLoggedIn = true;
-        loginOverlay.style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        loadFromLocalStorage();
-        loadPricesFromLocalStorage();
-        initGame();
-    }
-
-    loginBtn.addEventListener('click', () => {
-        if (registerLink.textContent.includes('Зарегистрироваться')) {
-            registerUser();
-        } else {
-            loginUser();
-        }
-    });
-    registerLink.addEventListener('click', () => {
-        const link = registerLink;
-        const btn = loginBtn;
-        if (link.textContent.includes('Зарегистрироваться')) {
-            link.textContent = '🔑 Уже есть аккаунт? Войти';
-            btn.textContent = '📝 Зарегистрироваться';
-        } else {
-            link.textContent = '📝 Зарегистрироваться';
-            btn.textContent = '🔑 Войти';
-        }
-    });
-    usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
-    passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loginBtn.click(); });
-
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-            if (btn.dataset.tab === 'leaderboard') loadLeaderboard();
-            if (btn.dataset.tab === 'portfolio') renderPortfolio();
-            if (btn.dataset.tab === 'transfer') { updateTransferBalance(); renderTransferHistory(); }
-            if (btn.dataset.tab === 'fishing') { updateFishingUI(); renderBaitShop(); }
-            if (btn.dataset.tab === 'lottery') { updateLotteryUI(); drawWheel(); }
-            if (btn.dataset.tab === 'business') { renderBusiness(); updateBusinessStats(); renderBusinessHistory(); }
-            if (btn.dataset.tab === 'trade') { setTimeout(updateChart, 100); updateTradeInfo(); }
-        });
-    });
-
-    document.querySelectorAll('.shop-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.shop-tab').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentShopTab = btn.dataset.shop;
-            renderShop();
-        });
-    });
-
-    document.getElementById('decAmount').addEventListener('click', () => {
+    // События
+    document.getElementById('fishingPool')?.addEventListener('click', goFishing);
+    document.getElementById('lotteryBtn')?.addEventListener('click', spinLottery);
+    document.getElementById('toggleMiningBtn')?.addEventListener('click', toggleMining);
+    
+    document.getElementById('decAmount')?.addEventListener('click', () => {
         let v = tradeAmount - 0.5;
         if (v < 0.1) v = 0.1;
         tradeAmount = Math.round(v * 10) / 10;
-        tradeAmountSpan.textContent = tradeAmount.toFixed(1);
+        document.getElementById('tradeAmount').textContent = tradeAmount.toFixed(1);
         updateTradeInfo();
     });
-    document.getElementById('incAmount').addEventListener('click', () => {
+    document.getElementById('incAmount')?.addEventListener('click', () => {
         let v = tradeAmount + 0.5;
         if (v > 100) v = 100;
         tradeAmount = Math.round(v * 10) / 10;
-        tradeAmountSpan.textContent = tradeAmount.toFixed(1);
+        document.getElementById('tradeAmount').textContent = tradeAmount.toFixed(1);
         updateTradeInfo();
     });
-
-    document.getElementById('buyBtn').addEventListener('click', () => executeTrade('buy'));
-    document.getElementById('buyMaxBtn').addEventListener('click', () => executeTrade('buy-max'));
-    document.getElementById('sellBtn').addEventListener('click', () => executeTrade('sell'));
-    document.getElementById('sellAllBtn').addEventListener('click', () => executeTrade('sell-all'));
-
-    transferBtn.addEventListener('click', executeTransfer);
-    transferAmountInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeTransfer(); });
-    transferToInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeTransfer(); });
-    transferCoinSelect.addEventListener('change', updateTransferBalance);
-
-    mineCoinSelect.addEventListener('change', () => {
-        playerData.miningCoin = mineCoinSelect.value;
-        saveToLocalStorage();
+    document.getElementById('buyBtn')?.addEventListener('click', () => executeTrade('buy'));
+    document.getElementById('buyMaxBtn')?.addEventListener('click', () => executeTrade('buy-max'));
+    document.getElementById('sellBtn')?.addEventListener('click', () => executeTrade('sell'));
+    document.getElementById('sellAllBtn')?.addEventListener('click', () => executeTrade('sell-all'));
+    document.getElementById('transferBtn')?.addEventListener('click', executeTransfer);
+    
+    document.querySelectorAll('.shop-tab').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.shop-tab').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentShopTab = this.dataset.shop;
+            renderShop();
+        });
     });
-
-    document.getElementById('resetBtn').addEventListener('click', () => {
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            if (this.dataset.tab === 'leaderboard') loadLeaderboard();
+            if (this.dataset.tab === 'trade') setTimeout(updateChart, 100);
+        });
+    });
+    
+    document.getElementById('resetBtn')?.addEventListener('click', () => {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         if (confirm('Сбросить прогресс?')) {
             playerData.rub = 0;
             playerData.balances = {};
+            playerData.history = [];
             playerData.transferHistory = [];
             playerData.fishingHistory = [];
             playerData.fishingCount = 0;
@@ -2279,75 +1796,98 @@ document.addEventListener('DOMContentLoaded', () => {
             playerData.gear = { gpu: {}, cpu: {}, ram: {} };
             playerData.miningActive = false;
             playerData.minedTotal = 0;
-            playerData.miningCoin = 'ton';
             playerData.businesses = {};
             playerData.businessHistory = [];
-            playerData.businessLevel = 1;
-            playerData.lastBusinessIncome = 0;
-            ASSET_LIST.forEach(a => {
-                playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
-            });
-            playerData.history = [];
             chartData = {};
             tradePoints = {};
-            ASSET_LIST.forEach(a => {
+            for (const a of ASSET_LIST) {
+                playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
                 chartData[a.id] = [];
                 tradePoints[a.id] = [];
-            });
-            selectedAssetId = 'ton';
-            tradeAmount = 1.0;
+            }
             saveToLocalStorage();
-            renderMarket();
-            updateBalances();
-            updatePriceDisplay();
-            tradeAmountSpan.textContent = '1.0';
-            renderHistory();
-            updateChart();
-            renderPortfolio();
-            renderTransferHistory();
-            updateTradeInfo();
-            updateFishingUI();
-            renderBaitShop();
-            updateLotteryUI();
-            drawWheel();
-            renderShop();
-            updateMiningUI();
-            renderBusiness();
-            updateBusinessStats();
-            renderBusinessHistory();
+            updateUI();
             showToast('🔄 Сброшено');
         }
     });
-
-    document.getElementById('saveBtn').addEventListener('click', () => {
+    
+    document.getElementById('saveBtn')?.addEventListener('click', () => {
         if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
         saveToLocalStorage();
-        savePricesToLocalStorage();
         showToast('✅ Сохранено в localStorage');
     });
+    
+    document.getElementById('logoutBtn')?.addEventListener('click', () => {
+        if (confirm('Выйти из аккаунта?')) logout();
+    });
+    
+    // Доход от бизнеса
+    setInterval(() => { if (isLoggedIn) applyBusinessIncome(); }, 10000);
+    
+    // Обновление цен
+    setInterval(() => {
+        if (!isLoggedIn) return;
+        for (const asset of ASSET_LIST) {
+            const volatility = (Math.random() * 10 - 5) / 100;
+            let newPrice = asset.price * (1 + volatility);
+            if (newPrice < 0.001) newPrice = 0.001;
+            newPrice = Math.round(newPrice * 100) / 100;
+            if (newPrice !== asset.price) {
+                asset.price = newPrice;
+                asset.change = Math.round(((asset.price - (asset._oldPrice || asset.price)) / (asset._oldPrice || asset.price)) * 100 * 100) / 100;
+                asset._oldPrice = asset.price;
+            }
+        }
+        renderMarket();
+        updateChart();
+        updateUI();
+    }, 5000);
+    
+    updateUI();
+    drawWheel();
+    loadLeaderboard();
+    
+    // Автосохранение
+    setInterval(() => { if (isLoggedIn) saveToLocalStorage(); }, 15000);
+}
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        if (confirm('Выйти из аккаунта?')) {
-            logout();
+function loadLeaderboard() {
+    const list = document.getElementById('leaderboardList');
+    if (!list) return;
+    list.innerHTML = `
+        <div class="history-title">🏆 Топ игроков (локально)</div>
+        <div class="lb-item"><span class="name">👑 ${myUsername}</span><span class="total">${formatRub(calcTotal())}</span></div>
+        <div class="lb-item" style="color:#4a617c;">Другие игроки не видны в офлайн-режиме</div>
+    `;
+    document.getElementById('onlineCount').textContent = '1';
+}
+
+// ==================== ЗАПУСК ====================
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        if (document.getElementById('registerLink').textContent.includes('Зарегистрироваться')) registerUser();
+        else loginUser();
+    });
+    document.getElementById('registerLink').addEventListener('click', function() {
+        const btn = document.getElementById('loginBtn');
+        if (this.textContent.includes('Зарегистрироваться')) {
+            this.textContent = '🔑 Уже есть аккаунт? Войти';
+            btn.textContent = '📝 Зарегистрироваться';
+        } else {
+            this.textContent = '📝 Зарегистрироваться';
+            btn.textContent = '🔑 Войти';
         }
     });
-
-    window.addEventListener('resize', () => {
-        if (document.getElementById('tab-trade').classList.contains('active')) {
-            setTimeout(updateChart, 100);
-        }
-    });
-
-    // Leaderboard (простая имитация)
-    function loadLeaderboard() {
-        leaderboardList.innerHTML = `
-            <div class="history-title">🏆 Топ игроков (локально)</div>
-            <div class="lb-item"><span class="name">👑 ${myUsername}</span><span class="total">${formatRub(calcTotal())}</span></div>
-            <div class="lb-item" style="color:#4a617c;">Другие игроки не видны в офлайн-режиме</div>
-        `;
-        onlineCount.textContent = '1';
+    document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
+    document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
+    
+    if (loadSession() && isLoggedIn) {
+        document.getElementById('userNameDisplay').textContent = myUsername;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        loadFromLocalStorage();
+        initGame();
     }
-    window.loadLeaderboard = loadLeaderboard;
 });
 </script>
 </body>
