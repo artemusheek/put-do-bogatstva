@@ -305,7 +305,6 @@
 
 <!-- ===== ОСНОВНОЙ ИНТЕРФЕЙС ===== -->
 <div class="app-container glass" id="appContainer" style="display:none;">
-    <!-- Верхняя панель -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
         <div class="user-badge">
             <span class="online-dot"></span>
@@ -317,7 +316,6 @@
         </div>
     </div>
 
-    <!-- Вкладки -->
     <div class="tabs" id="tabsContainer">
         <button class="tab-btn active" data-tab="trade">📊 Трейдинг</button>
         <button class="tab-btn" data-tab="business">🏢 Бизнес</button>
@@ -554,7 +552,6 @@
         </div>
     </div>
 
-    <!-- Кнопки внизу -->
     <div class="reset-area">
         <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
         <button class="reset-btn" id="resetBtn">⟳ Сброс</button>
@@ -599,6 +596,14 @@ const firebaseConfig = {
 // 🛠️ ВСЕ НАСТРОЙКИ ИГРЫ
 // ============================================================
 
+// ============================================================
+// 🚀 НОВАЯ МЕМ-МОНЕТА "PEPE ELON MOON" 🚀
+// ============================================================
+// Стартовая цена: 3,000,000,000,000,000,000,000 (3 секстиллиона)
+// Падает до: 1,000,000,000,000 (1 триллион)
+// Потом взлетает до: 3,000,000,000,000,000,000,000,000,000,000,000 (3 нониллиона)
+// ============================================================
+
 const ASSET_LIST = [
     { id: 'ton', name: 'TONCOIN', symbol: '🔶', price: 240.50 },
     { id: 'btc', name: 'BTC', symbol: '₿', price: 4520000 },
@@ -610,6 +615,7 @@ const ASSET_LIST = [
     { id: 'dot', name: 'DOT', symbol: '●', price: 8.75 },
     { id: 'avax', name: 'AVAX', symbol: '▲', price: 42.10 },
     { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83 },
+    // МЕМ-МОНЕТА 🐸
     { 
         id: 'meme', 
         name: '🐸 PEPE ELON', 
@@ -783,12 +789,12 @@ let lotteryData = { history: [], plays: 0 };
 // ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
 function formatRub(v) {
     if (v === undefined || v === null || isNaN(v)) return '0 ₽';
-    return v.toFixed(2) + ' ₽';
+    return Number(v).toFixed(2) + ' ₽';
 }
 
 function formatCoin(v) {
     if (v === undefined || v === null || isNaN(v)) return '0.0000';
-    return v.toFixed(4);
+    return Number(v).toFixed(4);
 }
 
 function getAsset(id) { return ASSET_LIST.find(a => a.id === id); }
@@ -796,7 +802,10 @@ function getAsset(id) { return ASSET_LIST.find(a => a.id === id); }
 function calcTotal() {
     let total = playerData.rub || 0;
     for (const asset of ASSET_LIST) {
-        total += (playerData.balances[asset.id] || 0) * asset.price;
+        const balance = playerData.balances[asset.id] || 0;
+        if (balance > 0 && asset.price > 0) {
+            total += balance * asset.price;
+        }
     }
     return total;
 }
@@ -839,6 +848,7 @@ function calcTotalPower() {
 function getMaxBuyAmount() {
     const asset = getSelectedAsset();
     if (!asset) return 0;
+    if (asset.price <= 0) return 0;
     return Math.floor((playerData.rub / asset.price) * 10000) / 10000;
 }
 
@@ -1005,10 +1015,11 @@ function loadFromFirebase() {
 function saveToFirebase() {
     if (!firebaseAvailable || !db || !myUserId || !isLoggedIn) return;
     try {
+        const total = calcTotal();
         const data = {
             username: myUsername,
             admin: playerData.admin || false,
-            total: playerData.total || 0,
+            total: total || 0,
             rub: playerData.rub || 0,
             balances: playerData.balances || {}
         };
@@ -1102,11 +1113,6 @@ function startPriceFluctuation() {
             if (Math.random() < 0.1) {
                 const bigChange = (Math.random() * 8 - 4) / 100;
                 newPrice = asset.price * (1 + bigChange);
-            }
-            
-            if (Math.random() < 0.05) {
-                const trend = (Math.random() * 10 - 5) / 100;
-                newPrice = asset.price * (1 + trend);
             }
             
             if (newPrice < 0.001) newPrice = 0.001;
@@ -1485,11 +1491,13 @@ function addHistory(type, symbol, amount, price, extra = '') {
 }
 
 function renderHistory() {
+    const list = document.getElementById('historyList');
+    if (!list) return;
     if (!playerData.history || playerData.history.length === 0) {
-        document.getElementById('historyList').innerHTML = '<div class="history-item" style="color:#4a617c;">Операций пока нет</div>';
+        list.innerHTML = '<div class="history-item" style="color:#4a617c;">Операций пока нет</div>';
         return;
     }
-    document.getElementById('historyList').innerHTML = '';
+    list.innerHTML = '';
     for (const item of playerData.history) {
         const div = document.createElement('div');
         div.className = 'history-item';
@@ -1502,7 +1510,7 @@ function renderHistory() {
         else if (item.type === 'fish') { sideClass = 'side-fish'; txt = '🎣 Рыбалка'; }
         else if (item.type === 'lottery') { sideClass = 'side-lottery'; txt = '🎰 Лотерея'; }
         div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
-        document.getElementById('historyList').appendChild(div);
+        list.appendChild(div);
     }
 }
 
@@ -1849,6 +1857,16 @@ function updateUI() {
     renderLotteryHistory(); updateMiningUI(); renderShop();
     document.getElementById('lotteryTotalPlays').textContent = lotteryData.plays || 0;
     document.getElementById('transferBalanceDisplay').textContent = formatRub(playerData.rub || 0);
+    
+    // Автосохранение в Firebase
+    if (!window._saveTimeout) {
+        window._saveTimeout = setTimeout(() => {
+            if (isLoggedIn) {
+                saveToFirebase();
+            }
+            window._saveTimeout = null;
+        }, 2000);
+    }
 }
 
 function renderPortfolio() {
@@ -1912,13 +1930,16 @@ function updatePriceDisplay() {
 function updateChart() {
     const asset = getSelectedAsset();
     if (!asset) return;
+    const canvas = document.getElementById('priceChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     if (!chartData[asset.id]) chartData[asset.id] = [];
     chartData[asset.id].push(asset.price);
     if (chartData[asset.id].length > 50) chartData[asset.id].shift();
     const data = chartData[asset.id];
-    const w = chartCanvas.parentElement.clientWidth || 700;
-    const h = chartCanvas.parentElement.clientHeight || 160;
-    chartCanvas.width = w; chartCanvas.height = h;
+    const w = canvas.parentElement.clientWidth || 700;
+    const h = canvas.parentElement.clientHeight || 160;
+    canvas.width = w; canvas.height = h;
     ctx.clearRect(0, 0, w, h);
     if (data.length < 2) {
         ctx.fillStyle = '#4a617c'; ctx.font = '14px Inter'; ctx.textAlign = 'center';
@@ -2327,6 +2348,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 console.log('🚀 КРИПТО-МАГНАТ ЗАПУЩЕН!');
 console.log('🐸 МЕМ-МОНЕТА PEPE ELON MOON ГОТОВА!');
+console.log('📈 СЛЕДИТЕ ЗА КОСМИЧЕСКИМИ ЦЕНАМИ!');
 </script>
 </body>
 </html>
