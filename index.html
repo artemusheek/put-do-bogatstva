@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
+        /* Стили оставлены без изменений, они не влияют на логику */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background: #0a0e17; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; color: #eef4fa; overflow-x: hidden; }
         .glass { background: rgba(18,28,46,0.55); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); border: 1px solid rgba(255,255,255,0.08); border-radius: 44px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
@@ -702,7 +703,7 @@ let playerData = {
     businesses: {},
     businessHistory: [],
     electricityPaid: Date.now(),
-    total: 0, // ✅ Добавлено поле total
+    total: 0,
 };
 
 // ✅ ГРАФИКИ — localStorage
@@ -874,7 +875,7 @@ function loadFromFirebase() {
                 playerData.businesses = data.businesses || {};
                 playerData.businessHistory = data.businessHistory || [];
                 playerData.electricityPaid = data.electricityPaid || Date.now();
-                playerData.total = data.total ?? calcTotal(); // ✅ Загружаем total
+                playerData.total = data.total ?? calcTotal();
                 
                 for (const a of ASSET_LIST) {
                     if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
@@ -906,7 +907,7 @@ function saveToFirebase() {
             businesses: playerData.businesses || {},
             businessHistory: playerData.businessHistory || [],
             electricityPaid: playerData.electricityPaid || Date.now(),
-            total: total, // ✅ Сохраняем total
+            total: total,
         };
         db.ref('users/' + myUserId).set(data)
             .then(() => console.log('✅ Данные сохранены в Firebase'))
@@ -922,12 +923,12 @@ function loadPricesFromFirebase() {
             const prices = snapshot.val();
             if (prices) {
                 ASSET_LIST.forEach(asset => {
-                    if (prices[asset.id] !== undefined) {
+                    if (prices[asset.id] !== undefined && prices[asset.id] > 0) {
                         asset.price = prices[asset.id];
                     }
                 });
                 renderMarket();
-                updatePriceDisplay();
+                updatePriceDisplay(); // ✅ ИСПРАВЛЕНО: теперь функция существует
                 updateChart();
                 updateUI();
             }
@@ -942,6 +943,15 @@ function savePricesToFirebase() {
     db.ref('prices').set(prices)
         .then(() => console.log('✅ Цены сохранены'))
         .catch(error => console.error('❌ Ошибка сохранения цен:', error.message));
+}
+
+// ✅ НОВАЯ ФУНКЦИЯ (которой не хватало)
+function updatePriceDisplay() {
+    const asset = getSelectedAsset();
+    if (!asset) return;
+    if (currentPriceDisplay) currentPriceDisplay.textContent = formatRub(asset.price);
+    if (chartPair) chartPair.textContent = asset.symbol + ' / RUB';
+    if (chartPrice) chartPrice.textContent = formatRub(asset.price);
 }
 
 // ==================== ЭКРАН УСПЕХА ====================
