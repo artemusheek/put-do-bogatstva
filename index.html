@@ -702,6 +702,7 @@ let playerData = {
     businesses: {},
     businessHistory: [],
     electricityPaid: Date.now(),
+    total: 0, // ✅ Добавлено поле total
 };
 
 // ✅ ГРАФИКИ — localStorage
@@ -873,6 +874,7 @@ function loadFromFirebase() {
                 playerData.businesses = data.businesses || {};
                 playerData.businessHistory = data.businessHistory || [];
                 playerData.electricityPaid = data.electricityPaid || Date.now();
+                playerData.total = data.total ?? calcTotal(); // ✅ Загружаем total
                 
                 for (const a of ASSET_LIST) {
                     if (!playerData.balances[a.id]) playerData.balances[a.id] = a.id === 'ton' ? 1.0 : 0;
@@ -904,7 +906,7 @@ function saveToFirebase() {
             businesses: playerData.businesses || {},
             businessHistory: playerData.businessHistory || [],
             electricityPaid: playerData.electricityPaid || Date.now(),
-            total: total,
+            total: total, // ✅ Сохраняем total
         };
         db.ref('users/' + myUserId).set(data)
             .then(() => console.log('✅ Данные сохранены в Firebase'))
