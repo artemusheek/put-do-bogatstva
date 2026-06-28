@@ -593,14 +593,6 @@ const firebaseConfig = {
 };
 
 // ============================================================
-// 🚀 НОВАЯ МЕМ-МОНЕТА "PEPE ELON MOON" 🚀
-// ============================================================
-// Стартовая цена: 3,000,000,000,000,000,000,000 (3 секстиллиона)
-// Падает до: 1,000,000,000,000 (1 триллион)
-// Потом взлетает до: 3,000,000,000,000,000,000,000,000,000,000,000 (3 нониллиона)
-// ============================================================
-
-// ============================================================
 // 🛠️ ВСЕ НАСТРОЙКИ ИГРЫ
 // ============================================================
 
@@ -875,7 +867,6 @@ function loadChart() {
 function saveFishing() {
     try {
         localStorage.setItem(getFishingKey(), JSON.stringify(fishingData));
-        console.log('✅ Данные рыбалки сохранены в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения рыбалки:', e);
     }
@@ -973,30 +964,26 @@ function updateMemeCoinPrice() {
     memeAsset.memeCounter = (memeAsset.memeCounter || 0) + 1;
     
     if (memeAsset.memeCounter < 5) {
-        // Падение
         const progress = memeAsset.memeCounter / 5;
         const targetPrice = memeAsset.minPrice + (memeAsset.price - memeAsset.minPrice) * (1 - progress);
         memeAsset.price = Math.round(targetPrice);
         memeAsset.change = -((1 - progress) * 99.999);
-        console.log(`🐸 МЕМ-МОНЕТА ПАДАЕТ: ${formatRub(memeAsset.price)}`);
+        console.log(`🐸 МЕМ-МОНЕТА ПАДАЕТ: ${memeAsset.price} ₽`);
     } else if (memeAsset.memeCounter < 8) {
-        // Дно
         memeAsset.price = memeAsset.minPrice;
         memeAsset.change = 0;
-        console.log(`🐸 МЕМ-МОНЕТА НА ДНЕ: ${formatRub(memeAsset.price)}`);
+        console.log(`🐸 МЕМ-МОНЕТА НА ДНЕ: ${memeAsset.price} ₽`);
     } else if (memeAsset.memeCounter < 15) {
-        // Рост
         const progress = (memeAsset.memeCounter - 8) / 7;
         const targetPrice = memeAsset.minPrice + (memeAsset.maxPrice - memeAsset.minPrice) * progress;
         memeAsset.price = Math.round(targetPrice);
         memeAsset.change = progress * 9999999;
-        console.log(`🐸 МЕМ-МОНЕТА РАСТЕТ! ${formatRub(memeAsset.price)}`);
+        console.log(`🐸 МЕМ-МОНЕТА РАСТЕТ! ${memeAsset.price} ₽`);
     } else {
-        // Сброс
         memeAsset.memeCounter = 0;
         memeAsset.price = 3000000000000000000000;
         memeAsset.change = 0;
-        console.log(`🐸 МЕМ-МОНЕТА ВЕРНУЛАСЬ К СТАРТУ: ${formatRub(memeAsset.price)}`);
+        console.log(`🐸 МЕМ-МОНЕТА ВЕРНУЛАСЬ К СТАРТУ: ${memeAsset.price} ₽`);
         showToast('🐸 PEPE ELON MOON НАЧИНАЕТ НОВЫЙ ЦИКЛ!', true);
         launchConfetti();
     }
@@ -1045,7 +1032,7 @@ function startPriceFluctuation() {
         let priceChanged = false;
         
         for (const asset of ASSET_LIST) {
-            if (asset.id === 'meme') continue; // Мем-монета управляется отдельно
+            if (asset.id === 'meme') continue;
             
             const volatility = (Math.random() * 4 - 2) / 100;
             let newPrice = asset.price * (1 + volatility);
@@ -1104,7 +1091,7 @@ function renderPriceEdits() {
         div.innerHTML = `
             <span class="pe-label">${asset.symbol} ${asset.name}</span>
             <input type="number" class="pe-input" id="price_${asset.id}" value="${asset.price}" step="0.01" min="0.001">
-            <span class="pe-current">Текущая: ${formatRub(asset.price)}</span>
+            <span class="pe-current">Текущая: ${asset.price} ₽</span>
         `;
         grid.appendChild(div);
     }
@@ -1237,7 +1224,7 @@ function executeTrade(type) {
         const idx = (chartData[asset.id] || []).length - 1;
         tradePoints[asset.id].push({ price: price, type: 'buy', index: idx > 0 ? idx : 0 });
         saveChart(); saveAllToLocalStorage(); saveToFirebase();
-        showSuccess('🟢 Покупка', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
+        showSuccess('🟢 Покупка', `${amount.toFixed(4)} ${asset.symbol}`, `${totalCost} ₽`);
     } else {
         if (currentBalance < amount) { showToast('❌ Недостаточно ' + asset.symbol + '!', false); return; }
         playerData.balances[asset.id] = currentBalance - amount;
@@ -1249,7 +1236,7 @@ function executeTrade(type) {
         const idx = (chartData[asset.id] || []).length - 1;
         tradePoints[asset.id].push({ price: price, type: 'sell', index: idx > 0 ? idx : 0 });
         saveChart(); saveAllToLocalStorage(); saveToFirebase();
-        showSuccess('🔴 Продажа', `${amount.toFixed(4)} ${asset.symbol}`, formatRub(totalCost));
+        showSuccess('🔴 Продажа', `${amount.toFixed(4)} ${asset.symbol}`, `${totalCost} ₽`);
     }
     if (tradePoints[asset.id] && tradePoints[asset.id].length > 30) tradePoints[asset.id].shift();
     updateUI(); saveAllToLocalStorage(); saveToFirebase();
@@ -1278,7 +1265,7 @@ function renderHistory() {
         else if (item.type === 'receive') { sideClass = 'side-transfer'; txt = '📥 Получено'; }
         else if (item.type === 'fish') { sideClass = 'side-fish'; txt = '🎣 Рыбалка'; }
         else if (item.type === 'lottery') { sideClass = 'side-lottery'; txt = '🎰 Лотерея'; }
-        div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
+        div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${item.price} ₽ • ${item.time}</span>`;
         historyList.appendChild(div);
     }
 }
@@ -1292,30 +1279,11 @@ function getMaxBuyAmount() {
 // ==================== ОСТАЛЬНЫЕ ФУНКЦИИ ====================
 function formatRub(v) {
     if (v === undefined || v === null || isNaN(v)) return '0 ₽';
-    if (v >= 1e30) return (v / 1e30).toFixed(2) + 'N ₽';
-    if (v >= 1e27) return (v / 1e27).toFixed(2) + 'O ₽';
-    if (v >= 1e24) return (v / 1e24).toFixed(2) + 'S ₽';
-    if (v >= 1e21) return (v / 1e21).toFixed(2) + 'Sx ₽';
-    if (v >= 1e18) return (v / 1e18).toFixed(2) + 'Qi ₽';
-    if (v >= 1e15) return (v / 1e15).toFixed(2) + 'Qd ₽';
-    if (v >= 1e12) return (v / 1e12).toFixed(2) + 'T ₽';
-    if (v >= 1e9) return (v / 1e9).toFixed(2) + 'B ₽';
-    if (v >= 1e6) return (v / 1e6).toFixed(2) + 'M ₽';
-    if (v >= 1000) return v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
     return v.toFixed(2) + ' ₽';
 }
 
 function formatCoin(v) {
     if (v === undefined || v === null || isNaN(v)) return '0.0000';
-    if (v > 1e30) return (v / 1e30).toFixed(4) + 'N';
-    if (v > 1e27) return (v / 1e27).toFixed(4) + 'O';
-    if (v > 1e24) return (v / 1e24).toFixed(4) + 'S';
-    if (v > 1e21) return (v / 1e21).toFixed(4) + 'Sx';
-    if (v > 1e18) return (v / 1e18).toFixed(4) + 'Qi';
-    if (v > 1e15) return (v / 1e15).toFixed(4) + 'Qd';
-    if (v > 1e12) return (v / 1e12).toFixed(4) + 'T';
-    if (v > 1e9) return (v / 1e9).toFixed(4) + 'B';
-    if (v > 1e6) return (v / 1e6).toFixed(4) + 'M';
     return v.toFixed(4);
 }
 
@@ -2280,16 +2248,15 @@ function initGame() {
         }
     }, 30000);
     
-    // Запускаем обновление мем-монеты каждые 10 секунд
     setInterval(updateMemeCoinPrice, 10000);
     
     startPriceFluctuation();
     updateUI(); drawWheel(); loadLeaderboard();
     
     console.log('🐸 PEPE ELON MOON МЕМ-МОНЕТА ДОБАВЛЕНА!');
-    console.log('🚀 СТАРТ: 3,000,000,000,000,000,000,000');
-    console.log('📉 ПАДЕНИЕ: 1,000,000,000,000');
-    console.log('📈 ВЗЛЕТ: 3,000,000,000,000,000,000,000,000,000,000,000');
+    console.log('🚀 СТАРТ: 3,000,000,000,000,000,000,000 ₽');
+    console.log('📉 ПАДЕНИЕ: 1,000,000,000,000 ₽');
+    console.log('📈 ВЗЛЕТ: 3,000,000,000,000,000,000,000,000,000,000,000 ₽');
 }
 
 // ==================== ЗВУК ====================
