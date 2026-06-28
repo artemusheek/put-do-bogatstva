@@ -305,6 +305,7 @@
 
 <!-- ===== ОСНОВНОЙ ИНТЕРФЕЙС ===== -->
 <div class="app-container glass" id="appContainer" style="display:none;">
+    <!-- Верхняя панель -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
         <div class="user-badge">
             <span class="online-dot"></span>
@@ -316,6 +317,7 @@
         </div>
     </div>
 
+    <!-- Вкладки -->
     <div class="tabs" id="tabsContainer">
         <button class="tab-btn active" data-tab="trade">📊 Трейдинг</button>
         <button class="tab-btn" data-tab="business">🏢 Бизнес</button>
@@ -552,6 +554,7 @@
         </div>
     </div>
 
+    <!-- Кнопки внизу -->
     <div class="reset-area">
         <button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
         <button class="reset-btn" id="resetBtn">⟳ Сброс</button>
@@ -607,7 +610,6 @@ const ASSET_LIST = [
     { id: 'dot', name: 'DOT', symbol: '●', price: 8.75 },
     { id: 'avax', name: 'AVAX', symbol: '▲', price: 42.10 },
     { id: 'matic', name: 'MATIC', symbol: '◆', price: 0.83 },
-    // МЕМ-МОНЕТА 🐸
     { 
         id: 'meme', 
         name: '🐸 PEPE ELON', 
@@ -778,6 +780,68 @@ let priceHistory = [];
 let fishingData = { history: [], count: 0, bestCatch: 0, baits: {}, activeBait: null };
 let lotteryData = { history: [], plays: 0 };
 
+// ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
+function formatRub(v) {
+    if (v === undefined || v === null || isNaN(v)) return '0 ₽';
+    return v.toFixed(2) + ' ₽';
+}
+
+function formatCoin(v) {
+    if (v === undefined || v === null || isNaN(v)) return '0.0000';
+    return v.toFixed(4);
+}
+
+function getAsset(id) { return ASSET_LIST.find(a => a.id === id); }
+
+function calcTotal() {
+    let total = playerData.rub || 0;
+    for (const asset of ASSET_LIST) {
+        total += (playerData.balances[asset.id] || 0) * asset.price;
+    }
+    return total;
+}
+
+function calcBusinessIncome() {
+    let total = 0;
+    for (const [id, data] of Object.entries(playerData.businesses || {})) {
+        const business = BUSINESS_TYPES.find(b => b.id === id);
+        if (business) {
+            const level = data.level || 1;
+            total += business.baseIncome * level * 1.1;
+        }
+    }
+    return total;
+}
+
+function calcElectricityCost() {
+    let total = 0;
+    for (const [id, data] of Object.entries(playerData.businesses || {})) {
+        const business = BUSINESS_TYPES.find(b => b.id === id);
+        if (business) {
+            const level = data.level || 1;
+            total += business.electricity * level * 1.1;
+        }
+    }
+    return total;
+}
+
+function calcTotalPower() {
+    let total = 0;
+    ['gpu', 'cpu', 'ram'].forEach(type => {
+        for (const [id, count] of Object.entries(playerData.gear[type] || {})) {
+            const item = MINING_GEAR[type].find(g => g.id === id);
+            if (item) total += item.power * count;
+        }
+    });
+    return total;
+}
+
+function getMaxBuyAmount() {
+    const asset = getSelectedAsset();
+    if (!asset) return 0;
+    return Math.floor((playerData.rub / asset.price) * 10000) / 10000;
+}
+
 // ==================== LOCALSTORAGE ====================
 function getPlayerKey() { return 'cryptoPlayer_' + myUserId; }
 function getChartKey() { return 'cryptoChart_' + myUserId; }
@@ -802,7 +866,6 @@ function savePlayerData() {
             admin: playerData.admin
         };
         localStorage.setItem(getPlayerKey(), JSON.stringify(data));
-        console.log('✅ Данные игрока сохранены в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения в localStorage:', e);
     }
@@ -838,7 +901,6 @@ function loadPlayerData() {
 function saveChart() {
     try {
         localStorage.setItem(getChartKey(), JSON.stringify({ chartData, tradePoints }));
-        console.log('✅ График сохранен в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения графика:', e);
     }
@@ -856,9 +918,7 @@ function loadChart() {
             if (!chartData[a.id]) chartData[a.id] = [];
             if (!tradePoints[a.id]) tradePoints[a.id] = [];
         }
-        console.log('✅ График загружен из localStorage');
     } catch(e) {
-        console.error('❌ Ошибка загрузки графика:', e);
         for (const a of ASSET_LIST) {
             chartData[a.id] = [];
             tradePoints[a.id] = [];
@@ -869,7 +929,6 @@ function loadChart() {
 function saveFishing() {
     try {
         localStorage.setItem(getFishingKey(), JSON.stringify(fishingData));
-        console.log('✅ Данные рыбалки сохранены в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения рыбалки:', e);
     }
@@ -885,7 +944,6 @@ function loadFishing() {
             fishingData.bestCatch = d.bestCatch || 0;
             fishingData.baits = d.baits || {};
             fishingData.activeBait = d.activeBait || null;
-            console.log('✅ Данные рыбалки загружены из localStorage');
         }
     } catch(e) {
         console.error('❌ Ошибка загрузки рыбалки:', e);
@@ -895,7 +953,6 @@ function loadFishing() {
 function saveLottery() {
     try {
         localStorage.setItem(getLotteryKey(), JSON.stringify(lotteryData));
-        console.log('✅ Данные лотереи сохранены в localStorage');
     } catch(e) {
         console.error('❌ Ошибка сохранения лотереи:', e);
     }
@@ -908,7 +965,6 @@ function loadLottery() {
             const d = JSON.parse(raw);
             lotteryData.history = d.history || [];
             lotteryData.plays = d.plays || 0;
-            console.log('✅ Данные лотереи загружены из localStorage');
         }
     } catch(e) {
         console.error('❌ Ошибка загрузки лотереи:', e);
@@ -929,7 +985,7 @@ function loadAllFromLocalStorage() {
     loadLottery();
 }
 
-// ==================== FIREBASE (только для авторизации и цен) ====================
+// ==================== FIREBASE ====================
 function loadFromFirebase() {
     if (!firebaseAvailable || !db || !myUserId || !isLoggedIn) return Promise.resolve(false);
     return db.ref('users/' + myUserId).once('value')
@@ -962,7 +1018,7 @@ function saveToFirebase() {
     } catch(e) { console.error('❌ Ошибка:', e.message); }
 }
 
-// ==================== ФУНКЦИЯ ДЛЯ МЕМ-МОНЕТЫ ====================
+// ==================== МЕМ-МОНЕТА ====================
 function updateMemeCoinPrice() {
     const memeAsset = ASSET_LIST.find(a => a.id === 'meme');
     if (!memeAsset) return;
@@ -1000,7 +1056,7 @@ function updateMemeCoinPrice() {
     updateUI();
 }
 
-// ==================== ЦЕНЫ (Firebase) ====================
+// ==================== ЦЕНЫ ====================
 function loadPricesFromFirebase() {
     if (!firebaseAvailable || !db) return;
     db.ref('prices').once('value')
@@ -1038,7 +1094,7 @@ function startPriceFluctuation() {
         let priceChanged = false;
         
         for (const asset of ASSET_LIST) {
-            if (asset.id === 'meme') continue; // Мем-монета управляется отдельно
+            if (asset.id === 'meme') continue;
             
             const volatility = (Math.random() * 4 - 2) / 100;
             let newPrice = asset.price * (1 + volatility);
@@ -1073,16 +1129,6 @@ function startPriceFluctuation() {
                     db.ref('prices/' + asset.id).set(newPrice)
                         .catch(err => console.error('❌ Ошибка сохранения цены:', err));
                 }
-                
-                if (asset.id === 'ton' || asset.id === 'btc' || asset.id === 'eth') {
-                    priceHistory.unshift({
-                        asset: asset.symbol,
-                        price: newPrice,
-                        change: asset.change,
-                        time: new Date().toLocaleTimeString()
-                    });
-                    if (priceHistory.length > 20) priceHistory.pop();
-                }
             }
         }
         
@@ -1091,7 +1137,6 @@ function startPriceFluctuation() {
             updateChart();
             updatePriceDisplay();
             renderPriceEdits();
-            renderPriceHistory();
             updateUI();
         }
         
@@ -1205,25 +1250,7 @@ function resetPrices() {
         });
 }
 
-function renderPriceHistory() {
-    const list = document.getElementById('priceHistoryList');
-    if (!list) return;
-    if (!priceHistory || priceHistory.length === 0) {
-        list.innerHTML = '<div class="history-item" style="color:#4a617c;">История изменений цен</div>';
-        return;
-    }
-    list.innerHTML = '';
-    for (const item of priceHistory.slice(0, 15)) {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        const changeClass = item.change >= 0 ? 'positive' : 'negative';
-        const changeSign = item.change >= 0 ? '▲' : '▼';
-        div.innerHTML = `<span>${item.asset} → ${formatRub(item.price)}</span><span class="${changeClass}">${changeSign} ${Math.abs(item.change).toFixed(2)}%</span>`;
-        list.appendChild(div);
-    }
-}
-
-// ==================== TOAST & SUCCESS ====================
+// ==================== TOAST ====================
 let toastTimeout = null;
 function showToast(msg, isSuccess = true) {
     const el = document.getElementById('toast');
@@ -1278,7 +1305,11 @@ function launchConfetti() {
     setTimeout(() => { container.innerHTML = ''; }, 4000);
 }
 
-// ==================== БИЗНЕС ====================
+// ============================================================
+// ВСЕ ФУНКЦИИ UI
+// ============================================================
+
+// --- БИЗНЕС ---
 function renderBusiness() {
     const grid = document.getElementById('businessGrid');
     if (!grid) return;
@@ -1393,7 +1424,7 @@ function applyBusinessIncome() {
     }
 }
 
-// ==================== ТОРГОВЛЯ ====================
+// --- ТОРГОВЛЯ ---
 function getSelectedAsset() { return getAsset(selectedAssetId); }
 
 function executeTrade(type) {
@@ -1406,13 +1437,13 @@ function executeTrade(type) {
         amount = getMaxBuyAmount();
         if (amount <= 0) { showToast('❌ Недостаточно RUB!', false); return; }
         tradeAmount = amount;
-        tradeAmountSpan.textContent = amount.toFixed(1);
+        document.getElementById('tradeAmount').textContent = amount.toFixed(1);
     }
     if (type === 'sell-all') {
         amount = playerData.balances[asset.id] || 0;
         if (amount <= 0) { showToast('❌ У вас нет ' + asset.symbol + '!', false); return; }
         tradeAmount = amount;
-        tradeAmountSpan.textContent = amount.toFixed(1);
+        document.getElementById('tradeAmount').textContent = amount.toFixed(1);
     }
     if (amount <= 0) return;
     const totalCost = amount * price;
@@ -1455,10 +1486,10 @@ function addHistory(type, symbol, amount, price, extra = '') {
 
 function renderHistory() {
     if (!playerData.history || playerData.history.length === 0) {
-        historyList.innerHTML = '<div class="history-item" style="color:#4a617c;">Операций пока нет</div>';
+        document.getElementById('historyList').innerHTML = '<div class="history-item" style="color:#4a617c;">Операций пока нет</div>';
         return;
     }
-    historyList.innerHTML = '';
+    document.getElementById('historyList').innerHTML = '';
     for (const item of playerData.history) {
         const div = document.createElement('div');
         div.className = 'history-item';
@@ -1471,11 +1502,11 @@ function renderHistory() {
         else if (item.type === 'fish') { sideClass = 'side-fish'; txt = '🎣 Рыбалка'; }
         else if (item.type === 'lottery') { sideClass = 'side-lottery'; txt = '🎰 Лотерея'; }
         div.innerHTML = `<span><span class="${sideClass}">${txt}</span> ${item.symbol} ${item.amount.toFixed(3)} ${item.extra}</span><span>${formatRub(item.price)} • ${item.time}</span>`;
-        historyList.appendChild(div);
+        document.getElementById('historyList').appendChild(div);
     }
 }
 
-// ==================== РЫБАЛКА (сохраняется в localStorage) ====================
+// --- РЫБАЛКА ---
 function goFishing() {
     if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
     if (!fishingData.activeBait || (fishingData.baits[fishingData.activeBait] || 0) <= 0) {
@@ -1591,7 +1622,7 @@ function renderBaitShop() {
     });
 }
 
-// ==================== ЛОТЕРЕЯ (сохраняется в localStorage) ====================
+// --- ЛОТЕРЕЯ ---
 function drawWheel(rotation = 0) {
     const canvas = document.getElementById('wheelCanvas');
     if (!canvas) return;
@@ -1675,7 +1706,7 @@ function renderLotteryHistory() {
     }
 }
 
-// ==================== МАЙНИНГ ====================
+// --- МАЙНИНГ ---
 function renderShop() {
     const grid = document.getElementById('shopGrid');
     if (!grid) return;
@@ -1744,7 +1775,7 @@ function toggleMining() {
     updateMiningUI(); saveAllToLocalStorage(); saveToFirebase();
 }
 
-// ==================== ПЕРЕВОДЫ ====================
+// --- ПЕРЕВОДЫ ---
 function executeTransfer() {
     if (!isLoggedIn) { showToast('⚠️ Войдите в аккаунт!', false); return; }
     const coinId = document.getElementById('transferCoinSelect').value;
@@ -1805,14 +1836,14 @@ function renderTransferHistory() {
     }
 }
 
-// ==================== UI ====================
+// --- UI ---
 function updateUI() {
-    rubEl.textContent = formatRub(playerData.rub || 0);
+    document.getElementById('rubBalance').textContent = formatRub(playerData.rub || 0);
     const tonBalance = playerData.balances['ton'] || 0;
-    tonEl.textContent = formatCoin(tonBalance) + ' TON';
+    document.getElementById('tonBalance').textContent = formatCoin(tonBalance) + ' TON';
     const total = calcTotal();
     playerData.total = total;
-    totalValueEl.textContent = formatRub(total);
+    document.getElementById('totalValue').textContent = formatRub(total);
     renderPortfolio(); renderMarket(); updateChart(); renderHistory(); renderTransferHistory();
     renderBusiness(); updateBusinessStats(); renderBusinessHistory(); renderBaitShop(); updateFishingUI();
     renderLotteryHistory(); updateMiningUI(); renderShop();
@@ -1842,7 +1873,9 @@ function renderPortfolio() {
 }
 
 function renderMarket() {
-    marketGrid.innerHTML = '';
+    const grid = document.getElementById('marketGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
     for (const asset of ASSET_LIST) {
         const isMeme = asset.id === 'meme';
         const card = document.createElement('div');
@@ -1855,7 +1888,7 @@ function renderMarket() {
             <div class="price">${formatRub(asset.price)}</div>
             <div class="change ${chClass}">${chSign} ${Math.abs(ch).toFixed(2)}%</div>`;
         card.addEventListener('click', () => { selectedAssetId = asset.id; renderMarket(); updateChart(); updateTradeInfo(); });
-        marketGrid.appendChild(card);
+        grid.appendChild(card);
     }
     updateTradeInfo();
 }
@@ -1864,16 +1897,16 @@ function updateTradeInfo() {
     const asset = getSelectedAsset();
     if (!asset) return;
     const total = tradeAmount * asset.price;
-    totalPriceDisplay.textContent = formatRub(total);
-    balanceInfoDisplay.textContent = formatCoin(playerData.balances[asset.id] || 0) + ' ' + asset.symbol;
+    document.getElementById('totalPriceDisplay').textContent = formatRub(total);
+    document.getElementById('balanceInfoDisplay').textContent = formatCoin(playerData.balances[asset.id] || 0) + ' ' + asset.symbol;
 }
 
 function updatePriceDisplay() {
     const asset = getSelectedAsset();
     if (!asset) return;
-    if (currentPriceDisplay) currentPriceDisplay.textContent = formatRub(asset.price);
-    if (chartPair) chartPair.textContent = asset.symbol + ' / RUB';
-    if (chartPrice) chartPrice.textContent = formatRub(asset.price);
+    document.getElementById('currentPriceDisplay').textContent = formatRub(asset.price);
+    document.getElementById('chartPair').textContent = asset.symbol + ' / RUB';
+    document.getElementById('chartPrice').textContent = formatRub(asset.price);
 }
 
 function updateChart() {
@@ -1946,7 +1979,7 @@ function updateChart() {
     ctx.fillText(lastPrice.toFixed(2), lx + 10, ly - 4);
 }
 
-// ==================== ВХОД / РЕГИСТРАЦИЯ ====================
+// --- ВХОД ---
 function registerUser() {
     const username = document.getElementById('usernameInput').value.trim();
     const password = document.getElementById('passwordInput').value.trim();
@@ -2048,7 +2081,7 @@ function enterGame() {
     setTimeout(loadLeaderboard, 1000);
 }
 
-// ==================== LEADERBOARD ====================
+// --- LEADERBOARD ---
 function loadLeaderboard() {
     const list = document.getElementById('leaderboardList');
     if (!list) return;
@@ -2135,7 +2168,7 @@ function loadLeaderboard() {
         });
 }
 
-// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+// --- ИНИЦИАЛИЗАЦИЯ ---
 function initGame() {
     document.getElementById('fishingPool')?.addEventListener('click', goFishing);
     document.getElementById('lotteryBtn')?.addEventListener('click', spinLottery);
@@ -2177,7 +2210,7 @@ function initGame() {
             document.getElementById('tab-' + this.dataset.tab).classList.add('active');
             if (this.dataset.tab === 'leaderboard') loadLeaderboard();
             if (this.dataset.tab === 'trade') setTimeout(updateChart, 100);
-            if (this.dataset.tab === 'admin') { renderPriceEdits(); renderPriceHistory(); }
+            if (this.dataset.tab === 'admin') { renderPriceEdits(); }
         });
     });
     
@@ -2221,7 +2254,6 @@ function initGame() {
         }
     }, 30000);
     
-    // Запускаем обновление мем-монеты каждые 10 секунд
     setInterval(updateMemeCoinPrice, 10000);
     
     startPriceFluctuation();
@@ -2233,7 +2265,7 @@ function initGame() {
     console.log('📈 ВЗЛЕТ: 3,000,000,000,000,000,000,000,000,000,000,000 ₽');
 }
 
-// ==================== ЗВУК ====================
+// --- ЗВУК ---
 let audioCtx = null;
 function playBeep(type) {
     try {
@@ -2250,7 +2282,7 @@ function playBeep(type) {
     } catch(e) {}
 }
 
-// ==================== ЗАПУСК ====================
+// --- ЗАПУСК ---
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('loginBtn').addEventListener('click', () => {
         if (document.getElementById('loginBtn').textContent.includes('Зарегистрироваться')) registerUser();
@@ -2295,7 +2327,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 console.log('🚀 КРИПТО-МАГНАТ ЗАПУЩЕН!');
 console.log('🐸 МЕМ-МОНЕТА PEPE ELON MOON ГОТОВА!');
-console.log('📈 СЛЕДИТЕ ЗА КОСМИЧЕСКИМИ ЦЕНАМИ!');
 </script>
 </body>
 </html>
