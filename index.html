@@ -946,12 +946,17 @@ function savePricesToFirebase() {
 }
 
 // ✅ НОВАЯ ФУНКЦИЯ (которой не хватало)
+// ДОБАВИТЬ ЭТУ ФУНКЦИЮ В КОНЕЦ ФАЙЛА
 function updatePriceDisplay() {
     const asset = getSelectedAsset();
     if (!asset) return;
-    if (currentPriceDisplay) currentPriceDisplay.textContent = formatRub(asset.price);
-    if (chartPair) chartPair.textContent = asset.symbol + ' / RUB';
-    if (chartPrice) chartPrice.textContent = formatRub(asset.price);
+    const priceEl = document.getElementById('currentPriceDisplay');
+    const pairEl = document.getElementById('chartPair');
+    const priceBadge = document.getElementById('chartPrice');
+    
+    if (priceEl) priceEl.textContent = formatRub(asset.price);
+    if (pairEl) pairEl.textContent = `${asset.symbol} / RUB`;
+    if (priceBadge) priceBadge.textContent = formatRub(asset.price);
 }
 
 // ==================== ЭКРАН УСПЕХА ====================
